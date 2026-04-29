@@ -61,8 +61,10 @@ router.post('/', authMiddleware, adminOnly, async (req, res) => {
 // Update patient (admin only)
 router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
+    // Remove fields that don't exist in the schema
+    const { updated_at, created_at, id, ...safeBody } = req.body;
     const { data: updatedPatient, error } = await supabase
-      .from('patients').update({ ...req.body, updated_at: new Date() }).eq('id', req.params.id).select();
+      .from('patients').update(safeBody).eq('id', req.params.id).select();
     if (error) throw error;
     if (!updatedPatient || updatedPatient.length === 0) return res.status(404).json({ message: 'Patient not found' });
     res.json(updatedPatient[0]);
