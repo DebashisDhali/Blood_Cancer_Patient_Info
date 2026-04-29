@@ -49,7 +49,7 @@
 
 .password-input-wrapper input {
   width: 100%;
-  padding: 0.85rem 2.2rem 0.85rem 1rem;
+  padding: 0.85rem 2.75rem 0.85rem 1rem;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 1rem;
@@ -68,24 +68,22 @@
 
 .password-toggle-btn {
   position: absolute;
-  right: 0.9rem;
+  right: 0.65rem;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 0.65rem;
   padding: 0;
-  z-index: 100;
+  z-index: 2;
   color: #aaa;
   transition: color 0.2s ease;
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 .password-toggle-btn:hover {
@@ -93,7 +91,15 @@
 }
 
 .password-toggle-btn:focus {
-  outline: none;
+  outline: 2px solid rgba(52, 152, 219, 0.25);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.eye-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .error-message {
@@ -106,7 +112,7 @@
   font-weight: 500;
 }
 
-.auth-form button {
+.auth-submit-btn {
   width: 100%;
   padding: 0.95rem;
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
@@ -120,16 +126,16 @@
   margin-top: 0.5rem;
 }
 
-.auth-form button:hover {
+.auth-submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
 }
 
-.auth-form button:active {
+.auth-submit-btn:active {
   transform: translateY(0);
 }
 
-.auth-form button:disabled {
+.auth-submit-btn:disabled {
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
   cursor: not-allowed;
   transform: none;

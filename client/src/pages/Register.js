@@ -3,6 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import '../styles/Auth.css';
 
+const EyeIcon = ({ visible }) => (
+  <svg
+    className="eye-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M2 12C3.73 7.61 7.52 4.5 12 4.5C16.48 4.5 20.27 7.61 22 12C20.27 16.39 16.48 19.5 12 19.5C7.52 19.5 3.73 16.39 2 12Z"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+    {!visible && (
+      <path
+        d="M4 20L20 4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    )}
+  </svg>
+);
+
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -83,9 +110,9 @@ const Register = () => {
             type="button"
             className="password-toggle-btn"
             onClick={() => setShowPassword(!showPassword)}
-            tabIndex="-1"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? '👁️' : '👁️‍🗨️'}
+            <EyeIcon visible={showPassword} />
           </button>
         </div>
 
@@ -102,13 +129,13 @@ const Register = () => {
             type="button"
             className="password-toggle-btn"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            tabIndex="-1"
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
           >
-            {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+            <EyeIcon visible={showConfirmPassword} />
           </button>
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" className="auth-submit-btn" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>
 
