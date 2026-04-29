@@ -10,33 +10,31 @@ import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
 const AppContent = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   return (
     <div className="App">
-      <Navbar user={user} onLogout={logout} />
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/patients" element={<Patients />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route 
-          path="/admin" 
-          element={user ? <AdminDashboard /> : <Navigate to="/login" />}
+        <Route
+          path="/admin"
+          element={user ? <AdminDashboard /> : <Navigate to="/login" replace />}
         />
       </Routes>
     </div>
   );
 };
 
-const App = () => {
-  return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
-  );
-};
+const App = () => (
+  <Router>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  </Router>
+);
 
 export default App;

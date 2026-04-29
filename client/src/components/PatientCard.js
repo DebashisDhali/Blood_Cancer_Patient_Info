@@ -1,110 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import '../styles/PatientCard.css';
 
-const PatientCard = ({ patientId }) => {
-  const [patient, setPatient] = useState(null);
-  const [fund, setFund] = useState(null);
-  const [photo, setPhoto] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [expandDetails, setExpandDetails] = useState(false);
+const statusLabel = (s) => (s || 'In Treatment').replace(/-/g, ' ');
+const statusClass = (s) => {
+  if (s === 'recovered') return 'badge-success';
+  if (s === 'critical') return 'badge-danger';
+  return 'badge-primary';
+};
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [patientRes, fundRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/patients/${patientId}`),
-          axios.get(`${process.env.REACT_APP_API_URL}/funds/patient/${patientId}`)
-        ]);
-        
-        setPatient(patientRes.data);
-        setFund(fundRes.data);
-
-        // Fetch photo
-        try {
-          const photoRes = await axios.get(
-            `${process.env.REACT_APP_API_URL}/patients/${patientId}/photo`,
-            { responseType: 'blob' }
-          );
-          const photoUrl = URL.createObjectURL(photoRes.data);
-          setPhoto(photoUrl);
-        } catch (error) {
-          console.log('No photo available');
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [patientId]);
-
-  if (loading) return <div className="loading-card">Loading...</div>;
-
-  if (!patient) return <div className="error-card">Patient not found</div>;
-
-  const progress = fund ? ((( fund.collected_amount || 0) / (fund.target_amount || 1)) * 100).toFixed(2) : 0;
+const PatientCard = ({ patient, fund, onClick }) => {
+  const progress = fund
+    ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(1)
+    : null;
 
   return (
-    <div className="patient-card">
-      {photo && <img src={photo} alt={patient.name} className="patient-photo" />}
-      
-      <div className="patient-info">
-        <h2>{patient.name}</h2>
-        <div className="basic-info">
-          <p><span className="label">Age:</span> {patient.age}</p>
-          <p><span className="label">Blood Type:</span> {patient.blood_type}</p>
-          <p><span className="label">Cancer Type:</span> {patient.cancer_type}</p>
-          <p><span className="label">Status:</span> <span className="status">{patient.status}</span></p>
-        </div>
-        
-        {patient.chemo_sessions && (
-          <div className="chemo-info">
-            <p><strong>Chemotherapy Progress:</strong></p>
-            <p>{patient.chemo_sessions.completed} / {patient.chemo_sessions.total} sessions completed</p>
-          </div>
-        )}
-        
-        {patient.doctor_name && (
-          <div className="doctor-info">
-            <p><strong>Doctor:</strong> {patient.doctor_name}</p>
-            <p><strong>Hospital:</strong> {patient.hospital}</p>
-          </div>
-        )}
-
-        <button 
-          className="expand-btn"
-          onClick={() => setExpandDetails(!expandDetails)}
-        >
-          {expandDetails ? '📖 Hide Details' : '📖 More Details'}
-        </button>
-
-        {expandDetails && (
-          <div className="expanded-details">
-            <p><strong>Emergency Contact:</strong> {patient.emergency_contact_name} ({patient.emergency_contact_relation})</p>
-            {patient.emergency_contact_phone && (
-              <p><strong>Contact:</strong> {patient.emergency_contact_phone}</p>
-            )}
-          </div>
-        )}
+    <div className="pcard" onClick={onClick} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onClick()}>
+      {/* Photo */}
+      <div className="pcard-photo-wrap">
+        {patient.photo_url
+          ? <img src={patient.photo_url} alt={patient.name} className="pcard-photo" />
+          : (
+            <div className="pcard-photo-placeholder">
+              <span>👤</span>
+            </div>
+          )
+        }
+        <span className={`pcard-badge ${statusClass(patient.status)}`}>{statusLabel(patient.status)}</span>
       </div>
 
-      {fund && (
-        <div className="fund-info">
-          <h3>💰 Support Needed</h3>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-          </div>
-          <p className="fund-details">
-            <strong>৳{(fund.collected_amount || 0).toLocaleString()}</strong> of <strong>৳{(fund.target_amount || 0).toLocaleString()}</strong> collected ({progress}%)
-          </p>
-          {fund.description && (
-            <p className="fund-description">{fund.description}</p>
-          )}
+      {/* Info */}
+      <div className="pcard-body">
+        <h3 className="pcard-name">{patient.name}</h3>
+        <p className="pcard-cancer">{patient.cancer_type || 'Blood Cancer'}</p>
+
+        <div className="pcard-details">
+          {patient.age && <span className="pcard-tag">🎂 {patient.age} yrs</span>}
+          {patient.blood_type && <span className="pcard-tag">🩸 {patient.blood_type}</span>}
+          {patient.hospital && <span className="pcard-tag">🏥 {patient.hospital}</span>}
         </div>
-      )}
+
+        {/* Progress */}
+        {fund && progress !== null ? (
+          <div className="pcard-fund">
+            <div className="pcard-progress-bar">
+              <div className="pcard-progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="pcard-fund-info">
+              <span className="pcard-fund-pct">{progress}% funded</span>
+              <span className="pcard-fund-amt">৳{(fund.target_amount || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="pcard-no-fund">No campaign yet</div>
+        )}
+
+        <div className="pcard-cta">View Details →</div>
+      </div>
     </div>
   );
 };

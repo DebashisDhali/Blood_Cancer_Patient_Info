@@ -3,18 +3,34 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Decode JWT payload for UI state (no verification — server verifies on every request)
+const decodeToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(window.atob(base64));
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null; // expired
+    return payload;
+  } catch {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const storedToken = localStorage.getItem('token');
+  const storedUser = storedToken ? decodeToken(storedToken) : null;
+
+  // Clean up expired token on load
+  if (storedToken && !storedUser) localStorage.removeItem('token');
+
+  const [user, setUser] = useState(storedUser);
+  const [token, setToken] = useState(storedUser ? storedToken : null);
   const [loading, setLoading] = useState(false);
 
   const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/login`,
-        { email, password }
-      );
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, { email, password });
       localStorage.setItem('token', response.data.token);
       setToken(response.data.token);
       setUser(response.data.admin);
@@ -29,10 +45,7 @@ export const AuthProvider = ({ children }) => {
   const register = useCallback(async (username, email, password, confirmPassword) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/register`,
-        { username, email, password, confirmPassword }
-      );
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, { username, email, password, confirmPassword });
       localStorage.setItem('token', response.data.token);
       setToken(response.data.token);
       setUser(response.data.admin);
