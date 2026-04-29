@@ -79,7 +79,6 @@ router.post('/', authMiddleware, adminOnly, async (req, res) => {
         target_amount,
         collected_amount: 0,
         currency: currency || 'BDT',
-        description,
         status: 'active'
       }])
       .select();
@@ -140,11 +139,11 @@ router.post('/:fundId/donate', async (req, res) => {
 // Update fund (admin only)
 router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { target_amount, currency, description, status } = req.body;
+    const { target_amount, currency, status } = req.body;
 
     const { data: updatedFund, error } = await supabase
       .from('funds')
-      .update({ target_amount, currency, description, status })
+      .update({ target_amount, currency, status })
       .eq('id', req.params.id)
       .select();
 
