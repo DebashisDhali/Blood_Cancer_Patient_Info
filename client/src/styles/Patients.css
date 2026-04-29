@@ -1,0 +1,178 @@
+.patients-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.patients-page h1 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+
+.patients-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.patient-item {
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.patient-item:hover {
+  transform: translateY(-5px);
+}
+
+.patient-item.selected {
+  outline: 3px solid #667eea;
+  border-radius: 8px;
+}
+
+.donation-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  background: white;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+  overflow-y: auto;
+  animation: slideIn 0.3s ease;
+  z-index: 1000;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  z-index: 1001;
+}
+
+.close-btn:hover {
+  background-color: #c0392b;
+}
+
+.no-patients {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.info-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.info-banner h3 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.info-banner p {
+  margin-bottom: 0;
+  font-size: 1.05rem;
+  opacity: 0.95;
+}
+
+.loading-card,
+.error-card {
+  padding: 2rem;
+  text-align: center;
+  color: #7f8c8d;
+}
+
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+  .patients-container {
+    grid-template-columns: 1fr;
+  }
+
+  .patients-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .donation-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .patients-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .patients-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .patients-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donation-panel {
+    max-width: 100%;
+    width: 100%;
+    z-index: 100;
+  }
+
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  .info-banner {
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .info-banner h3 {
+    font-size: 1.2rem;
+  }
+
+  .info-banner p {
+    font-size: 0.95rem;
+  }
+}
