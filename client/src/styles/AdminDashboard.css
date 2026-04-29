@@ -103,3 +103,138 @@
   color: #7f8c8d;
   font-size: 1.1rem;
 }
+
+/* Section header with Add button */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.section-header h2 { margin: 0; color: #2c3e50; }
+
+.add-patient-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-patient-btn:hover { background: #219a52; }
+
+.edit-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.35rem 0.85rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.edit-btn:hover { background: #2980b9; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-box {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-box h3 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+.modal-box hr {
+  border: none;
+  border-top: 1px dashed #ddd;
+  margin: 1rem 0;
+}
+
+/* Patient Form */
+.patient-form .form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.9rem;
+}
+.patient-form .form-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+.patient-form .form-row input,
+.patient-form .form-row select,
+.patient-form .form-row textarea {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.patient-form .form-row input:focus,
+.patient-form .form-row select:focus,
+.patient-form .form-row textarea:focus {
+  border-color: #3498db;
+}
+.patient-form textarea { resize: vertical; }
+
+.form-msg {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+.form-msg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.form-msg.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.cancel-btn {
+  background: #ecf0f1;
+  color: #555;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancel-btn:hover { background: #dfe6e9; }
+.submit-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.submit-btn:hover { background: #2980b9; }
+.submit-btn:disabled { background: #95a5a6; cursor: not-allowed; }

@@ -137,4 +137,28 @@ router.post('/:fundId/donate', async (req, res) => {
   }
 });
 
+// Update fund (admin only)
+router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { target_amount, currency, description, status } = req.body;
+
+    const { data: updatedFund, error } = await supabase
+      .from('funds')
+      .update({ target_amount, currency, description, status })
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) throw error;
+    if (!updatedFund || updatedFund.length === 0) {
+      return res.status(404).json({ message: 'Fund not found' });
+    }
+
+    res.json(updatedFund[0]);
+  } catch (error) {
+    console.error('Update fund error:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
+

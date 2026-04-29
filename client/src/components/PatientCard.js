@@ -45,7 +45,7 @@ const PatientCard = ({ patientId }) => {
 
   if (!patient) return <div className="error-card">Patient not found</div>;
 
-  const progress = fund ? ((fund.collectedAmount / fund.targetAmount) * 100).toFixed(2) : 0;
+  const progress = fund ? ((( fund.collected_amount || 0) / (fund.target_amount || 1)) * 100).toFixed(2) : 0;
 
   return (
     <div className="patient-card">
@@ -55,22 +55,22 @@ const PatientCard = ({ patientId }) => {
         <h2>{patient.name}</h2>
         <div className="basic-info">
           <p><span className="label">Age:</span> {patient.age}</p>
-          <p><span className="label">Blood Type:</span> {patient.bloodType}</p>
-          <p><span className="label">Cancer Type:</span> {patient.cancerType}</p>
+          <p><span className="label">Blood Type:</span> {patient.blood_type}</p>
+          <p><span className="label">Cancer Type:</span> {patient.cancer_type}</p>
           <p><span className="label">Status:</span> <span className="status">{patient.status}</span></p>
         </div>
         
-        {patient.chemoSessions && (
+        {patient.chemo_sessions && (
           <div className="chemo-info">
             <p><strong>Chemotherapy Progress:</strong></p>
-            <p>{patient.chemoSessions.completed} / {patient.chemoSessions.total} sessions completed</p>
+            <p>{patient.chemo_sessions.completed} / {patient.chemo_sessions.total} sessions completed</p>
           </div>
         )}
         
-        {patient.doctor && (
+        {patient.doctor_name && (
           <div className="doctor-info">
-            <p><strong>Doctor:</strong> {patient.doctor.name}</p>
-            <p><strong>Hospital:</strong> {patient.doctor.hospital}</p>
+            <p><strong>Doctor:</strong> {patient.doctor_name}</p>
+            <p><strong>Hospital:</strong> {patient.hospital}</p>
           </div>
         )}
 
@@ -83,9 +83,9 @@ const PatientCard = ({ patientId }) => {
 
         {expandDetails && (
           <div className="expanded-details">
-            <p><strong>Emergency Contact:</strong> {patient.emergencyContact?.name} ({patient.emergencyContact?.relation})</p>
-            {patient.emergencyContact?.phone && (
-              <p><strong>Contact:</strong> {patient.emergencyContact.phone}</p>
+            <p><strong>Emergency Contact:</strong> {patient.emergency_contact_name} ({patient.emergency_contact_relation})</p>
+            {patient.emergency_contact_phone && (
+              <p><strong>Contact:</strong> {patient.emergency_contact_phone}</p>
             )}
           </div>
         )}
@@ -98,7 +98,7 @@ const PatientCard = ({ patientId }) => {
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
           </div>
           <p className="fund-details">
-            <strong>৳{fund.collectedAmount.toLocaleString()}</strong> of <strong>৳{fund.targetAmount.toLocaleString()}</strong> collected ({progress}%)
+            <strong>৳{(fund.collected_amount || 0).toLocaleString()}</strong> of <strong>৳{(fund.target_amount || 0).toLocaleString()}</strong> collected ({progress}%)
           </p>
           {fund.description && (
             <p className="fund-description">{fund.description}</p>

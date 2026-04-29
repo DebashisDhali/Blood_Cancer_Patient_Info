@@ -21,11 +21,11 @@ const Patients = () => {
         for (const patient of response.data) {
           try {
             const fundRes = await axios.get(
-              `${process.env.REACT_APP_API_URL}/funds/patient/${patient._id}`
+              `${process.env.REACT_APP_API_URL}/funds/patient/${patient.id}`
             );
-            fundsData[patient._id] = fundRes.data;
+            fundsData[patient.id] = fundRes.data;
           } catch (error) {
-            console.log('No fund for patient:', patient._id);
+            console.log('No fund for patient:', patient.id);
           }
         }
         setFunds(fundsData);
@@ -50,11 +50,11 @@ const Patients = () => {
         <div className="patients-grid">
           {patients.map((patient) => (
             <div 
-              key={patient._id}
-              className={`patient-item ${selectedPatient === patient._id ? 'selected' : ''}`}
-              onClick={() => setSelectedPatient(patient._id)}
+              key={patient.id}
+              className={`patient-item ${selectedPatient === patient.id ? 'selected' : ''}`}
+              onClick={() => setSelectedPatient(patient.id)}
             >
-              <PatientCard patientId={patient._id} />
+              <PatientCard patientId={patient.id} />
             </div>
           ))}
         </div>
@@ -68,7 +68,7 @@ const Patients = () => {
               ✕
             </button>
             <DonationForm 
-              patientName={patients.find(p => p._id === selectedPatient)?.name}
+              patientName={patients.find(p => p.id === selectedPatient)?.name}
               targetAmount={funds[selectedPatient]?.targetAmount}
               collectedAmount={funds[selectedPatient]?.collectedAmount}
             />

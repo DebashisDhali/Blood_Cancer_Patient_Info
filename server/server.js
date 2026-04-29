@@ -74,6 +74,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', database: 'Supabase Connected' });
 });
 
+// Debug headers
+app.all('/api/debug-headers', (req, res) => {
+  res.json({ headers: req.headers, origin: req.headers.origin });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
