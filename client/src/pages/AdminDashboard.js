@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
@@ -31,9 +31,9 @@ const AdminDashboard = () => {
   const fileInputRef = useRef(null);
   const qrInputRef = useRef(null);
 
-  const headers = { Authorization: `Bearer ${token}` };
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}` };
     try {
       const [statsRes, patientsRes] = await Promise.all([
         axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, { headers }),
@@ -46,12 +46,12 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, navigate]);
 
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchData();
-  }, [token]);
+  }, [token, navigate, fetchData]);
 
   const handleFile = (e, setP, setF) => {
     const file = e.target.files[0];
@@ -84,6 +84,7 @@ const AdminDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormLoading(true);
+    const headers = { Authorization: `Bearer ${token}` };
     try {
       const pPayload = {
         name: form.name, age: Number(form.age), gender: form.gender, blood_type: form.blood_type,
@@ -126,7 +127,10 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dash">
       <div className="dash-topbar">
-        <h1>Admin Dashboard</h1>
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p className="dash-subtitle">Welcome back, <strong>{user?.username || user?.email || 'Admin'}</strong></p>
+        </div>
         <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>
       </div>
 
@@ -148,7 +152,7 @@ const AdminDashboard = () => {
             <tbody>
               {patients.map(p => (
                 <tr key={p.id}>
-                  <td><div className="tbl-patient-cell">{p.photo_url ? <img src={p.photo_url} className="tbl-avatar" /> : <div className="tbl-avatar-placeholder">👤</div>}<div><div className="tbl-name">{p.name}</div><div className="tbl-age">{p.age} yrs</div></div></div></td>
+                  <td><div className="tbl-patient-cell">{p.photo_url ? <img src={p.photo_url} alt={p.name} className="tbl-avatar" /> : <div className="tbl-avatar-placeholder">👤</div>}<div><div className="tbl-name">{p.name}</div><div className="tbl-age">{p.age} yrs</div></div></div></td>
                   <td>{p.cancer_type}</td>
                   <td><span className={`tbl-badge ${p.status === 'recovered' ? 'green' : p.status === 'critical' ? 'red' : 'purple'}`}>{p.status}</span></td>
                   <td>{p.chemo_completed}/{p.chemo_total}</td>
@@ -169,7 +173,7 @@ const AdminDashboard = () => {
               <div className="form-section-title">Photo & Profile</div>
               <div className="photo-upload-section">
                 <div className="photo-preview-wrap" onClick={() => fileInputRef.current.click()}>
-                  {photoPreview ? <img src={photoPreview} className="photo-preview-img" /> : '📷'}
+                  {photoPreview ? <img src={photoPreview} alt="Profile Preview" className="photo-preview-img" /> : '📷'}
                 </div>
                 <input ref={fileInputRef} type="file" hidden onChange={e => handleFile(e, setPhotoPreview, setPhotoFile)} />
               </div>
@@ -207,7 +211,7 @@ const AdminDashboard = () => {
 
               <div className="form-field"><label>Donation QR Code</label>
                 <div className="qr-upload-box" onClick={() => qrInputRef.current.click()}>
-                  {qrPreview ? <img src={qrPreview} className="qr-mini-preview" /> : 'Upload QR Code'}
+                  {qrPreview ? <img src={qrPreview} alt="QR Code Preview" className="qr-mini-preview" /> : 'Upload QR Code'}
                 </div>
                 <input ref={qrInputRef} type="file" hidden onChange={e => handleFile(e, setQrPreview, setQrFile)} />
               </div>
