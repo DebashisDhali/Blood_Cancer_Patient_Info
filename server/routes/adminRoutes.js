@@ -1,27 +1,48 @@
 const express = require('express');
 const router = express.Router();
-const Patient = require('../models/Patient');
-const Fund = require('../models/Fund');
-const Document = require('../models/Document');
+const supabase = require('../config/supabaseClient');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
 // Admin dashboard stats (admin only)
 router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const totalPatients = await Patient.countDocuments();
-    const activeFunds = await Fund.countDocuments({ status: 'Active' });
-    const totalCollected = await Fund.aggregate([
-      { $group: { _id: null, total: { $sum: '$collectedAmount' } } }
-    ]);
-    const totalDocuments = await Document.countDocuments();
+    // Count patients
+    const { count: totalPatients, error: patientsError } = await supabase
+      .from('patients')
+      .select('id', { count: 'exact', head: true });
+
+    if (patientsError) throw patientsError;
+
+    // Count active funds
+    const { count: activeFunds, error: fundsError } = await supabase
+      .from('funds')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'active');
+
+    if (fundsError) throw fundsError;
+
+    // Get total collected
+    const { data: fundTotals } = await supabase
+      .from('funds')
+      .select('collected_amount');
+
+    const totalCollected = fundTotals?.reduce((sum, fund) => sum + (fund.collected_amount || 0), 0) || 0;
+
+    // Count documents
+    const { count: totalDocuments, error: docsError } = await supabase
+      .from('documents')
+      .select('id', { count: 'exact', head: true });
+
+    if (docsError) throw docsError;
 
     res.json({
-      totalPatients,
-      activeFunds,
-      totalCollected: totalCollected[0]?.total || 0,
-      totalDocuments
+      totalPatients: totalPatients || 0,
+      activeFunds: activeFunds || 0,
+      totalCollected,
+      totalDocuments: totalDocuments || 0
     });
   } catch (error) {
+    console.error('Stats error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -29,15 +50,29 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
 // Get all patients with funds (admin only)
 router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const patients = await Patient.find();
+    // Get all patients
+    const { data: patients, error: patientsError } = await supabase
+      .from('patients')
+      .select('*');
+
+    if (patientsError) throw patientsError;
+
+    // Get funds for each patient
     const patientsWithFunds = await Promise.all(
       patients.map(async (patient) => {
-        const fund = await Fund.findOne({ patientId: patient._id });
-        return { ...patient.toObject(), fund };
+        const { data: fund } = await supabase
+          .from('funds')
+          .select('*')
+          .eq('patient_id', patient.id)
+          .single();
+
+        return { ...patient, fund };
       })
     );
+
     res.json(patientsWithFunds);
   } catch (error) {
+    console.error('Get patients all error:', error);
     res.status(500).json({ message: error.message });
   }
 });

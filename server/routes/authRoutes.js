@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
+const bcryptjs = require('bcryptjs');
+const supabase = require('../config/supabaseClient');
 const { generateToken } = require('../utils/helpers');
 
 // Register Admin
@@ -9,32 +10,55 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
 
+    if (!username || !email || !password || !confirmPassword) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
     if (password !== confirmPassword) {
       return res.status(400).json({ message: 'Passwords do not match' });
     }
 
-    const existingAdmin = await Admin.findOne({ $or: [{ email }, { username }] });
-    if (existingAdmin) {
+    // Check if admin already exists
+    const { data: existingAdmin, error: checkError } = await supabase
+      .from('admins')
+      .select('id')
+      .or(`email.eq.${email},username.eq.${username}`);
+
+    if (checkError) throw checkError;
+    if (existingAdmin && existingAdmin.length > 0) {
       return res.status(400).json({ message: 'Email or username already exists' });
     }
 
-    const admin = new Admin({ username, email, password });
-    await admin.save();
+    // Hash password
+    const password_hash = await bcryptjs.hash(password, 10);
 
-    const token = generateToken(admin._id, admin.role);
+    // Insert new admin
+    const { data: newAdmin, error: insertError } = await supabase
+      .from('admins')
+      .insert([{ username, email, password_hash, role: 'admin' }])
+      .select();
+
+    if (insertError) throw insertError;
+    if (!newAdmin || newAdmin.length === 0) {
+      return res.status(500).json({ message: 'Failed to create admin' });
+    }
+
+    const admin = newAdmin[0];
+    const token = generateToken(admin.id, admin.role);
 
     res.status(201).json({
       message: 'Admin registered successfully',
       token,
       admin: {
-        id: admin._id,
+        id: admin.id,
         username: admin.username,
         email: admin.email,
         role: admin.role
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Register error:', error);
+    res.status(500).json({ message: error.message || 'Registration failed' });
   }
 });
 
@@ -43,33 +67,52 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ email });
-    if (!admin) {
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Find admin by email
+    const { data: admins, error: queryError } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (queryError) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await admin.comparePassword(password);
+    if (!admins) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Verify password
+    const isPasswordValid = await bcryptjs.compare(password, admins.password_hash);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    admin.lastLogin = new Date();
-    await admin.save();
+    // Update last login
+    await supabase
+      .from('admins')
+      .update({ updated_at: new Date() })
+      .eq('id', admins.id);
 
-    const token = generateToken(admin._id, admin.role);
+    const token = generateToken(admins.id, admins.role);
 
     res.json({
       message: 'Login successful',
       token,
       admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role
+        id: admins.id,
+        username: admins.username,
+        email: admins.email,
+        role: admins.role
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Login error:', error);
+    res.status(500).json({ message: error.message || 'Login failed' });
   }
 });
 

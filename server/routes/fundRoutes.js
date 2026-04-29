@@ -1,31 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const Fund = require('../models/Fund');
+const supabase = require('../config/supabaseClient');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
 // Get funds for patient (public - summary)
 router.get('/patient/:patientId', async (req, res) => {
   try {
-    const fund = await Fund.findOne({ patientId: req.params.patientId });
+    const { data: fund, error } = await supabase
+      .from('funds')
+      .select('*, donors(count)')
+      .eq('patient_id', req.params.patientId)
+      .single();
+
+    if (error) throw error;
     if (!fund) {
       return res.status(404).json({ message: 'Fund not found' });
     }
-    
-    // Public view - hide donor details
+
     const publicView = {
-      _id: fund._id,
-      patientId: fund.patientId,
-      targetAmount: fund.targetAmount,
-      collectedAmount: fund.collectedAmount,
+      id: fund.id,
+      patient_id: fund.patient_id,
+      target_amount: fund.target_amount,
+      collected_amount: fund.collected_amount,
       currency: fund.currency,
       description: fund.description,
       status: fund.status,
-      progress: ((fund.collectedAmount / fund.targetAmount) * 100).toFixed(2),
-      donorCount: fund.donors.length
+      progress: ((fund.collected_amount / fund.target_amount) * 100).toFixed(2),
+      donor_count: fund.donors ? fund.donors[0]?.count || 0 : 0
     };
-    
+
     res.json(publicView);
   } catch (error) {
+    console.error('Get fund error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -33,12 +39,26 @@ router.get('/patient/:patientId', async (req, res) => {
 // Get full fund details (admin only)
 router.get('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const fund = await Fund.findById(req.params.id).populate('patientId');
+    const { data: fund, error } = await supabase
+      .from('funds')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (error) throw error;
     if (!fund) {
       return res.status(404).json({ message: 'Fund not found' });
     }
-    res.json(fund);
+
+    // Get donors for this fund
+    const { data: donors } = await supabase
+      .from('donors')
+      .select('*')
+      .eq('fund_id', req.params.id);
+
+    res.json({ ...fund, donors });
   } catch (error) {
+    console.error('Get fund details error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -46,53 +66,73 @@ router.get('/:id', authMiddleware, adminOnly, async (req, res) => {
 // Create fund (admin only)
 router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const fund = new Fund(req.body);
-    await fund.save();
-    res.status(201).json(fund);
+    const { patient_id, target_amount, currency, description } = req.body;
+
+    if (!patient_id || !target_amount) {
+      return res.status(400).json({ message: 'Patient ID and target amount are required' });
+    }
+
+    const { data: newFund, error } = await supabase
+      .from('funds')
+      .insert([{
+        patient_id,
+        target_amount,
+        collected_amount: 0,
+        currency: currency || 'BDT',
+        description,
+        status: 'active'
+      }])
+      .select();
+
+    if (error) throw error;
+
+    res.status(201).json(newFund[0]);
   } catch (error) {
+    console.error('Create fund error:', error);
     res.status(400).json({ message: error.message });
   }
 });
 
-// Add donor
+// Add donor (donation information only - NO payment processing)
 router.post('/:fundId/donate', async (req, res) => {
   try {
-    const { name, email, amount, message } = req.body;
-    const fund = await Fund.findByIdAndUpdate(
-      req.params.fundId,
-      {
-        $push: { donors: { name, email, amount, message, date: new Date() } },
-        $inc: { collectedAmount: amount }
-      },
-      { new: true }
-    );
-    res.json({ message: 'Thank you for your donation!', fund });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+    const { donor_name, donor_email, amount, message } = req.body;
 
-// Add expense (admin only)
-router.post('/:fundId/expense', authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { category, amount, description, recieptImage } = req.body;
-    const fund = await Fund.findByIdAndUpdate(
-      req.params.fundId,
-      {
-        $push: {
-          expenses: {
-            category,
-            amount,
-            description,
-            recieptImage: recieptImage ? Buffer.from(recieptImage, 'base64') : undefined,
-            date: new Date()
-          }
-        }
-      },
-      { new: true }
-    );
-    res.json({ message: 'Expense added successfully', fund });
+    if (!donor_name || !amount || !req.params.fundId) {
+      return res.status(400).json({ message: 'Donor name, amount, and fund ID are required' });
+    }
+
+    // Add donor record
+    const { data: newDonor, error: donorError } = await supabase
+      .from('donors')
+      .insert([{
+        fund_id: req.params.fundId,
+        donor_name,
+        donor_email,
+        amount,
+        message
+      }])
+      .select();
+
+    if (donorError) throw donorError;
+
+    // Update collected amount
+    const { data: fund } = await supabase
+      .from('funds')
+      .select('collected_amount')
+      .eq('id', req.params.fundId)
+      .single();
+
+    if (fund) {
+      await supabase
+        .from('funds')
+        .update({ collected_amount: (fund.collected_amount || 0) + amount })
+        .eq('id', req.params.fundId);
+    }
+
+    res.json({ message: 'Thank you for your donation!', donor: newDonor[0] });
   } catch (error) {
+    console.error('Add donor error:', error);
     res.status(400).json({ message: error.message });
   }
 });
