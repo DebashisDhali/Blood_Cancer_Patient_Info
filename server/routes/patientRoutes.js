@@ -4,15 +4,25 @@ const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabaseClient');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
-// Get all patients (public)
+// Optimized: Get all patients with funds in ONE query
 router.get('/', async (req, res) => {
   try {
-    const { data: patients, error } = await supabase
+    const { data, error } = await supabase
       .from('patients')
-      .select('id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed')
+      .select(`
+        id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed,
+        fund:funds(*)
+      `)
       .order('created_at', { ascending: false });
+
     if (error) throw error;
-    res.json(patients || []);
+
+    const formatted = data.map(p => ({
+      ...p,
+      fund: p.fund ? p.fund[0] : null
+    }));
+
+    res.json(formatted);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -29,9 +39,13 @@ router.get('/:id', async (req, res) => {
         isAdmin = ['admin', 'super_admin'].includes(decoded.role);
       } catch (e) {}
     }
-    const fields = isAdmin ? '*' : 'id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed';
+    const fields = isAdmin ? `*, fund:funds(*)` : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, fund:funds(*)`;
     const { data: patient, error } = await supabase.from('patients').select(fields).eq('id', req.params.id).single();
     if (error) throw error;
+    
+    // Flatten fund
+    if (patient && patient.fund) patient.fund = patient.fund[0];
+    
     res.json(patient);
   } catch (error) {
     res.status(500).json({ message: error.message });

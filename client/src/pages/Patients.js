@@ -5,7 +5,6 @@ import '../styles/Patients.css';
 
 const Patients = () => {
   const [patients, setPatients] = useState([]);
-  const [funds, setFunds] = useState({});
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [activeTab, setActiveTab] = useState('info');
@@ -13,18 +12,14 @@ const Patients = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
+        // Optimized: Single request returns patients WITH their funds
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/patients`);
         setPatients(res.data);
-        const fundMap = {};
-        await Promise.all(res.data.map(async (p) => {
-          try {
-            const fr = await axios.get(`${process.env.REACT_APP_API_URL}/funds/patient/${p.id}`);
-            fundMap[p.id] = fr.data;
-          } catch (_) {}
-        }));
-        setFunds(fundMap);
-      } catch (err) { console.error(err); }
-      finally { setLoading(false); }
+      } catch (err) { 
+        console.error('Fetch error:', err); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchAll();
   }, []);
@@ -47,7 +42,7 @@ const Patients = () => {
     );
   };
 
-  const selectedFund = selected ? funds[selected.id] : null;
+  const selectedFund = selected?.fund || null;
 
   return (
     <div className="patients-page">
@@ -60,7 +55,14 @@ const Patients = () => {
         <div className="patients-loading"><div className="spinner" /></div>
       ) : (
         <div className="patients-grid">
-          {patients.map(p => <PatientCard key={p.id} patient={p} fund={funds[p.id]} onClick={() => { setSelected(p); setActiveTab('info'); }} />)}
+          {patients.map(p => (
+            <PatientCard 
+              key={p.id} 
+              patient={p} 
+              fund={p.fund} 
+              onClick={() => { setSelected(p); setActiveTab('info'); }} 
+            />
+          ))}
         </div>
       )}
 
