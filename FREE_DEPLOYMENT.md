@@ -33,100 +33,27 @@ git push -u origin main
 
 ---
 
-### Step 2️⃣: Supabase (DATABASE) - একদম ফ্রি PostgreSQL
+### Step 2️⃣: Supabase (DATABASE) - একদম ফ্রি PostgreSQL ✅
 
-**Supabase সেটআপ (Firebase এর open-source alternative):**
+**Supabase সেটআপ সম্পন্ন! আপনার Details:**
 
-1. https://supabase.com এ যান
-2. **Sign Up** (ফ্রি) - GitHub দিয়ে সহজ
-3. **New Project** create করুন:
-   - Project name: `blood-cancer`
-   - Database password: `YourStrongPassword123!` (নিজের strong password)
-   - Region: Singapore (Asia)
-4. **Project creation wait করুন** (2-3 minutes)
-5. **SQL Editor এ যান** - এখানে database tables তৈরি করবেন
-
-#### Database Tables তৈরি করুন (SQL Editor এ copy-paste করুন):
-
-```sql
--- Admin Users Table
-CREATE TABLE admins (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  username VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  role VARCHAR(20) DEFAULT 'admin',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Patients Table
-CREATE TABLE patients (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(100) NOT NULL,
-  age INTEGER,
-  gender VARCHAR(20),
-  blood_type VARCHAR(5),
-  cancer_type VARCHAR(100),
-  phone VARCHAR(20),
-  email VARCHAR(100),
-  address TEXT,
-  doctor_name VARCHAR(100),
-  hospital VARCHAR(100),
-  diagnosis_date DATE,
-  chemo_start DATE,
-  chemo_end DATE,
-  status VARCHAR(50) DEFAULT 'in-treatment',
-  photo_url TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Funds Table (Fundraising)
-CREATE TABLE funds (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-  target_amount DECIMAL(15,2) NOT NULL,
-  collected_amount DECIMAL(15,2) DEFAULT 0,
-  currency VARCHAR(10) DEFAULT 'BDT',
-  description TEXT,
-  status VARCHAR(50) DEFAULT 'active',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Documents Table
-CREATE TABLE documents (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-  file_name VARCHAR(255) NOT NULL,
-  file_url TEXT NOT NULL,
-  document_type VARCHAR(100),
-  status VARCHAR(50) DEFAULT 'pending',
-  uploaded_by UUID REFERENCES admins(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Donors Table
-CREATE TABLE donors (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  fund_id UUID REFERENCES funds(id) ON DELETE CASCADE,
-  donor_name VARCHAR(100),
-  donor_email VARCHAR(100),
-  amount DECIMAL(15,2),
-  message TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+```
+Project URL: https://pqacqzrewugadmenyikx.supabase.co
+Anon Key: sb_publishable_CPTy6-7f6NMKluomHkITtA_BnVwA7oo
 ```
 
-6. **Project Settings এ যান:**
-   - সামনে এ **API** খোজেন
-   - **Project URL** copy করুন: `https://xxxxxx.supabase.co`
-   - **API Keys** - `anon` key copy করুন
-   - এগুলো **save করুন!**
+✅ **Database Tables ইতিমধ্যে তৈরি হয়েছে!**
+
+**আপনার Tables যা তৈরি হয়েছে:**
+- `admins` - Admin users
+- `patients` - Patient information
+- `funds` - Fundraising campaigns
+- `donors` - Donor records
+- `documents` - Medical documents
 
 ---
+
+
 
 ### Step 3️⃣: Vercel - Backend Hosting (FREE ✅)
 
@@ -202,25 +129,26 @@ git push origin main
 3. **New Project** ক্লিক করুন
 4. আপনার `blood-cancer-patient` repository সিলেক্ট করুন
 5. **Import Project** এ:
-   - Framework Preset: **Other** (or just leave default)
+   - Framework Preset: **Other**
    - Root Directory: **server** (গুরুত্বপূর্ণ!)
-   - **Add Environment Variables:**
-     - `SUPABASE_URL` = আপনার Supabase Project URL (`https://xxxxxx.supabase.co`)
-     - `SUPABASE_ANON_KEY` = আপনার Supabase API Key
-     - `JWT_SECRET` = random 32+ character string
-     - `ENCRYPTION_KEY` = random 32 character string
-     - `CLIENT_URL` = `https://your-site.netlify.app`
-     - `NODE_ENV` = `production`
+   
+6. **Environment Variables যোগ করুন:**
+   ```
+   SUPABASE_URL=https://pqacqzrewugadmenyikx.supabase.co
+   SUPABASE_ANON_KEY=sb_publishable_CPTy6-7f6NMKluomHkITtA_BnVwA7oo
+   JWT_SECRET=আপনার_random_32_character_string
+   ENCRYPTION_KEY=আপনার_32_character_key
+   CLIENT_URL=https://your-site.netlify.app
+   NODE_ENV=production
+   ```
 
-6. **Deploy** ক্লিক করুন (1-2 minutes অপেক্ষা করুন)
+7. **Deploy** ক্লিক করুন (1-2 minutes অপেক্ষা করুন)
 
-7. **Vercel Dashboard এ আপনার Backend URL দেখবেন:**
+8. **Vercel Dashboard এ আপনার Backend URL পাবেন:**
    ```
    https://blood-cancer-api.vercel.app
    ```
    (আপনার project name অনুযায়ী ভিন্ন হবে)
-   
-   এটি **save করুন!**
 
 ---
 
@@ -249,19 +177,21 @@ git push origin main
 3. **Add environment variable:**
    - Key: `REACT_APP_API_URL`
    - Value: `https://blood-cancer-api.vercel.app/api` (আপনার Vercel URL)
-4. **Save**
-5. Netlify automatically redeploy করবে
+4. **Save** - Netlify automatically redeploy করবে
 
 ---
 
-### Step 6️⃣: Vercel এ CLIENT_URL আপডেট করুন (যদি প্রয়োজন হয়)
+### Step 6️⃣: Vercel এ CLIENT_URL ফাইনাল আপডেট
 
-1. Vercel Dashboard এ ফিরে যান
+1. Vercel Dashboard এ যান
 2. আপনার project ক্লিক করুন
 3. **Settings** → **Environment Variables**
 4. `CLIENT_URL` edit করুন:
-   - Value = `https://your-site-name.netlify.app` (আপনার Netlify domain)
-5. **Save** - Vercel automatically redeploy করবে
+   ```
+   https://your-site-name.netlify.app
+   ```
+   (আপনার Netlify domain দিয়ে replace করুন)
+5. **Save** করুন
 
 ---
 
