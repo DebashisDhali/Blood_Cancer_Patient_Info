@@ -3,158 +3,146 @@ import axios from 'axios';
 import PatientCard from '../components/PatientCard';
 import '../styles/Patients.css';
 
-const statusColor = (s) => {
-  if (s === 'recovered') return '#10b981';
-  if (s === 'critical') return '#dc2626';
-  return '#7c3aed';
-};
-
 const Patients = () => {
   const [patients, setPatients] = useState([]);
   const [funds, setFunds] = useState({});
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null); // full patient object
+  const [selected, setSelected] = useState(null);
+  const [activeTab, setActiveTab] = useState('info');
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/patients`);
         setPatients(res.data);
-        // Fetch funds in parallel
         const fundMap = {};
-        await Promise.all(
-          res.data.map(async (p) => {
-            try {
-              const fr = await axios.get(`${process.env.REACT_APP_API_URL}/funds/patient/${p.id}`);
-              fundMap[p.id] = fr.data;
-            } catch (_) {}
-          })
-        );
+        await Promise.all(res.data.map(async (p) => {
+          try {
+            const fr = await axios.get(`${process.env.REACT_APP_API_URL}/funds/patient/${p.id}`);
+            fundMap[p.id] = fr.data;
+          } catch (_) {}
+        }));
         setFunds(fundMap);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
     };
     fetchAll();
   }, []);
 
-  if (loading) return (
-    <div className="patients-loading">
-      <div className="spinner" />
-      <p>Loading patients...</p>
-    </div>
-  );
+  const CircularProgress = ({ value, total, color, label }) => {
+    const pct = total > 0 ? Math.min(100, (value / total) * 100) : 0;
+    const r = 40;
+    const circ = 2 * Math.PI * r;
+    const offset = circ - (pct / 100) * circ;
+    return (
+      <div className="chart-item">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r={r} fill="transparent" stroke="#e5e7eb" strokeWidth="8" />
+          <circle cx="50" cy="50" r={r} fill="transparent" stroke={color} strokeWidth="8" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 50 50)" />
+          <text x="50" y="55" textAnchor="middle" className="chart-text" fill="#1f2937" fontWeight="bold">{Math.round(pct)}%</text>
+        </svg>
+        <div className="chart-label">{label}</div>
+        <div className="chart-subtext">{value} / {total}</div>
+      </div>
+    );
+  };
 
   const selectedFund = selected ? funds[selected.id] : null;
-  const progress = selectedFund
-    ? Math.min(100, ((selectedFund.collected_amount / selectedFund.target_amount) * 100)).toFixed(1)
-    : 0;
 
   return (
     <div className="patients-page">
-      {/* Header */}
       <div className="patients-header">
-        <h1>🩸 Blood Cancer Patients</h1>
-        <p>Each card represents a real person fighting for their life. Your support can change everything.</p>
+        <h1>🩸 Fight Against Blood Cancer</h1>
+        <p>Support our heroes in their journey to recovery. Every bit of help counts.</p>
       </div>
 
-      {/* Grid */}
-      {patients.length === 0 ? (
-        <div className="empty-state">
-          <span>🏥</span>
-          <p>No patients found at this time.</p>
-        </div>
+      {loading ? (
+        <div className="patients-loading"><div className="spinner" /></div>
       ) : (
         <div className="patients-grid">
-          {patients.map((patient) => (
-            <PatientCard
-              key={patient.id}
-              patient={patient}
-              fund={funds[patient.id]}
-              onClick={() => setSelected(patient)}
-            />
-          ))}
+          {patients.map(p => <PatientCard key={p.id} patient={p} fund={funds[p.id]} onClick={() => { setSelected(p); setActiveTab('info'); }} />)}
         </div>
       )}
 
-      {/* Patient Detail Modal */}
       {selected && (
         <div className="modal-backdrop" onClick={() => setSelected(null)}>
-          <div className="patient-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="patient-modal wide" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelected(null)}>✕</button>
-
-            {/* Photo */}
-            <div className="modal-photo-wrap">
-              {selected.photo_url
-                ? <img src={selected.photo_url} alt={selected.name} className="modal-photo" />
-                : <div className="modal-photo-placeholder">👤</div>
-              }
-              <span className="modal-status-badge" style={{ background: statusColor(selected.status) }}>
-                {selected.status?.replace(/-/g, ' ') || 'In Treatment'}
-              </span>
+            
+            <div className="modal-sidebar">
+              <div className="modal-photo-box">
+                {selected.photo_url ? <img src={selected.photo_url} alt={selected.name} /> : <div className="photo-placeholder">👤</div>}
+              </div>
+              <div className="sidebar-info">
+                <h2>{selected.name}</h2>
+                <span className={`status-tag ${selected.status}`}>{selected.status.replace(/-/g, ' ')}</span>
+                <p className="cancer-type">{selected.cancer_type}</p>
+              </div>
+              <div className="modal-nav">
+                <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>Medical Info</button>
+                <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>Donation & Payment</button>
+              </div>
             </div>
 
-            {/* Name */}
-            <div className="modal-body">
-              <h2 className="modal-name">{selected.name}</h2>
-              <p className="modal-cancer">{selected.cancer_type || 'Blood Cancer'}</p>
-
-              {/* Info Grid */}
-              <div className="modal-info-grid">
-                {[
-                  { label: 'Age', value: selected.age ? `${selected.age} years` : '—' },
-                  { label: 'Gender', value: selected.gender || '—' },
-                  { label: 'Blood Type', value: selected.blood_type || '—' },
-                  { label: 'Cancer Type', value: selected.cancer_type || '—' },
-                  { label: 'Doctor', value: selected.doctor_name || '—' },
-                  { label: 'Hospital', value: selected.hospital || '—' },
-                ].map(({ label, value }) => (
-                  <div className="modal-info-item" key={label}>
-                    <span className="modal-info-label">{label}</span>
-                    <span className="modal-info-value">{value}</span>
+            <div className="modal-content-area">
+              {activeTab === 'info' ? (
+                <div className="tab-pane">
+                  <h3>🏥 Treatment Overview</h3>
+                  <div className="charts-row">
+                    <CircularProgress value={selected.chemo_completed || 0} total={selected.chemo_total || 0} color="#7c3aed" label="Chemo Sessions" />
+                    {selectedFund && (
+                      <CircularProgress value={selectedFund.collected_amount || 0} total={selectedFund.target_amount || 1} color="#10b981" label="Fund Raised" />
+                    )}
                   </div>
-                ))}
-              </div>
-
-              {/* Fund Progress */}
-              {selectedFund ? (
-                <div className="modal-fund">
-                  <h3>💰 Fundraising Progress</h3>
-                  {selectedFund.description && (
-                    <p className="fund-desc-text">{selectedFund.description}</p>
-                  )}
-                  <div className="modal-progress-bar">
-                    <div className="modal-progress-fill" style={{ width: `${progress}%` }} />
-                  </div>
-                  <div className="modal-fund-numbers">
-                    <span className="collected">৳{(selectedFund.collected_amount || 0).toLocaleString()} collected</span>
-                    <span className="target">Goal: ৳{(selectedFund.target_amount || 0).toLocaleString()}</span>
-                  </div>
-                  <div className="modal-progress-pct">{progress}% funded</div>
-
-                  {/* Donation Guide */}
-                  <div className="donation-guide">
-                    <h4>🤝 How to Help</h4>
-                    <div className="donation-methods">
-                      <div className="d-method">
-                        <strong>🏦 Bank Transfer</strong>
-                        <span>Contact organization for bank details</span>
-                      </div>
-                      <div className="d-method">
-                        <strong>📱 bKash / Nagad / Rocket</strong>
-                        <span>Contact for mobile banking numbers</span>
-                      </div>
-                      <div className="d-method">
-                        <strong>🌐 International</strong>
-                        <span>SWIFT transfer available on request</span>
-                      </div>
-                    </div>
+                  
+                  <div className="info-grid-detailed">
+                    <div className="info-box"><strong>Age</strong>{selected.age} yrs</div>
+                    <div className="info-box"><strong>Blood Type</strong>{selected.blood_type}</div>
+                    <div className="info-box"><strong>Admission Date</strong>{selected.admission_date || 'N/A'}</div>
+                    <div className="info-box"><strong>Hospital</strong>{selected.hospital || 'N/A'}</div>
+                    <div className="info-box"><strong>Doctor</strong>{selected.doctor_name || 'N/A'}</div>
                   </div>
                 </div>
               ) : (
-                <div className="modal-no-fund">No fundraising campaign active yet.</div>
+                <div className="tab-pane">
+                  <h3>💰 Payment Details</h3>
+                  <div className="fund-summary-box">
+                    <div className="fund-stat"><span>Target</span><strong>৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong></div>
+                    <div className="fund-stat"><span>Collected</span><strong>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong></div>
+                  </div>
+
+                  <div className="payment-grid">
+                    <div className="payment-methods">
+                      <h4>Bank Account</h4>
+                      {selectedFund?.bank_account_no ? (
+                        <div className="pay-card bank">
+                          <p><strong>{selectedFund.bank_name}</strong></p>
+                          <p>A/C: {selectedFund.bank_account_no}</p>
+                          <p>Name: {selectedFund.bank_account_name}</p>
+                          <small>{selectedFund.bank_branch}</small>
+                        </div>
+                      ) : <p className="none">No bank info provided</p>}
+
+                      <h4>Mobile Banking</h4>
+                      <div className="mobile-pay-grid">
+                        {selectedFund?.bkash_no && <div className="m-pay bkash"><span>bKash</span><strong>{selectedFund.bkash_no}</strong></div>}
+                        {selectedFund?.nagad_no && <div className="m-pay nagad"><span>Nagad</span><strong>{selectedFund.nagad_no}</strong></div>}
+                        {selectedFund?.rocket_no && <div className="m-pay rocket"><span>Rocket</span><strong>{selectedFund.rocket_no}</strong></div>}
+                        {selectedFund?.upay_no && <div className="m-pay upay"><span>Upay</span><strong>{selectedFund.upay_no}</strong></div>}
+                      </div>
+                    </div>
+
+                    <div className="qr-section">
+                      <h4>Scan to Pay</h4>
+                      {selectedFund?.qr_code_url ? (
+                        <div className="qr-display-box">
+                          <img src={selectedFund.qr_code_url} alt="Donation QR" />
+                          <p>Save & Scan QR Code</p>
+                        </div>
+                      ) : <div className="qr-placeholder">No QR Code Available</div>}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>

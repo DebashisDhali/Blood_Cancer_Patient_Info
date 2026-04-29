@@ -7,7 +7,10 @@ import '../styles/AdminDashboard.css';
 const EMPTY_FORM = {
   name: '', age: '', gender: 'male', blood_type: '', cancer_type: '',
   phone: '', email: '', address: '', doctor_name: '', hospital: '',
-  status: 'in-treatment', target_amount: '', fund_description: ''
+  status: 'in-treatment', admission_date: '', chemo_total: 0, chemo_completed: 0,
+  target_amount: '', collected_amount: 0, fund_description: '',
+  bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '',
+  bkash_no: '', nagad_no: '', rocket_no: '', upay_no: ''
 };
 
 const AdminDashboard = () => {
@@ -17,13 +20,16 @@ const AdminDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editPatient, setEditPatient] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [photoFile, setPhotoFile] = useState(null);    // base64 string
-  const [photoPreview, setPhotoPreview] = useState(null); // data URL for preview
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [qrFile, setQrFile] = useState(null);
+  const [qrPreview, setQrPreview] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formMsg, setFormMsg] = useState(null);
   const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const qrInputRef = useRef(null);
 
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -45,306 +51,169 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  /* ── Photo handler ── */
-  const handlePhotoChange = (e) => {
+  const handleFile = (e, setP, setF) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setFormMsg({ type: 'error', text: 'Photo must be under 5MB.' });
-      return;
-    }
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoPreview(reader.result);
-      setPhotoFile(reader.result.split(',')[1]); // base64 only
-    };
+    reader.onloadend = () => { setP(reader.result); setF(reader.result.split(',')[1]); };
     reader.readAsDataURL(file);
   };
 
-  /* ── Open add form ── */
-  const openAdd = () => {
-    setEditPatient(null);
-    setForm(EMPTY_FORM);
-    setPhotoFile(null);
-    setPhotoPreview(null);
-    setFormMsg(null);
-    setShowForm(true);
-  };
+  const openAdd = () => { setEditPatient(null); setForm(EMPTY_FORM); setPhotoPreview(null); setQrPreview(null); setFormMsg(null); setShowForm(true); };
 
-  /* ── Open edit form ── */
-  const openEdit = (patient) => {
-    setEditPatient(patient);
+  const openEdit = (p) => {
+    setEditPatient(p);
     setForm({
-      name: patient.name || '', age: patient.age || '',
-      gender: patient.gender || 'male',
-      blood_type: patient.blood_type || '', cancer_type: patient.cancer_type || '',
-      phone: patient.phone || '', email: patient.email || '',
-      address: patient.address || '', doctor_name: patient.doctor_name || '',
-      hospital: patient.hospital || '', status: patient.status || 'in-treatment',
-      target_amount: patient.fund?.target_amount || '',
-      fund_description: patient.fund?.description || ''
+      ...EMPTY_FORM, ...p,
+      target_amount: p.fund?.target_amount || '',
+      collected_amount: p.fund?.collected_amount || 0,
+      fund_description: p.fund?.description || '',
+      bank_name: p.fund?.bank_name || '', bank_account_name: p.fund?.bank_account_name || '',
+      bank_account_no: p.fund?.bank_account_no || '', bank_branch: p.fund?.bank_branch || '',
+      bkash_no: p.fund?.bkash_no || '', nagad_no: p.fund?.nagad_no || '',
+      rocket_no: p.fund?.rocket_no || '', upay_no: p.fund?.upay_no || ''
     });
-    setPhotoFile(null);
-    setPhotoPreview(patient.photo_url || null);
+    setPhotoPreview(p.photo_url);
+    setQrPreview(p.fund?.qr_code_url);
     setFormMsg(null);
     setShowForm(true);
   };
 
-  /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormLoading(true);
-    setFormMsg(null);
     try {
-      const payload = {
-        name: form.name, age: Number(form.age), gender: form.gender,
-        blood_type: form.blood_type, cancer_type: form.cancer_type,
-        phone: form.phone, email: form.email, address: form.address,
-        doctor_name: form.doctor_name, hospital: form.hospital, status: form.status
+      const pPayload = {
+        name: form.name, age: Number(form.age), gender: form.gender, blood_type: form.blood_type,
+        cancer_type: form.cancer_type, phone: form.phone, email: form.email, address: form.address,
+        doctor_name: form.doctor_name, hospital: form.hospital, status: form.status,
+        admission_date: form.admission_date, chemo_total: Number(form.chemo_total), chemo_completed: Number(form.chemo_completed)
       };
 
-      let patientId;
-      if (editPatient) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, payload, { headers });
-        patientId = editPatient.id;
-      } else {
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, payload, { headers });
-        patientId = res.data.id;
-      }
+      let pid;
+      if (editPatient) { await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, pPayload, { headers }); pid = editPatient.id; }
+      else { const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, pPayload, { headers }); pid = res.data.id; }
 
-      // Upload photo if newly selected
-      if (photoFile) {
-        try {
-          await axios.post(`${process.env.REACT_APP_API_URL}/patients/${patientId}/photo`, { photo: photoFile }, { headers });
-        } catch (photoErr) {
-          setFormMsg({ type: 'error', text: 'Patient saved but photo upload failed. Try again.' });
-          setFormLoading(false);
-          await fetchData();
-          return;
-        }
-      }
+      if (photoFile) await axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { photo: photoFile }, { headers });
 
-      // Fund
       if (form.target_amount) {
-        const fundPayload = { patient_id: patientId, target_amount: Number(form.target_amount), currency: 'BDT', description: form.fund_description };
-        if (editPatient?.fund) {
-          await axios.put(`${process.env.REACT_APP_API_URL}/funds/${editPatient.fund.id}`, fundPayload, { headers });
-        } else {
-          await axios.post(`${process.env.REACT_APP_API_URL}/funds`, fundPayload, { headers });
-        }
+        const fPayload = {
+          patient_id: pid, target_amount: Number(form.target_amount), collected_amount: Number(form.collected_amount),
+          description: form.fund_description, bank_name: form.bank_name, bank_account_name: form.bank_account_name,
+          bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
+          bkash_no: form.bkash_no, nagad_no: form.nagad_no, rocket_no: form.rocket_no, upay_no: form.upay_no
+        };
+        let fid;
+        if (editPatient?.fund) { await axios.put(`${process.env.REACT_APP_API_URL}/funds/${editPatient.fund.id}`, fPayload, { headers }); fid = editPatient.fund.id; }
+        else { const res = await axios.post(`${process.env.REACT_APP_API_URL}/funds`, fPayload, { headers }); fid = res.data.id; }
+        
+        if (qrFile) await axios.post(`${process.env.REACT_APP_API_URL}/funds/${fid}/qr`, { photo: qrFile }, { headers });
       }
 
-      setFormMsg({ type: 'success', text: editPatient ? '✅ Patient updated!' : '✅ Patient added successfully!' });
+      setFormMsg({ type: 'success', text: '✅ Saved successfully!' });
       await fetchData();
-      setTimeout(() => { setShowForm(false); setFormMsg(null); }, 1200);
-    } catch (err) {
-      setFormMsg({ type: 'error', text: err.response?.data?.message || err.message });
-    } finally {
-      setFormLoading(false);
-    }
+      setTimeout(() => setShowForm(false), 1000);
+    } catch (err) { setFormMsg({ type: 'error', text: err.response?.data?.message || err.message }); }
+    finally { setFormLoading(false); }
   };
 
-  const f = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-  if (loading) return <div className="dash-loading"><div className="spinner" /><p>Loading dashboard...</p></div>;
+  if (loading) return <div className="dash-loading"><div className="spinner" /></div>;
 
   return (
     <div className="admin-dash">
-      {/* Top Bar */}
       <div className="dash-topbar">
-        <div>
-          <h1>Admin Dashboard</h1>
-          <p className="dash-subtitle">Welcome back, <strong>{user?.username || user?.email || 'Admin'}</strong></p>
-        </div>
+        <h1>Admin Dashboard</h1>
         <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>
       </div>
 
-      {/* Stats */}
-      {stats && (
-        <div className="dash-stats">
-          {[
-            { icon: '🧬', label: 'Total Patients', value: stats.totalPatients },
-            { icon: '💰', label: 'Active Funds', value: stats.activeFunds },
-            { icon: '৳', label: 'Total Collected', value: `${(stats.totalCollected || 0).toLocaleString()}` },
-            { icon: '📄', label: 'Documents', value: stats.totalDocuments },
-          ].map((s, i) => (
-            <div className="dash-stat-card" key={i}>
-              <div className="dsc-icon">{s.icon}</div>
-              <div>
-                <div className="dsc-value">{s.value}</div>
-                <div className="dsc-label">{s.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Patient Table */}
-      <div className="dash-table-wrap">
-        <h2>All Patients</h2>
-        {patients.length === 0 ? (
-          <div className="dash-empty">No patients yet. Click "Add Patient" to get started.</div>
-        ) : (
-          <div className="table-scroll">
-            <table className="dash-table">
-              <thead>
-                <tr><th>Patient</th><th>Cancer Type</th><th>Blood</th><th>Status</th><th>Fund Progress</th><th>Action</th></tr>
-              </thead>
-              <tbody>
-                {patients.map((p) => {
-                  const pct = p.fund ? Math.min(100, (p.fund.collected_amount / p.fund.target_amount) * 100).toFixed(1) : null;
-                  return (
-                    <tr key={p.id}>
-                      <td>
-                        <div className="tbl-patient-cell">
-                          {p.photo_url
-                            ? <img src={p.photo_url} alt={p.name} className="tbl-avatar" />
-                            : <div className="tbl-avatar-placeholder">👤</div>
-                          }
-                          <div>
-                            <div className="tbl-name">{p.name}</div>
-                            <div className="tbl-age">{p.age ? `${p.age} yrs` : ''} {p.gender || ''}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{p.cancer_type || '—'}</td>
-                      <td>{p.blood_type || '—'}</td>
-                      <td><span className={`tbl-badge ${p.status === 'recovered' ? 'green' : p.status === 'critical' ? 'red' : 'purple'}`}>{p.status?.replace(/-/g,' ')}</span></td>
-                      <td>
-                        {pct !== null ? (
-                          <div className="tbl-progress">
-                            <div className="tbl-bar"><div className="tbl-bar-fill" style={{ width: `${pct}%` }} /></div>
-                            <span>{pct}%</span>
-                          </div>
-                        ) : <span className="tbl-no-fund">No fund</span>}
-                      </td>
-                      <td><button className="btn-edit" onClick={() => openEdit(p)}>✏️ Edit</button></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="dash-stats">
+        {[
+          { label: 'Patients', value: stats?.totalPatients || 0, icon: '🧬' },
+          { label: 'Active Funds', value: stats?.activeFunds || 0, icon: '💰' },
+          { label: 'Total Raised', value: `৳${(stats?.totalCollected || 0).toLocaleString()}`, icon: '৳' }
+        ].map((s, i) => (
+          <div className="dash-stat-card" key={i}><div className="dsc-icon">{s.icon}</div><div><div className="dsc-value">{s.value}</div><div className="dsc-label">{s.label}</div></div></div>
+        ))}
       </div>
 
-      {/* ── FORM MODAL ── */}
+      <div className="dash-table-wrap">
+        <h2>Patients List</h2>
+        <div className="table-scroll">
+          <table className="dash-table">
+            <thead><tr><th>Patient</th><th>Cancer</th><th>Status</th><th>Chemo</th><th>Fund</th><th>Action</th></tr></thead>
+            <tbody>
+              {patients.map(p => (
+                <tr key={p.id}>
+                  <td><div className="tbl-patient-cell">{p.photo_url ? <img src={p.photo_url} className="tbl-avatar" /> : <div className="tbl-avatar-placeholder">👤</div>}<div><div className="tbl-name">{p.name}</div><div className="tbl-age">{p.age} yrs</div></div></div></td>
+                  <td>{p.cancer_type}</td>
+                  <td><span className={`tbl-badge ${p.status === 'recovered' ? 'green' : p.status === 'critical' ? 'red' : 'purple'}`}>{p.status}</span></td>
+                  <td>{p.chemo_completed}/{p.chemo_total}</td>
+                  <td>{p.fund ? `${Math.min(100, (p.fund.collected_amount / p.fund.target_amount) * 100).toFixed(1)}%` : 'N/A'}</td>
+                  <td><button className="btn-edit" onClick={() => openEdit(p)}>Edit</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {showForm && (
         <div className="form-overlay" onClick={() => setShowForm(false)}>
           <div className="form-modal" onClick={e => e.stopPropagation()}>
-            <div className="form-modal-header">
-              <h3>{editPatient ? '✏️ Edit Patient' : '➕ Add New Patient'}</h3>
-              <button className="form-close-btn" onClick={() => setShowForm(false)}>✕</button>
-            </div>
-
+            <div className="form-modal-header"><h3>{editPatient ? 'Edit Patient' : 'Add Patient'}</h3><button onClick={() => setShowForm(false)}>✕</button></div>
             <form onSubmit={handleSubmit} className="patient-form">
-              {/* Photo Upload */}
+              <div className="form-section-title">Photo & Profile</div>
               <div className="photo-upload-section">
-                <div className="photo-preview-wrap" onClick={() => fileInputRef.current?.click()}>
-                  {photoPreview
-                    ? <img src={photoPreview} alt="Preview" className="photo-preview-img" />
-                    : <div className="photo-preview-placeholder"><span>📷</span><p>Click to upload photo</p></div>
-                  }
-                  <div className="photo-overlay">Change Photo</div>
+                <div className="photo-preview-wrap" onClick={() => fileInputRef.current.click()}>
+                  {photoPreview ? <img src={photoPreview} className="photo-preview-img" /> : '📷'}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  style={{ display: 'none' }}
-                />
-                <p className="photo-hint">JPG, PNG or WebP · Max 5MB</p>
+                <input ref={fileInputRef} type="file" hidden onChange={e => handleFile(e, setPhotoPreview, setPhotoFile)} />
               </div>
 
-              {/* Basic Info */}
-              <div className="form-section-title">Patient Information</div>
               <div className="form-grid">
-                <div className="form-field">
-                  <label>Full Name *</label>
-                  <input required value={form.name} onChange={e => f('name', e.target.value)} placeholder="Patient full name" />
-                </div>
-                <div className="form-field">
-                  <label>Age *</label>
-                  <input required type="number" min="1" max="120" value={form.age} onChange={e => f('age', e.target.value)} placeholder="e.g. 35" />
-                </div>
-                <div className="form-field">
-                  <label>Gender</label>
-                  <select value={form.gender} onChange={e => f('gender', e.target.value)}>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="form-field">
-                  <label>Blood Type</label>
-                  <select value={form.blood_type} onChange={e => f('blood_type', e.target.value)}>
-                    <option value="">Select...</option>
-                    {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(b => <option key={b} value={b}>{b}</option>)}
-                  </select>
-                </div>
-                <div className="form-field">
-                  <label>Cancer Type</label>
-                  <input value={form.cancer_type} onChange={e => f('cancer_type', e.target.value)} placeholder="e.g. Leukemia, Lymphoma" />
-                </div>
-                <div className="form-field">
-                  <label>Status</label>
-                  <select value={form.status} onChange={e => f('status', e.target.value)}>
-                    <option value="in-treatment">In Treatment</option>
-                    <option value="critical">Critical</option>
-                    <option value="stable">Stable</option>
-                    <option value="recovered">Recovered</option>
-                  </select>
-                </div>
+                <div className="form-field"><label>Name</label><input required value={form.name} onChange={e => f('name', e.target.value)} /></div>
+                <div className="form-field"><label>Age</label><input type="number" value={form.age} onChange={e => f('age', e.target.value)} /></div>
+                <div className="form-field"><label>Gender</label><select value={form.gender} onChange={e => f('gender', e.target.value)}><option value="male">Male</option><option value="female">Female</option></select></div>
+                <div className="form-field"><label>Blood</label><input value={form.blood_type} onChange={e => f('blood_type', e.target.value)} /></div>
+                <div className="form-field"><label>Cancer</label><input value={form.cancer_type} onChange={e => f('cancer_type', e.target.value)} /></div>
+                <div className="form-field"><label>Status</label><select value={form.status} onChange={e => f('status', e.target.value)}><option value="in-treatment">In Treatment</option><option value="critical">Critical</option><option value="recovered">Recovered</option></select></div>
               </div>
 
-              <div className="form-section-title">Contact & Hospital</div>
+              <div className="form-section-title">Medical Progress</div>
               <div className="form-grid">
-                <div className="form-field">
-                  <label>Phone</label>
-                  <input value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="01XXXXXXXXX" />
-                </div>
-                <div className="form-field">
-                  <label>Email</label>
-                  <input type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="patient@email.com" />
-                </div>
-                <div className="form-field form-field-full">
-                  <label>Address</label>
-                  <input value={form.address} onChange={e => f('address', e.target.value)} placeholder="Full address" />
-                </div>
-                <div className="form-field">
-                  <label>Doctor Name</label>
-                  <input value={form.doctor_name} onChange={e => f('doctor_name', e.target.value)} placeholder="Dr. Name" />
-                </div>
-                <div className="form-field">
-                  <label>Hospital</label>
-                  <input value={form.hospital} onChange={e => f('hospital', e.target.value)} placeholder="Hospital / Clinic" />
-                </div>
+                <div className="form-field"><label>Admission Date</label><input type="date" value={form.admission_date} onChange={e => f('admission_date', e.target.value)} /></div>
+                <div className="form-field"><label>Total Chemo</label><input type="number" value={form.chemo_total} onChange={e => f('chemo_total', e.target.value)} /></div>
+                <div className="form-field"><label>Completed Chemo</label><input type="number" value={form.chemo_completed} onChange={e => f('chemo_completed', e.target.value)} /></div>
+                <div className="form-field"><label>Hospital</label><input value={form.hospital} onChange={e => f('hospital', e.target.value)} /></div>
               </div>
 
-              <div className="form-section-title">Fundraising Campaign</div>
+              <div className="form-section-title">Fundraising & Payment</div>
               <div className="form-grid">
-                <div className="form-field">
-                  <label>Target Amount (BDT)</label>
-                  <input type="number" min="0" value={form.target_amount} onChange={e => f('target_amount', e.target.value)} placeholder="e.g. 500000" />
+                <div className="form-field"><label>Target (BDT)</label><input type="number" value={form.target_amount} onChange={e => f('target_amount', e.target.value)} /></div>
+                <div className="form-field"><label>Collected (BDT)</label><input type="number" value={form.collected_amount} onChange={e => f('collected_amount', e.target.value)} /></div>
+                <div className="form-field form-field-full"><label>Description</label><textarea value={form.fund_description} onChange={e => f('fund_description', e.target.value)} /></div>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-field"><label>Bank Name</label><input value={form.bank_name} onChange={e => f('bank_name', e.target.value)} /></div>
+                <div className="form-field"><label>Account No</label><input value={form.bank_account_no} onChange={e => f('bank_account_no', e.target.value)} /></div>
+                <div className="form-field"><label>bKash</label><input value={form.bkash_no} onChange={e => f('bkash_no', e.target.value)} /></div>
+                <div className="form-field"><label>Nagad</label><input value={form.nagad_no} onChange={e => f('nagad_no', e.target.value)} /></div>
+              </div>
+
+              <div className="form-field"><label>Donation QR Code</label>
+                <div className="qr-upload-box" onClick={() => qrInputRef.current.click()}>
+                  {qrPreview ? <img src={qrPreview} className="qr-mini-preview" /> : 'Upload QR Code'}
                 </div>
-                <div className="form-field form-field-full">
-                  <label>Campaign Description</label>
-                  <textarea value={form.fund_description} onChange={e => f('fund_description', e.target.value)} placeholder="Why does this patient need support?" rows={3} />
-                </div>
+                <input ref={qrInputRef} type="file" hidden onChange={e => handleFile(e, setQrPreview, setQrFile)} />
               </div>
 
               {formMsg && <div className={`form-msg ${formMsg.type}`}>{formMsg.text}</div>}
-
-              <div className="form-footer">
-                <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>Cancel</button>
-                <button type="submit" className="btn-save" disabled={formLoading}>
-                  {formLoading ? 'Saving...' : (editPatient ? 'Update Patient' : 'Add Patient')}
-                </button>
-              </div>
+              <div className="form-footer"><button type="submit" disabled={formLoading}>{formLoading ? 'Saving...' : 'Save Patient'}</button></div>
             </form>
           </div>
         </div>

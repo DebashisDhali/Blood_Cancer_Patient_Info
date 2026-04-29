@@ -142,3 +142,12 @@
   .dash-stats { grid-template-columns:1fr 1fr; }
   .form-field-full { grid-column:1; }
 }
+
+.qr-upload-box {
+  width: 100%; height: 120px; border: 2px dashed var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background: #f8f9fa; color: var(--text-muted); font-size: 0.9rem; transition: 0.2s;
+}
+.qr-upload-box:hover { border-color: var(--primary); background: #fff; }
+.qr-mini-preview { height: 100%; border-radius: 8px; }
+
