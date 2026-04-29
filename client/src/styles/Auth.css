@@ -45,17 +45,20 @@
 .password-input-wrapper {
   position: relative;
   margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
 }
 
 .password-input-wrapper input {
   width: 100%;
-  padding: 0.85rem 2.5rem 0.85rem 1rem;
+  padding: 0.85rem 2.8rem 0.85rem 1rem;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 1rem;
   margin-bottom: 0;
   box-sizing: border-box;
   transition: all 0.3s ease;
+  background-color: white;
 }
 
 .password-input-wrapper input:focus {
@@ -67,31 +70,35 @@
 
 .password-toggle-btn {
   position: absolute;
-  right: 0.6rem;
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.3rem;
-  z-index: 10;
-  color: #999;
+  font-size: 1rem;
+  padding: 0.3rem 0.4rem;
+  z-index: 100;
+  color: #888;
   transition: all 0.2s ease;
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  width: auto;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .password-toggle-btn:hover {
   color: #3498db;
-  transform: translateY(-50%) scale(1.15);
 }
 
 .password-toggle-btn:focus {
   outline: none;
+  background-color: rgba(52, 152, 219, 0.1);
+  border-radius: 4px;
 }
 
 .error-message {
