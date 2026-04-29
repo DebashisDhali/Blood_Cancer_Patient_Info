@@ -1,5 +1,5 @@
 [build]
-  command = "cd client && npm run build"
+  command = "cd client && npm install && npm run build"
   publish = "client/build"
   functions = "netlify/functions"
 
@@ -34,6 +34,6 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "your-backend-url/api/:splat"
+  to = "https://blood-cancer-patient-info-9mwau273x-debashisdhalis-projects.vercel.app/api/:splat"
   status = 200
   force = true
