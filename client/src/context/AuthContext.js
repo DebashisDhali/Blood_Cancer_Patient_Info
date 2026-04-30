@@ -46,10 +46,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, { username, email, password, confirmPassword });
-      localStorage.setItem('token', response.data.token);
-      setToken(response.data.token);
-      setUser(response.data.admin);
-      return { success: true };
+      return { success: true, message: response.data.message };
     } catch (error) {
       return { success: false, message: error.response?.data?.message };
     } finally {

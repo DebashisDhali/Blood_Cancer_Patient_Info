@@ -41,8 +41,8 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const { register } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -64,13 +64,34 @@ const Register = () => {
     );
     
     if (result.success) {
-      navigate('/admin');
+      setRegisteredEmail(formData.email);
     } else {
       setError(result.message);
     }
     
     setLoading(false);
   };
+
+  if (registeredEmail) {
+    return (
+      <div className="auth-container">
+        <div className="auth-form success-view" style={{ textAlign: 'center' }}>
+          <div className="success-icon" style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📧</div>
+          <h2 style={{ color: '#10b981' }}>Check Your Email!</h2>
+          <p style={{ color: '#475569', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+            A verification link has been sent to:<br/>
+            <strong style={{ color: '#6366f1' }}>{registeredEmail}</strong>
+          </p>
+          <div style={{ background: '#f0f9ff', padding: '1rem', borderRadius: '12px', border: '1px solid #bae6fd', marginBottom: '2rem' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: '#0369a1' }}>
+              Please click the link in that email to activate your account. You can close this tab now.
+            </p>
+          </div>
+          <a href="/login" className="auth-submit-btn" style={{ textDecoration: 'none', display: 'block' }}>Go to Login</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">
