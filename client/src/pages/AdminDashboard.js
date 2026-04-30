@@ -44,10 +44,11 @@ const AdminDashboard = () => {
   const fetchData = useCallback(async () => {
     if (!token) return;
     const headers = { Authorization: `Bearer ${token}` };
+    const ts = Date.now(); // Cache buster
     try {
       const [statsRes, patientsRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, { headers }),
-        axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all`, { headers })
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/stats?t=${ts}`, { headers }),
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all?t=${ts}`, { headers })
       ]);
       setStats(statsRes.data);
       setPatients(patientsRes.data);
