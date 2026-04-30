@@ -105,6 +105,9 @@ const Patients = () => {
                   
                   <h4 className="section-title">Medical Record</h4>
                   <div className="info-grid-detailed">
+                    <div className="info-card"><label>Department</label><span>{selected.dept || 'N/A'}</span></div>
+                    <div className="info-card"><label>Batch</label><span>{selected.batch || 'N/A'}</span></div>
+                    <div className="info-card"><label>Session</label><span>{selected.session || 'N/A'}</span></div>
                     <div className="info-card"><label>Patient Age</label><span>{selected.age} Years</span></div>
                     <div className="info-card"><label>Gender</label><span>{selected.gender}</span></div>
                     <div className="info-card"><label>Blood Type</label><span>{selected.blood_type}</span></div>
@@ -138,6 +141,11 @@ const Patients = () => {
                   )}
  
                   <h4 className="section-title">Secure Payment Channels</h4>
+                  {selectedFund?.payment_holder_info && (
+                    <div className="payment-notice-box">
+                      <p>📢 <strong>Note:</strong> {selectedFund.payment_holder_info}</p>
+                    </div>
+                  )}
                   <div className="payment-grid">
                     <div className="payment-methods-list">
                       {selectedFund?.bank_account_no && (

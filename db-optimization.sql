@@ -19,6 +19,12 @@ CREATE INDEX IF NOT EXISTS idx_admins_email ON admins (email);
 ALTER TABLE admins ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
 ALTER TABLE admins ADD COLUMN IF NOT EXISTS verification_token TEXT;
 
+-- 3.2 Add Academic & Payment Holder Info
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS dept TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS batch TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS session TEXT;
+ALTER TABLE funds ADD COLUMN IF NOT EXISTS payment_holder_info TEXT;
+
 -- 4. Create index for documents (if implemented)
 CREATE INDEX IF NOT EXISTS idx_documents_patient_id ON documents (patient_id);
 

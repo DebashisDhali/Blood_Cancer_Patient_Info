@@ -182,6 +182,16 @@
   white-space: pre-wrap; 
 }
 
+.payment-notice-box {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  color: #0369a1;
+  font-size: 0.95rem;
+}
+
 /* QR Section */
 .qr-container { 
   margin-top: 3rem; padding: 2rem; background: white; border-radius: 24px; 

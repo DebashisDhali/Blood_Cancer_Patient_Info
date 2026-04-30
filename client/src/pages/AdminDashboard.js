@@ -5,10 +5,11 @@ import AuthContext from '../context/AuthContext';
 import '../styles/AdminDashboard.css';
 
 const EMPTY_FORM = {
-  name: '', age: '', gender: 'male', blood_type: '', cancer_type: '',
-  phone: '', email: '', address: '', doctor_name: '', hospital: '',
-  status: 'in-treatment', admission_date: '', chemo_total: 0, chemo_completed: 0,
+  name: '', age: '', gender: 'male', blood_type: '', cancer_type: '', phone: '', email: '', address: '',
+  doctor_name: '', hospital: '', status: 'in-treatment', admission_date: '',
+  chemo_total: '', chemo_completed: '',
   target_amount: '', collected_amount: 0, fund_description: '',
+  dept: '', batch: '', session: '', payment_holder_info: '',
   bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '',
   bkash_no: '', nagad_no: '', rocket_no: '', upay_no: ''
 };
@@ -184,6 +185,7 @@ const AdminDashboard = () => {
       target_amount: p.fund?.target_amount || '',
       collected_amount: p.fund?.collected_amount || 0,
       fund_description: p.fund?.description || '',
+      payment_holder_info: p.fund?.payment_holder_info || '',
       bank_name: p.fund?.bank_name || '', bank_account_name: p.fund?.bank_account_name || '',
       bank_account_no: p.fund?.bank_account_no || '', bank_branch: p.fund?.bank_branch || '',
       bkash_no: p.fund?.bkash_no || '', nagad_no: p.fund?.nagad_no || '',
@@ -202,19 +204,29 @@ const AdminDashboard = () => {
     setFormLoading(true);
     const headers = { Authorization: `Bearer ${token}` };
     try {
-      const pPayload = {
-        name: form.name, age: Number(form.age), gender: form.gender, blood_type: form.blood_type,
+      const patientData = {
+        name: form.name, age: form.age, gender: form.gender, blood_type: form.blood_type,
         cancer_type: form.cancer_type, phone: form.phone, email: form.email, address: form.address,
         doctor_name: form.doctor_name, hospital: form.hospital, status: form.status,
-        admission_date: form.admission_date, chemo_total: Number(form.chemo_total), chemo_completed: Number(form.chemo_completed)
+        admission_date: form.admission_date, chemo_total: form.chemo_total, chemo_completed: form.chemo_completed,
+        dept: form.dept, batch: form.batch, session: form.session
       };
 
+      const fundData = {
+        target_amount: form.target_amount, collected_amount: form.collected_amount,
+        description: form.fund_description, payment_holder_info: form.payment_holder_info,
+        bank_name: form.bank_name, bank_account_name: form.bank_account_name,
+        bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
+        bkash_no: form.bkash_no, nagad_no: form.nagad_no,
+        rocket_no: form.rocket_no, upay_no: form.upay_no
+      };
+      
       let pid;
       if (editPatient) { 
-        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, pPayload, { headers }); 
+        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, patientData, { headers }); 
         pid = editPatient.id; 
       } else { 
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, pPayload, { headers }); 
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, patientData, { headers }); 
         pid = res.data.id; 
       }
 
@@ -408,6 +420,13 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>Status</label><select value={form.status} onChange={e => f('status', e.target.value)}><option value="in-treatment">In Treatment</option><option value="critical">Critical</option><option value="recovered">Recovered</option></select></div>
               </div>
 
+              <div className="form-section-title">Academic Information</div>
+              <div className="form-grid">
+                <div className="form-field"><label>Department</label><input placeholder="e.g. CSE" value={form.dept} onChange={e => f('dept', e.target.value)} /></div>
+                <div className="form-field"><label>Batch</label><input placeholder="e.g. 50th" value={form.batch} onChange={e => f('batch', e.target.value)} /></div>
+                <div className="form-field"><label>Session</label><input placeholder="e.g. 2021-22" value={form.session} onChange={e => f('session', e.target.value)} /></div>
+              </div>
+
               <div className="form-section-title">Medical Progress</div>
               <div className="form-grid">
                 <div className="form-field"><label>Admission Date</label><input type="date" value={form.admission_date} onChange={e => f('admission_date', e.target.value)} /></div>
@@ -420,7 +439,8 @@ const AdminDashboard = () => {
               <div className="form-grid">
                 <div className="form-field"><label>Target (BDT)</label><input type="number" value={form.target_amount} onChange={e => f('target_amount', e.target.value)} /></div>
                 <div className="form-field"><label>Collected (BDT)</label><input type="number" value={form.collected_amount} onChange={e => f('collected_amount', e.target.value)} /></div>
-                <div className="form-field form-field-full"><label>Description</label><textarea value={form.fund_description} onChange={e => f('fund_description', e.target.value)} /></div>
+                <div className="form-field form-field-full"><label>Account Holder Info</label><input placeholder="e.g. Accounts belong to Patient's Father" value={form.payment_holder_info} onChange={e => f('payment_holder_info', e.target.value)} /></div>
+                <div className="form-field form-field-full"><label>Campaign Story</label><textarea value={form.fund_description} onChange={e => f('fund_description', e.target.value)} /></div>
               </div>
 
               <div className="form-grid">
