@@ -137,6 +137,46 @@ const AdminDashboard = () => {
     } catch (e) { alert('Delete failed'); }
   };
 
+  const [docs, setDocs] = useState([]);
+  const [docForm, setDocForm] = useState({ title: '', type: 'report', file: null });
+
+  const fetchDocs = async (pid) => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/documents/patient/${pid}`);
+      setDocs(res.data);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleDocUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !editPatient) return;
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1];
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/documents/${editPatient.id}`, {
+          title: docForm.title || file.name,
+          document_type: docForm.type,
+          file: base64
+        }, { headers: { Authorization: `Bearer ${token}` } });
+        setDocForm({ title: '', type: 'report', file: null });
+        fetchDocs(editPatient.id);
+      } catch (err) { alert('Upload failed'); }
+    };
+  };
+
+  const deleteDoc = async (id) => {
+    if (!window.confirm("Delete document?")) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/documents/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchDocs(editPatient.id);
+    } catch (e) { alert('Delete failed'); }
+  };
+
   const openEdit = (p) => {
     setEditPatient(p);
     setForm({
@@ -152,6 +192,7 @@ const AdminDashboard = () => {
     setPhotoPreview(p.photo_url);
     setQrPreview(p.fund?.qr_code_url);
     if (p.fund?.id) fetchLogs(p.fund.id);
+    fetchDocs(p.id);
     setFormMsg(null);
     setShowForm(true);
   };
@@ -414,6 +455,43 @@ const AdminDashboard = () => {
                         {donationLogs.length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}>No daily logs yet</td></tr>}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              )}
+
+              {editPatient && (
+                <div className="docs-ledger-section">
+                  <div className="form-section-title">Medical Reports & Prescriptions</div>
+                  <div className="doc-upload-box">
+                    <input type="text" placeholder="Document Title (e.g. Bone Marrow Test)" value={docForm.title} onChange={e => setDocForm({ ...docForm, title: e.target.value })} />
+                    <select value={docForm.type} onChange={e => setDocForm({ ...docForm, type: e.target.value })}>
+                      <option value="report">Medical Report</option>
+                      <option value="prescription">Prescription</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <label className="btn-upload-doc">
+                      📎 Choose & Upload
+                      <input type="file" hidden onChange={handleDocUpload} accept="application/pdf,image/*" />
+                    </label>
+                  </div>
+
+                  <div className="docs-list">
+                    {docs.map(d => (
+                      <div key={d.id} className="doc-item">
+                        <div className="doc-info">
+                          <span className="doc-icon">{d.document_type === 'prescription' ? '💊' : '📄'}</span>
+                          <div>
+                            <div className="doc-title">{d.title}</div>
+                            <div className="doc-meta">{d.document_type} • {new Date(d.created_at).toLocaleDateString()}</div>
+                          </div>
+                        </div>
+                        <div className="doc-actions">
+                          <a href={d.file_url} target="_blank" rel="noreferrer" className="btn-view-doc">View File</a>
+                          <button type="button" className="btn-delete-doc" onClick={() => deleteDoc(d.id)}>✕</button>
+                        </div>
+                      </div>
+                    ))}
+                    {docs.length === 0 && <p style={{ textAlign: 'center', color: '#94a3b8', padding: '1rem' }}>No documents uploaded yet</p>}
                   </div>
                 </div>
               )}

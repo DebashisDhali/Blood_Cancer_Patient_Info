@@ -41,4 +41,17 @@ CREATE TABLE IF NOT EXISTS donations (
 -- Index for faster lookup by fund
 CREATE INDEX IF NOT EXISTS idx_donations_fund_id ON donations (fund_id);
 
--- ✅ Done! Your database is now optimized for speed and advanced fund tracking.
+-- 7. Create Documents table for medical reports/prescriptions
+CREATE TABLE IF NOT EXISTS documents (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    document_type TEXT, -- 'report', 'prescription', etc.
+    file_url TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for faster document lookup
+CREATE INDEX IF NOT EXISTS idx_documents_patient_id ON documents (patient_id);
+
+-- ✅ Done! Your database is now optimized for speed, funds, and document management.
