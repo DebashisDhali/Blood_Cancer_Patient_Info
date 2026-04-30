@@ -6,7 +6,7 @@ const { authMiddleware, adminOnly } = require('../middleware/auth');
 // Get Dashboard Stats
 router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const adminId = req.user.id;
+    const adminId = req.user.id || req.user.userId;
     console.log('[DEBUG] Stats requested for Admin ID:', adminId);
 
     const [pCount, fCount, fSum] = await Promise.all([
@@ -32,7 +32,7 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
 // Optimized: Get all patients
 router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const adminId = req.user.id;
+    const adminId = req.user.id || req.user.userId;
     console.log('[DEBUG] Fetching patients list for Admin ID:', adminId);
 
     const { data, error } = await supabase

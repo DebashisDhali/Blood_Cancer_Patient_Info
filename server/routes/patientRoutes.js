@@ -57,7 +57,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, ...patientData } = req.body;
-    const adminId = req.user.id;
+    const adminId = req.user.id || req.user.userId;
     
     console.log('Attaching admin_id:', adminId);
 
