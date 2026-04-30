@@ -78,6 +78,18 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+// Delete Patient
+router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { error } = await supabase.from('patients').delete().eq('id', req.params.id);
+    if (error) throw error;
+    clearCache('patients');
+    res.json({ message: 'Patient deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // Photo upload
 router.post('/:id/photo', authMiddleware, adminOnly, async (req, res) => {
   try {

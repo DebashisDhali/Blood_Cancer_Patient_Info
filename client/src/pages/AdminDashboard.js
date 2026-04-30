@@ -183,6 +183,22 @@ const AdminDashboard = () => {
     finally { setFormLoading(false); }
   };
 
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete patient "${name}"? This action cannot be undone.`)) return;
+    
+    try {
+      setLoading(true);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/patients/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchData();
+    } catch (error) {
+      alert('Delete failed: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   if (loading) return <div className="dash-loading"><div className="spinner" /></div>;
@@ -215,12 +231,52 @@ const AdminDashboard = () => {
             <tbody>
               {patients.map(p => (
                 <tr key={p.id}>
-                  <td><div className="tbl-patient-cell">{p.photo_url ? <img src={p.photo_url} alt={p.name} className="tbl-avatar" /> : <div className="tbl-avatar-placeholder">👤</div>}<div><div className="tbl-name">{p.name}</div><div className="tbl-age">{p.age} yrs</div></div></div></td>
-                  <td>{p.cancer_type}</td>
-                  <td><span className={`tbl-badge ${p.status === 'recovered' ? 'green' : p.status === 'critical' ? 'red' : 'purple'}`}>{p.status}</span></td>
-                  <td>{p.chemo_completed}/{p.chemo_total}</td>
-                  <td>{p.fund ? `${Math.min(100, (p.fund.collected_amount / p.fund.target_amount) * 100).toFixed(1)}%` : 'N/A'}</td>
-                  <td><button className="btn-edit" onClick={() => openEdit(p)}>Edit</button></td>
+                  <td>
+                    <div className="tbl-patient-cell">
+                      {p.photo_url ? (
+                        <img src={p.photo_url} alt={p.name} className="tbl-avatar" />
+                      ) : (
+                        <div className="tbl-avatar-placeholder">👤</div>
+                      )}
+                      <div>
+                        <div className="tbl-name">{p.name}</div>
+                        <div className="tbl-age">{p.age} yrs • {p.gender}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: '600', color: '#334155' }}>{p.cancer_type}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{p.hospital}</div>
+                  </td>
+                  <td>
+                    <span className={`tbl-badge ${p.status === 'recovered' ? 'green' : p.status === 'critical' ? 'red' : 'purple'}`}>
+                      {p.status.replace(/-/g, ' ')}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: '700' }}>{p.chemo_completed}/{p.chemo_total}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Rounds Completed</div>
+                  </td>
+                  <td>
+                    {p.fund ? (
+                      <div>
+                        <div style={{ fontWeight: '700', color: '#10b981' }}>
+                          {Math.min(100, (p.fund.collected_amount / p.fund.target_amount) * 100).toFixed(1)}%
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                          ৳{p.fund.collected_amount.toLocaleString()} Raised
+                        </div>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>No Campaign</span>
+                    )}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="btn-edit" onClick={() => openEdit(p)}>Edit</button>
+                      <button className="btn-delete" onClick={() => handleDelete(p.id, p.name)}>Delete</button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
