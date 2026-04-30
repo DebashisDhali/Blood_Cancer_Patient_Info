@@ -14,12 +14,25 @@ const donationRoutes = require('./routes/donationRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const xss = require('xss-clean');
+
 dotenv.config();
 const app = express();
 
 // 1. Core Security & Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(xss()); // Sanitize data against XSS
+app.use(hpp()); // Prevent HTTP Parameter Pollution
 app.use(compression());
+
+// Rate Limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
 
 // CORS Setup
 const normalizeOrigin = (origin = '') => origin.trim().replace(/\/+$/, '');
@@ -44,8 +57,11 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // 2. Data Parsing
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Apply rate limiter to auth routes
+app.use('/api/auth', authLimiter);
 
 // 3. Supabase Connection
 const supabase = createClient(
