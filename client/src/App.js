@@ -1,14 +1,16 @@
-import React, { useContext } from 'react';
+import React, { useContext, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext, { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Patients from './pages/Patients';
-import PatientDetails from './pages/PatientDetails';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'));
+const Patients = lazy(() => import('./pages/Patients'));
+const PatientDetails = lazy(() => import('./pages/PatientDetails'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 const AppContent = () => {
   const { user } = useContext(AuthContext);
@@ -16,17 +18,19 @@ const AppContent = () => {
   return (
     <div className="App">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/patients/:id" element={<PatientDetails />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/admin"
-          element={user ? <AdminDashboard /> : <Navigate to="/login" replace />}
-        />
-      </Routes>
+      <Suspense fallback={<div className="global-loader"><div className="spinner" /></div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/patients/:id" element={<PatientDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin"
+            element={user ? <AdminDashboard /> : <Navigate to="/login" replace />}
+          />
+        </Routes>
+      </Suspense>
     </div>
   );
 };

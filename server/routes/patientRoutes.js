@@ -3,9 +3,10 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabaseClient');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
+const { cacheMiddleware, clearCache } = require('../middleware/cache');
 
 // Optimized: Get all patients with funds in ONE query
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(60), async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('patients')
@@ -57,6 +58,7 @@ router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { data: newPatient, error } = await supabase.from('patients').insert([req.body]).select();
     if (error) throw error;
+    clearCache('patients');
     res.status(201).json(newPatient[0]);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -69,6 +71,7 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
     updateData.updated_at = new Date();
     const { data: updatedPatient, error } = await supabase.from('patients').update(updateData).eq('id', req.params.id).select();
     if (error) throw error;
+    clearCache('patients');
     res.json(updatedPatient[0]);
   } catch (error) {
     res.status(400).json({ message: error.message });

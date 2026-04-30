@@ -53,12 +53,50 @@ const AdminDashboard = () => {
     fetchData();
   }, [token, navigate, fetchData]);
 
-  const handleFile = (e, setP, setF) => {
+  const compressImage = (file, maxWidth = 1000, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve({
+            preview: dataUrl,
+            base64: dataUrl.split(',')[1]
+          });
+        };
+      };
+    });
+  };
+
+  const handleFile = async (e, setP, setF) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => { setP(reader.result); setF(reader.result.split(',')[1]); };
-    reader.readAsDataURL(file);
+    
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setP(localPreview);
+
+    // Compress in background
+    const compressed = await compressImage(file);
+    setP(compressed.preview);
+    setF(compressed.base64);
   };
 
   const openAdd = () => { setEditPatient(null); setForm(EMPTY_FORM); setPhotoPreview(null); setQrPreview(null); setFormMsg(null); setShowForm(true); };

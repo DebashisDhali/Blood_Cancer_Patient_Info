@@ -2,11 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const compression = require('compression');
 const { createClient } = require('@supabase/supabase-js');
 
 dotenv.config();
 
 const app = express();
+
+app.use(compression()); // Gzip compression
 
 // Supabase Connection
 const supabase = createClient(

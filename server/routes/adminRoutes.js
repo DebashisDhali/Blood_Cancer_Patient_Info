@@ -31,8 +31,8 @@ router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
     const { data, error } = await supabase
       .from('patients')
       .select(`
-        *,
-        fund:funds(*)
+        id, name, age, photo_url, status, cancer_type, chemo_total, chemo_completed, created_at,
+        fund:funds(id, target_amount, collected_amount)
       `)
       .order('created_at', { ascending: false });
 
