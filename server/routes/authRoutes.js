@@ -142,7 +142,7 @@ router.post('/login', async (req, res) => {
       .update({ updated_at: new Date() })
       .eq('id', admins.id);
 
-    const token = generateToken(admins.id, admins.role);
+    const token = generateToken(admins.id, admins.role, admins.username, admins.email);
 
     res.json({
       message: 'Login successful',
