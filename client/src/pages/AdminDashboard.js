@@ -413,8 +413,31 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>Name</label><input required value={form.name} onChange={e => f('name', e.target.value)} /></div>
                 <div className="form-field"><label>Age</label><input type="number" value={form.age} onChange={e => f('age', e.target.value)} /></div>
                 <div className="form-field"><label>Gender</label><select value={form.gender} onChange={e => f('gender', e.target.value)}><option value="male">Male</option><option value="female">Female</option></select></div>
-                <div className="form-field"><label>Blood</label><input value={form.blood_type} onChange={e => f('blood_type', e.target.value)} /></div>
-                <div className="form-field"><label>Cancer</label><input value={form.cancer_type} onChange={e => f('cancer_type', e.target.value)} /></div>
+                <div className="form-field">
+                  <label>Blood Group</label>
+                  <select value={form.blood_type} onChange={e => f('blood_type', e.target.value)}>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label>Cancer Type</label>
+                  <select value={form.cancer_type} onChange={e => f('cancer_type', e.target.value)}>
+                    <option value="">Select Cancer Type</option>
+                    <option value="Leukemia">Leukemia (ALL/AML/CLL/CML)</option>
+                    <option value="Lymphoma">Lymphoma (Hodgkin/Non-Hodgkin)</option>
+                    <option value="Myeloma">Multiple Myeloma</option>
+                    <option value="Myelodysplastic Syndromes">Myelodysplastic Syndromes (MDS)</option>
+                    <option value="Other">Other Blood Cancer</option>
+                  </select>
+                </div>
                 <div className="form-field"><label>Status</label><select value={form.status} onChange={e => f('status', e.target.value)}><option value="in-treatment">In Treatment</option><option value="critical">Critical</option><option value="recovered">Recovered</option></select></div>
               </div>
 
