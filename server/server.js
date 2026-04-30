@@ -70,13 +70,20 @@ const supabase = createClient(
 );
 app.locals.supabase = supabase;
 
-// 4. API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/patients', patientRoutes);
-app.use('/api/funds', fundRoutes);
-app.use('/api/donations', donationRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/admin', adminRoutes);
+// 4. API Routes (Flexible Mapping)
+const apiRoutes = [
+  { path: '/auth', handler: authRoutes },
+  { path: '/patients', handler: patientRoutes },
+  { path: '/funds', handler: fundRoutes },
+  { path: '/donations', handler: donationRoutes },
+  { path: '/documents', handler: documentRoutes },
+  { path: '/admin', handler: adminRoutes }
+];
+
+apiRoutes.forEach(route => {
+  app.use(`/api${route.path}`, route.handler); // Standard: /api/auth
+  app.use(route.path, route.handler);          // Fallback: /auth
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
