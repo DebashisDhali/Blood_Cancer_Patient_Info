@@ -443,6 +443,14 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>bKash</label><input value={form.bkash_no} onChange={e => f('bkash_no', e.target.value)} /></div>
                 <div className="form-field"><label>Nagad</label><input value={form.nagad_no} onChange={e => f('nagad_no', e.target.value)} /></div>
               </div>
+              
+              <div className="form-field" style={{ marginTop: '15px' }}>
+                <label>Payment QR Code (Bank, bKash, Nagad)</label>
+                <div className="qr-upload-box" onClick={() => qrInputRef.current?.click()}>
+                  {qrPreview ? <img src={qrPreview} alt="QR Preview" className="qr-mini-preview" /> : '📸 Upload QR Code'}
+                </div>
+                <input ref={qrInputRef} type="file" hidden onChange={e => handleFile(e, setQrPreview, setQrFile)} />
+              </div>
 
               {editPatient?.fund && (
                 <div className="fund-ledger-section">
