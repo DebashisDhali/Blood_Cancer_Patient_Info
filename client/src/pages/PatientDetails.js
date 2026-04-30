@@ -6,14 +6,19 @@ import '../styles/Patients.css'; // Reuse drawer styles
 const PatientDetails = () => {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('info');
 
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/patients/${id}`);
+        const [res, docsRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/patients/${id}`),
+          axios.get(`${process.env.REACT_APP_API_URL}/documents/patient/${id}`)
+        ]);
         setPatient(res.data);
+        setDocuments(docsRes.data);
       } catch (err) {
         console.error('Fetch error:', err);
       } finally {
@@ -66,6 +71,7 @@ const PatientDetails = () => {
           </div>
           <div className="modal-nav">
             <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical Profile</button>
+            <button className={activeTab === 'docs' ? 'active' : ''} onClick={() => setActiveTab('docs')}>📄 Reports</button>
             <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation Center</button>
           </div>
         </div>
@@ -116,6 +122,31 @@ const PatientDetails = () => {
                 }}>Share Hero's Profile</button>
               </div>
             </div>
+          ) : activeTab === 'docs' ? (
+            <div className="tab-pane">
+              <h4 className="section-title">Verified Medical Documents</h4>
+              <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                For transparency, we provide verified medical reports and prescriptions related to the patient's condition.
+              </p>
+              
+              <div className="docs-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                {documents.map(doc => (
+                  <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="public-doc-card" style={{ display: 'flex', alignItems: 'center', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', textDecoration: 'none', transition: '0.2s', gap: '1rem' }}>
+                    <div style={{ fontSize: '2rem' }}>{doc.document_type === 'prescription' ? '💊' : '📄'}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem' }}>{doc.title}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', marginTop: '0.2rem' }}>{doc.document_type}</div>
+                    </div>
+                    <div style={{ color: '#6366f1', fontSize: '1.2rem' }}>↗</div>
+                  </a>
+                ))}
+                {documents.length === 0 && (
+                  <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>
+                    No medical documents uploaded yet.
+                  </div>
+                )}
+              </div>
+            </div>
           ) : (
             <div className="tab-pane">
               <h4 className="section-title">Campaign Financials</h4>
@@ -164,13 +195,33 @@ const PatientDetails = () => {
                 </div>
 
                 <div className="qr-container">
-                  <h4 className="section-title" style={{ marginBottom: '1rem' }}>Secure QR Scan</h4>
-                  {fund?.qr_code_url ? (
-                    <div className="qr-frame">
-                      <img src={fund.qr_code_url} alt="Donation QR" />
-                    </div>
-                  ) : <div style={{ padding: '3rem', background: '#f8fafc', borderRadius: '24px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>No QR Linked</div>}
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1rem' }}>Scan and support instantly</p>
+                  <h4 className="section-title" style={{ marginBottom: '1rem' }}>Secure QR Scans</h4>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {fund?.bank_qr_url && (
+                      <div className="qr-frame" style={{ textAlign: 'center' }}>
+                        <img src={fund.bank_qr_url} alt="Bank QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BANK</div>
+                      </div>
+                    )}
+                    {fund?.bkash_qr_url && (
+                      <div className="qr-frame" style={{ textAlign: 'center' }}>
+                        <img src={fund.bkash_qr_url} alt="bKash QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BKASH</div>
+                      </div>
+                    )}
+                    {fund?.nagad_qr_url && (
+                      <div className="qr-frame" style={{ textAlign: 'center' }}>
+                        <img src={fund.nagad_qr_url} alt="Nagad QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>NAGAD</div>
+                      </div>
+                    )}
+                    {!(fund?.bank_qr_url || fund?.bkash_qr_url || fund?.nagad_qr_url) && (
+                      <div style={{ padding: '2rem', width: '100%', background: '#f8fafc', borderRadius: '16px', border: '2px dashed #e2e8f0', color: '#94a3b8', textAlign: 'center' }}>
+                        No QR Codes Linked
+                      </div>
+                    )}
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1rem', textAlign: 'center' }}>Scan and support instantly from your banking app</p>
                 </div>
               </div>
             </div>

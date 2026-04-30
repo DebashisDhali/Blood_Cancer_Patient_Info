@@ -119,6 +119,7 @@ const AdminDashboard = () => {
     setNagadQrPreview(null); setNagadQrFile(null);
     setSidPreview(null);
     setSidFile(null);
+    setPendingDocs([]);
     setFormMsg(null); 
     setShowForm(true); 
   };
@@ -160,6 +161,7 @@ const AdminDashboard = () => {
   };
 
   const [docs, setDocs] = useState([]);
+  const [pendingDocs, setPendingDocs] = useState([]);
   const [docForm, setDocForm] = useState({ title: '', type: 'report', file: null });
 
   const fetchDocs = async (pid) => {
@@ -171,21 +173,28 @@ const AdminDashboard = () => {
 
   const handleDocUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file || !editPatient) return;
+    if (!file) return;
     
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
       const base64 = reader.result.split(',')[1];
-      try {
-        await axios.post(`${process.env.REACT_APP_API_URL}/documents/${editPatient.id}`, {
-          title: docForm.title || file.name,
-          document_type: docForm.type,
-          file: base64
-        }, { headers: { Authorization: `Bearer ${token}` } });
+      const docData = {
+        title: docForm.title || file.name,
+        document_type: docForm.type,
+        file: base64
+      };
+
+      if (editPatient) {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/documents/${editPatient.id}`, docData, { headers: { Authorization: `Bearer ${token}` } });
+          setDocForm({ title: '', type: 'report', file: null });
+          fetchDocs(editPatient.id);
+        } catch (err) { alert('Upload failed'); }
+      } else {
+        setPendingDocs([...pendingDocs, docData]);
         setDocForm({ title: '', type: 'report', file: null });
-        fetchDocs(editPatient.id);
-      } catch (err) { alert('Upload failed'); }
+      }
     };
   };
 
@@ -261,6 +270,12 @@ const AdminDashboard = () => {
       if (bkashQrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: bkashQrFile, type: 'bkash' }, { headers }));
       if (nagadQrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: nagadQrFile, type: 'nagad' }, { headers }));
       if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: sidFile }, { headers }));
+      
+      if (!editPatient && pendingDocs.length > 0) {
+        for (const doc of pendingDocs) {
+          tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/documents/${pid}`, doc, { headers }));
+        }
+      }
       
       await Promise.all(tasks);
 
@@ -546,24 +561,24 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              {editPatient && (
-                <div className="docs-ledger-section">
-                  <div className="form-section-title">Medical Reports & Prescriptions</div>
-                  <div className="doc-upload-box">
-                    <input type="text" placeholder="Document Title (e.g. Bone Marrow Test)" value={docForm.title} onChange={e => setDocForm({ ...docForm, title: e.target.value })} />
-                    <select value={docForm.type} onChange={e => setDocForm({ ...docForm, type: e.target.value })}>
-                      <option value="report">Medical Report</option>
-                      <option value="prescription">Prescription</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <label className="btn-upload-doc">
-                      📎 Choose & Upload
-                      <input type="file" hidden onChange={handleDocUpload} accept="application/pdf,image/*" />
-                    </label>
-                  </div>
+              <div className="docs-ledger-section">
+                <div className="form-section-title">Medical Reports & Prescriptions</div>
+                <div className="doc-upload-box">
+                  <input type="text" placeholder="Document Title (e.g. Bone Marrow Test)" value={docForm.title} onChange={e => setDocForm({ ...docForm, title: e.target.value })} />
+                  <select value={docForm.type} onChange={e => setDocForm({ ...docForm, type: e.target.value })}>
+                    <option value="report">Medical Report</option>
+                    <option value="prescription">Prescription</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <label className="btn-upload-doc">
+                    📎 Choose & Upload
+                    <input type="file" hidden onChange={handleDocUpload} accept="application/pdf,image/*" />
+                  </label>
+                </div>
 
-                  <div className="docs-list">
-                    {docs.map(d => (
+                <div className="docs-list">
+                  {editPatient ? (
+                    docs.map(d => (
                       <div key={d.id} className="doc-item">
                         <div className="doc-info">
                           <span className="doc-icon">{d.document_type === 'prescription' ? '💊' : '📄'}</span>
@@ -577,13 +592,26 @@ const AdminDashboard = () => {
                           <button type="button" className="btn-delete-doc" onClick={() => deleteDoc(d.id)}>✕</button>
                         </div>
                       </div>
-                    ))}
-                    {docs.length === 0 && <p style={{ textAlign: 'center', color: '#94a3b8', padding: '1rem' }}>No documents uploaded yet</p>}
-                  </div>
+                    ))
+                  ) : (
+                    pendingDocs.map((d, index) => (
+                      <div key={index} className="doc-item">
+                        <div className="doc-info">
+                          <span className="doc-icon">{d.document_type === 'prescription' ? '💊' : '📄'}</span>
+                          <div>
+                            <div className="doc-title">{d.title}</div>
+                            <div className="doc-meta">{d.document_type} • Pending Upload</div>
+                          </div>
+                        </div>
+                        <div className="doc-actions">
+                          <button type="button" className="btn-delete-doc" onClick={() => setPendingDocs(pendingDocs.filter((_, i) => i !== index))}>✕</button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  {((editPatient && docs.length === 0) || (!editPatient && pendingDocs.length === 0)) && <p style={{ textAlign: 'center', color: '#94a3b8', padding: '1rem' }}>No documents uploaded yet</p>}
                 </div>
-              )}
-
-
+              </div>
 
               {formMsg && <div className={`form-msg ${formMsg.type}`}>{formMsg.text}</div>}
               <div className="form-footer"><button type="submit" disabled={formLoading}>{formLoading ? 'Saving...' : 'Save Patient'}</button></div>
