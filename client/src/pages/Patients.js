@@ -207,4 +207,4 @@ const Patients = () => {
   );
 };
 
-export default Patients;xport default Patients;
+export default Patients;
