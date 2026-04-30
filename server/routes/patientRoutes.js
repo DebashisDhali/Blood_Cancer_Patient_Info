@@ -11,7 +11,7 @@ router.get('/', cacheMiddleware(60), async (req, res) => {
     const { data, error } = await supabase
       .from('patients')
       .select(`
-        id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed,
+        id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url,
         fund:funds(*)
       `)
       .order('created_at', { ascending: false });
@@ -40,7 +40,7 @@ router.get('/:id', async (req, res) => {
         isAdmin = ['admin', 'super_admin'].includes(decoded.role);
       } catch (e) {}
     }
-    const fields = isAdmin ? `*, fund:funds(*)` : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, fund:funds(*)`;
+    const fields = isAdmin ? `*, fund:funds(*)` : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url, fund:funds(*)`;
     const { data: patient, error } = await supabase.from('patients').select(fields).eq('id', req.params.id).single();
     if (error) throw error;
     
@@ -56,8 +56,19 @@ router.get('/:id', async (req, res) => {
 // Create/Update Logic
 router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { data: newPatient, error } = await supabase.from('patients').insert([req.body]).select();
-    if (error) throw error;
+    const { fund, ...patientData } = req.body;
+    
+    // Insert Patient
+    const { data: newPatient, error: pErr } = await supabase.from('patients').insert([patientData]).select();
+    if (pErr) throw pErr;
+    const pid = newPatient[0].id;
+
+    // Insert Fund if provided
+    if (fund) {
+      const { error: fErr } = await supabase.from('funds').insert([{ ...fund, patient_id: pid }]);
+      if (fErr) throw fErr;
+    }
+
     clearCache('patients');
     res.status(201).json(newPatient[0]);
   } catch (error) {
@@ -67,10 +78,24 @@ router.post('/', authMiddleware, adminOnly, async (req, res) => {
 
 router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { created_at, id, ...updateData } = req.body;
-    updateData.updated_at = new Date();
-    const { data: updatedPatient, error } = await supabase.from('patients').update(updateData).eq('id', req.params.id).select();
-    if (error) throw error;
+    const { fund, created_at, id, ...patientData } = req.body;
+    
+    // Update Patient
+    const { data: updatedPatient, error: pErr } = await supabase.from('patients').update(patientData).eq('id', req.params.id).select();
+    if (pErr) throw pErr;
+
+    // Update Fund if provided
+    if (fund) {
+      const { data: existingFund } = await supabase.from('funds').select('id').eq('patient_id', req.params.id).single();
+      if (existingFund) {
+        const { error: fErr } = await supabase.from('funds').update(fund).eq('id', existingFund.id);
+        if (fErr) throw fErr;
+      } else {
+        const { error: fErr } = await supabase.from('funds').insert([{ ...fund, patient_id: req.params.id }]);
+        if (fErr) throw fErr;
+      }
+    }
+
     clearCache('patients');
     res.json(updatedPatient[0]);
   } catch (error) {
@@ -93,10 +118,11 @@ router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
 // Photo upload
 router.post('/:id/photo', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { photo } = req.body;
+    const { image } = req.body;
     const filename = `patient-${req.params.id}-${Date.now()}.jpg`;
-    const { error: upErr } = await supabase.storage.from('patient-photos').upload(filename, Buffer.from(photo, 'base64'), { contentType: 'image/jpeg' });
-    let photoUrl = upErr ? `data:image/jpeg;base64,${photo}` : supabase.storage.from('patient-photos').getPublicUrl(filename).data.publicUrl;
+    const { error: upErr } = await supabase.storage.from('patient-photos').upload(filename, Buffer.from(image, 'base64'), { contentType: 'image/jpeg', upsert: true });
+    if (upErr) throw upErr;
+    const photoUrl = supabase.storage.from('patient-photos').getPublicUrl(filename).data.publicUrl;
     await supabase.from('patients').update({ photo_url: photoUrl }).eq('id', req.params.id);
     res.json({ photoUrl });
   } catch (error) {

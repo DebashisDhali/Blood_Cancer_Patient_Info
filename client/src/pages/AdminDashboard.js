@@ -103,7 +103,18 @@ const AdminDashboard = () => {
     setF(compressed.base64);
   };
 
-  const openAdd = () => { setEditPatient(null); setForm(EMPTY_FORM); setPhotoPreview(null); setQrPreview(null); setFormMsg(null); setShowForm(true); };
+  const openAdd = () => { 
+    setEditPatient(null); 
+    setForm(EMPTY_FORM); 
+    setPhotoPreview(null); 
+    setPhotoFile(null);
+    setQrPreview(null); 
+    setQrFile(null);
+    setSidPreview(null);
+    setSidFile(null);
+    setFormMsg(null); 
+    setShowForm(true); 
+  };
 
   const [donationLogs, setDonationLogs] = useState([]);
   const [logForm, setLogForm] = useState({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
@@ -243,9 +254,9 @@ const AdminDashboard = () => {
       }
 
       const tasks = [];
-      if (photoFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { image: await toBase64(photoFile) }, { headers }));
-      if (qrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: await toBase64(qrFile) }, { headers }));
-      if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: await toBase64(sidFile) }, { headers }));
+      if (photoFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { image: photoFile }, { headers }));
+      if (qrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: qrFile }, { headers }));
+      if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: sidFile }, { headers }));
       
       await Promise.all(tasks);
 
