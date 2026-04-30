@@ -11,7 +11,7 @@ router.get('/', cacheMiddleware(60), async (req, res) => {
     const { data, error } = await supabase
       .from('patients')
       .select(`
-        id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url,
+        id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, phone, address, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url,
         fund:funds(*)
       `)
       .order('created_at', { ascending: false });
@@ -40,7 +40,7 @@ router.get('/:id', async (req, res) => {
         isAdmin = ['admin', 'super_admin'].includes(decoded.role);
       } catch (e) {}
     }
-    const fields = isAdmin ? `*, fund:funds(*)` : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url, fund:funds(*)`;
+    const fields = isAdmin ? `*, fund:funds(*)` : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, phone, address, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url, fund:funds(*)`;
     const { data: patient, error } = await supabase.from('patients').select(fields).eq('id', req.params.id).single();
     if (error) throw error;
     

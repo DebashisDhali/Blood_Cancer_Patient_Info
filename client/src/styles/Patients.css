@@ -217,8 +217,49 @@
 .patients-page.single-view { background: #f1f5f9; padding: 2rem; }
 .detail-wrapper { max-width: 1100px; margin: 0 auto; background: white; border-radius: 32px; overflow: hidden; box-shadow: var(--shadow-lg); display: flex; }
 
+/* Share Section at Bottom */
+.share-section-bottom {
+  margin-top: 4rem;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  border-radius: 32px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4);
+}
+
+.share-section-bottom h3 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; }
+.share-section-bottom p { opacity: 0.9; margin-bottom: 2rem; font-size: 1.1rem; }
+
+.btn-share-big {
+  background: white;
+  color: var(--primary-dark);
+  padding: 1.25rem 3rem;
+  border-radius: 100px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.btn-share-big:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  background: #f8fafc;
+}
+
+.btn-share-big:active { transform: scale(0.95); }
+
 @media (max-width: 900px) {
   .detail-wrapper { flex-direction: column; }
   .modal-sidebar { padding: 3rem 1.5rem 1.5rem; }
   .patients-header h1 { font-size: 2.5rem; }
+  .charts-row { grid-template-columns: 1fr; }
+  .share-section-bottom { padding: 2rem 1.5rem; }
+  .btn-share-big { width: 100%; justify-content: center; }
 }

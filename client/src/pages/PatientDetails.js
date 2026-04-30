@@ -112,14 +112,16 @@ const PatientDetails = () => {
                 <p>Every share brings a new opportunity for help. Spread the word to your network.</p>
                 <button className="btn-share-big" onClick={() => {
                   navigator.share({
-                    title: `Support ${patient.name}'s Journey`,
-                    text: `Let's help ${patient.name} overcome ${patient.cancer_type}.`,
+                    title: `Help ${patient.name} - Cancer Support Platform`,
+                    text: `Let's stand by ${patient.name} during this difficult time. Support and share their journey.`,
                     url: window.location.href
                   }).catch(() => {
                     navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied successfully!');
+                    alert('Profile link copied to clipboard!');
                   });
-                }}>Share Hero's Profile</button>
+                }}>
+                  📢 Share Profile to Support
+                </button>
               </div>
             </div>
           ) : activeTab === 'docs' ? (
