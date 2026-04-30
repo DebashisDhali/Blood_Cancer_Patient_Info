@@ -25,6 +25,22 @@ const PatientCard = memo(({ patient, fund, onClick }) => {
           <div className={`pcard-glass-badge ${statusClass(patient.status)}`}>
             {statusLabel(patient.status)}
           </div>
+          <button 
+            className="pcard-share-float" 
+            title="Share Profile"
+            onClick={(e) => {
+              e.stopPropagation();
+              const url = `${window.location.origin}/patients/${patient.id}`;
+              if (navigator.share) {
+                navigator.share({ title: `Support ${patient.name}`, url });
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Profile link copied!');
+              }
+            }}
+          >
+            🔗
+          </button>
         </div>
       </div>
 
