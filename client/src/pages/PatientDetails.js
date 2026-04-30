@@ -49,99 +49,109 @@ const PatientDetails = () => {
   return (
     <div className="patients-page single-view">
       <div className="back-nav">
-        <Link to="/patients" className="btn-back">← Back to All Patients</Link>
+        <Link to="/patients" className="btn-back">← Back to Hero Gallery</Link>
       </div>
 
-      <div className="patient-detail-container">
+      <div className="detail-wrapper">
         <div className="modal-sidebar">
           <div className="modal-photo-box">
             {patient.photo_url ? <img src={patient.photo_url} alt={patient.name} /> : <div className="photo-placeholder">👤</div>}
           </div>
           <div className="sidebar-info">
             <h2>{patient.name}</h2>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '1rem' }}>
+            <div className="status-row">
               <span className={`status-tag ${patient.status}`}>{patient.status.replace(/-/g, ' ')}</span>
               <span className="status-tag" style={{ background: 'rgba(255,255,255,0.1)' }}>{patient.blood_type}</span>
             </div>
           </div>
           <div className="modal-nav">
-            <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical</button>
-            <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation</button>
+            <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical Profile</button>
+            <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation Center</button>
           </div>
         </div>
 
         <div className="modal-content-area">
           {activeTab === 'info' ? (
             <div className="tab-pane">
-              <h3>📊 Treatment Progress</h3>
+              <h4 className="section-title">Clinical Overview</h4>
               <div className="charts-row">
-                <CircularProgress value={patient.chemo_completed || 0} total={patient.chemo_total || 0} color="#7c3aed" label="Chemo" />
+                <div className="chart-card">
+                  <CircularProgress value={patient.chemo_completed || 0} total={patient.chemo_total || 0} color="#6366f1" label="Chemo Progress" />
+                </div>
                 {fund && (
-                  <CircularProgress value={fund.collected_amount || 0} total={fund.target_amount || 1} color="#10b981" label="Fund" />
+                  <div className="chart-card">
+                    <CircularProgress value={fund.collected_amount || 0} total={fund.target_amount || 1} color="#10b981" label="Funding Status" />
+                  </div>
                 )}
               </div>
               
-              <h3>🏥 Patient Information</h3>
+              <h4 className="section-title">Patient Bio-Data</h4>
               <div className="info-grid-detailed">
-                <div className="info-box"><strong>Age</strong>{patient.age} Years</div>
-                <div className="info-box"><strong>Cancer Type</strong>{patient.cancer_type}</div>
-                <div className="info-box"><strong>Admission</strong>{patient.admission_date || 'N/A'}</div>
-                <div className="info-box"><strong>Hospital</strong>{patient.hospital || 'N/A'}</div>
-                <div className="info-box"><strong>Specialist</strong>{patient.doctor_name || 'N/A'}</div>
+                <div className="info-card"><label>Age</label><span>{patient.age} Years</span></div>
+                <div className="info-card"><label>Cancer Type</label><span>{patient.cancer_type}</span></div>
+                <div className="info-card"><label>Admission</label><span>{patient.admission_date || 'N/A'}</span></div>
+                <div className="info-card"><label>Medical Center</label><span>{patient.hospital || 'N/A'}</span></div>
+                <div className="info-card"><label>Consultant</label><span>{patient.doctor_name || 'N/A'}</span></div>
               </div>
 
               <div className="share-section-bottom">
-                <h3>📢 Help by Sharing</h3>
-                <p>Sharing this profile can help raise funds faster.</p>
+                <h3>📢 Extend Your Support</h3>
+                <p>Every share brings a new opportunity for help. Spread the word to your network.</p>
                 <button className="btn-share-big" onClick={() => {
                   navigator.share({
-                    title: `Support ${patient.name}'s Fight`,
-                    text: `Please help ${patient.name} in their battle against ${patient.cancer_type}.`,
+                    title: `Support ${patient.name}'s Journey`,
+                    text: `Let's help ${patient.name} overcome ${patient.cancer_type}.`,
                     url: window.location.href
                   }).catch(() => {
                     navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
+                    alert('Link copied successfully!');
                   });
-                }}>Share This Profile</button>
+                }}>Share Hero's Profile</button>
               </div>
             </div>
           ) : (
             <div className="tab-pane">
-              <h3>💸 Fundraising Status</h3>
-              <div className="fund-summary-box">
-                <div className="fund-stat"><span>Target</span><strong>৳{(fund?.target_amount || 0).toLocaleString()}</strong></div>
-                <div className="fund-stat"><span>Raised</span><strong>৳{(fund?.collected_amount || 0).toLocaleString()}</strong></div>
+              <h4 className="section-title">Campaign Financials</h4>
+              <div className="fund-hero">
+                <div className="fund-stat">
+                  <span className="fund-amount-label">Fundraising Target</span>
+                  <strong className="fund-amount-value">৳{(fund?.target_amount || 0).toLocaleString()}</strong>
+                </div>
+                <div className="fund-stat" style={{ textAlign: 'right' }}>
+                  <span className="fund-amount-label">Verified Collection</span>
+                  <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(fund?.collected_amount || 0).toLocaleString()}</strong>
+                </div>
               </div>
 
-              <h3>💳 Payment Methods</h3>
+              <h4 className="section-title">Official Payment Gateways</h4>
               <div className="payment-grid">
-                <div className="payment-methods">
+                <div className="payment-methods-list">
                   {fund?.bank_account_no && (
-                    <div className="pay-card bank">
-                      <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 'bold' }}>BANK ACCOUNT</p>
-                      <p style={{ fontSize: '1.1rem', fontWeight: '700', marginTop: '0.5rem' }}>{fund.bank_name}</p>
-                      <p style={{ margin: '0.2rem 0' }}>A/C: {fund.bank_account_no}</p>
-                      <p style={{ color: '#64748b' }}>{fund.bank_account_name}</p>
-                      <small style={{ display: 'block', marginTop: '0.5rem', color: '#94a3b8' }}>{fund.bank_branch}</small>
+                    <div className="bank-card">
+                      <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em' }}>DIRECT BANK DEPOSIT</p>
+                      <p style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.75rem', color: '#0f172a' }}>{fund.bank_name}</p>
+                      <p style={{ fontSize: '1.1rem', margin: '0.4rem 0', color: '#334155', fontWeight: '600' }}>A/C: {fund.bank_account_no}</p>
+                      <p style={{ color: '#64748b', fontWeight: '500' }}>{fund.bank_account_name}</p>
+                      <small style={{ display: 'block', marginTop: '1rem', color: '#94a3b8' }}>{fund.bank_branch}</small>
                     </div>
                   )}
 
-                  <div className="mobile-pay-grid">
-                    {fund?.bkash_no && <div className="m-pay"><span>bKash</span><strong>{fund.bkash_no}</strong></div>}
-                    {fund?.nagad_no && <div className="m-pay"><span>Nagad</span><strong>{fund.nagad_no}</strong></div>}
-                    {fund?.rocket_no && <div className="m-pay"><span>Rocket</span><strong>{fund.rocket_no}</strong></div>}
-                    {fund?.upay_no && <div className="m-pay"><span>Upay</span><strong>{fund.upay_no}</strong></div>}
+                  <div className="mobile-grid">
+                    {fund?.bkash_no && <div className="mobile-card"><label>bKash Agent/Personal</label><strong>{fund.bkash_no}</strong></div>}
+                    {fund?.nagad_no && <div className="mobile-card"><label>Nagad Personal</label><strong>{fund.nagad_no}</strong></div>}
+                    {fund?.rocket_no && <div className="mobile-card"><label>Rocket</label><strong>{fund.rocket_no}</strong></div>}
+                    {fund?.upay_no && <div className="mobile-card"><label>Upay Wallet</label><strong>{fund.upay_no}</strong></div>}
                   </div>
                 </div>
 
-                <div className="qr-section">
-                  <h3>🖼️ Scan to Donate</h3>
+                <div className="qr-container">
+                  <h4 className="section-title" style={{ marginBottom: '1rem' }}>Secure QR Scan</h4>
                   {fund?.qr_code_url ? (
-                    <div className="qr-display-box">
+                    <div className="qr-frame">
                       <img src={fund.qr_code_url} alt="Donation QR" />
-                      <p>Save & Scan QR</p>
                     </div>
-                  ) : <div className="qr-placeholder" style={{ padding: '2rem', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>No QR Code Provided</div>}
+                  ) : <div style={{ padding: '3rem', background: '#f8fafc', borderRadius: '24px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>No QR Linked</div>}
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1rem' }}>Scan and support instantly</p>
                 </div>
               </div>
             </div>

@@ -91,60 +91,71 @@ const Patients = () => {
             <div className="modal-content-area">
               {activeTab === 'info' ? (
                 <div className="tab-pane">
-                  <h3>📊 Treatment Progress</h3>
+                  <h4 className="section-title">Treatment Statistics</h4>
                   <div className="charts-row">
-                    <CircularProgress value={selected.chemo_completed || 0} total={selected.chemo_total || 0} color="#7c3aed" label="Chemo" />
+                    <div className="chart-card">
+                      <CircularProgress value={selected.chemo_completed || 0} total={selected.chemo_total || 0} color="#6366f1" label="Chemo Rounds" />
+                    </div>
                     {selectedFund && (
-                      <CircularProgress value={selectedFund.collected_amount || 0} total={selectedFund.target_amount || 1} color="#10b981" label="Fund" />
+                      <div className="chart-card">
+                        <CircularProgress value={selectedFund.collected_amount || 0} total={selectedFund.target_amount || 1} color="#10b981" label="Fund Raised" />
+                      </div>
                     )}
                   </div>
                   
-                  <h3>🏥 Patient Information</h3>
+                  <h4 className="section-title">Medical Record</h4>
                   <div className="info-grid-detailed">
-                    <div className="info-box"><strong>Age</strong>{selected.age} Years</div>
-                    <div className="info-box"><strong>Cancer Type</strong>{selected.cancer_type}</div>
-                    <div className="info-box"><strong>Admission</strong>{selected.admission_date || 'N/A'}</div>
-                    <div className="info-box"><strong>Hospital</strong>{selected.hospital || 'N/A'}</div>
-                    <div className="info-box"><strong>Specialist</strong>{selected.doctor_name || 'N/A'}</div>
+                    <div className="info-card"><label>Patient Age</label><span>{selected.age} Years</span></div>
+                    <div className="info-card"><label>Blood Type</label><span>{selected.blood_type}</span></div>
+                    <div className="info-card"><label>Admission</label><span>{selected.admission_date || 'N/A'}</span></div>
+                    <div className="info-card"><label>Institution</label><span>{selected.hospital || 'N/A'}</span></div>
+                    <div className="info-card"><label>Lead Doctor</label><span>{selected.doctor_name || 'N/A'}</span></div>
+                    <div className="info-card"><label>Cancer Stage</label><span>{selected.cancer_type}</span></div>
                   </div>
                 </div>
               ) : (
                 <div className="tab-pane">
-                  <h3>💸 Fundraising Status</h3>
-                  <div className="fund-summary-box">
-                    <div className="fund-stat"><span>Target</span><strong>৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong></div>
-                    <div className="fund-stat"><span>Raised</span><strong>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong></div>
+                  <h4 className="section-title">Fundraising Initiative</h4>
+                  <div className="fund-hero">
+                    <div className="fund-stat">
+                      <span className="fund-amount-label">Target Goal</span>
+                      <strong className="fund-amount-value">৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong>
+                    </div>
+                    <div className="fund-stat" style={{ textAlign: 'right' }}>
+                      <span className="fund-amount-label">Amount Collected</span>
+                      <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong>
+                    </div>
                   </div>
  
-                  <h3>💳 Payment Methods</h3>
+                  <h4 className="section-title">Secure Payment Channels</h4>
                   <div className="payment-grid">
-                    <div className="payment-methods">
+                    <div className="payment-methods-list">
                       {selectedFund?.bank_account_no && (
-                        <div className="pay-card bank">
-                          <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 'bold' }}>BANK ACCOUNT</p>
-                          <p style={{ fontSize: '1.1rem', fontWeight: '700', marginTop: '0.5rem' }}>{selectedFund.bank_name}</p>
-                          <p style={{ margin: '0.2rem 0' }}>A/C: {selectedFund.bank_account_no}</p>
-                          <p style={{ color: '#64748b' }}>{selectedFund.bank_account_name}</p>
-                          <small style={{ display: 'block', marginTop: '0.5rem', color: '#94a3b8' }}>{selectedFund.bank_branch}</small>
+                        <div className="bank-card">
+                          <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em' }}>DIRECT BANK TRANSFER</p>
+                          <p style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.75rem', color: '#0f172a' }}>{selectedFund.bank_name}</p>
+                          <p style={{ fontSize: '1.1rem', margin: '0.4rem 0', color: '#334155', fontWeight: '600' }}>A/C: {selectedFund.bank_account_no}</p>
+                          <p style={{ color: '#64748b', fontWeight: '500' }}>{selectedFund.bank_account_name}</p>
+                          <small style={{ display: 'block', marginTop: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>{selectedFund.bank_branch}</small>
                         </div>
                       )}
  
-                      <div className="mobile-pay-grid">
-                        {selectedFund?.bkash_no && <div className="m-pay"><span>bKash</span><strong>{selectedFund.bkash_no}</strong></div>}
-                        {selectedFund?.nagad_no && <div className="m-pay"><span>Nagad</span><strong>{selectedFund.nagad_no}</strong></div>}
-                        {selectedFund?.rocket_no && <div className="m-pay"><span>Rocket</span><strong>{selectedFund.rocket_no}</strong></div>}
-                        {selectedFund?.upay_no && <div className="m-pay"><span>Upay</span><strong>{selectedFund.upay_no}</strong></div>}
+                      <div className="mobile-grid">
+                        {selectedFund?.bkash_no && <div className="mobile-card"><label>bKash Personal</label><strong>{selectedFund.bkash_no}</strong></div>}
+                        {selectedFund?.nagad_no && <div className="mobile-card"><label>Nagad Personal</label><strong>{selectedFund.nagad_no}</strong></div>}
+                        {selectedFund?.rocket_no && <div className="mobile-card"><label>Rocket</label><strong>{selectedFund.rocket_no}</strong></div>}
+                        {selectedFund?.upay_no && <div className="mobile-card"><label>Upay</label><strong>{selectedFund.upay_no}</strong></div>}
                       </div>
                     </div>
  
-                    <div className="qr-section">
-                      <h3>🖼️ Scan to Donate</h3>
+                    <div className="qr-container">
+                      <h4 className="section-title" style={{ marginBottom: '1rem' }}>Instant QR Scan</h4>
                       {selectedFund?.qr_code_url ? (
-                        <div className="qr-display-box">
+                        <div className="qr-frame">
                           <img src={selectedFund.qr_code_url} alt="Donation QR" />
-                          <p>Save & Scan QR</p>
                         </div>
-                      ) : <div className="qr-placeholder" style={{ padding: '2rem', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>No QR Code Provided</div>}
+                      ) : <div style={{ padding: '3rem', background: '#f8fafc', borderRadius: '24px', border: '2px dashed #e2e8f0', color: '#94a3b8', fontWeight: '600' }}>QR Code Not Linked</div>}
+                      <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1rem' }}>Save and scan to help faster</p>
                     </div>
                   </div>
                 </div>
