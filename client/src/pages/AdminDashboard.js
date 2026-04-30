@@ -101,6 +101,42 @@ const AdminDashboard = () => {
 
   const openAdd = () => { setEditPatient(null); setForm(EMPTY_FORM); setPhotoPreview(null); setQrPreview(null); setFormMsg(null); setShowForm(true); };
 
+  const [donationLogs, setDonationLogs] = useState([]);
+  const [logForm, setLogForm] = useState({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
+
+  const fetchLogs = async (fundId) => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/donations/fund/${fundId}`);
+      setDonationLogs(res.data);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleAddLog = async () => {
+    if (!logForm.amount || !editPatient?.fund?.id) return;
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/donations`, {
+        fund_id: editPatient.fund.id,
+        amount: Number(logForm.amount),
+        date: logForm.date,
+        note: logForm.note
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      setLogForm({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
+      fetchLogs(editPatient.fund.id);
+      fetchData();
+    } catch (e) { alert('Failed to add log'); }
+  };
+
+  const handleDeleteLog = async (logId) => {
+    if (!window.confirm("Delete this entry?")) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/donations/${logId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchLogs(editPatient.fund.id);
+      fetchData();
+    } catch (e) { alert('Delete failed'); }
+  };
+
   const openEdit = (p) => {
     setEditPatient(p);
     setForm({
@@ -115,6 +151,7 @@ const AdminDashboard = () => {
     });
     setPhotoPreview(p.photo_url);
     setQrPreview(p.fund?.qr_code_url);
+    if (p.fund?.id) fetchLogs(p.fund.id);
     setFormMsg(null);
     setShowForm(true);
   };
@@ -351,6 +388,35 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>bKash</label><input value={form.bkash_no} onChange={e => f('bkash_no', e.target.value)} /></div>
                 <div className="form-field"><label>Nagad</label><input value={form.nagad_no} onChange={e => f('nagad_no', e.target.value)} /></div>
               </div>
+
+              {editPatient?.fund && (
+                <div className="fund-ledger-section">
+                  <div className="form-section-title">Daily Fund Ledger (Auto-Calculating)</div>
+                  <div className="ledger-input-row">
+                    <input type="date" value={logForm.date} onChange={e => setLogForm({ ...logForm, date: e.target.value })} />
+                    <input type="number" placeholder="Amount (৳)" value={logForm.amount} onChange={e => setLogForm({ ...logForm, amount: e.target.value })} />
+                    <input type="text" placeholder="Note (Optional)" value={logForm.note} onChange={e => setLogForm({ ...logForm, note: e.target.value })} />
+                    <button type="button" className="btn-add-log" onClick={handleAddLog}>Add Log</button>
+                  </div>
+                  
+                  <div className="ledger-table-wrap">
+                    <table className="ledger-table">
+                      <thead><tr><th>Date</th><th>Amount</th><th>Note</th><th>Action</th></tr></thead>
+                      <tbody>
+                        {donationLogs.map(log => (
+                          <tr key={log.id}>
+                            <td>{new Date(log.date).toLocaleDateString()}</td>
+                            <td style={{ fontWeight: '700', color: '#10b981' }}>৳{Number(log.amount).toLocaleString()}</td>
+                            <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{log.note || '-'}</td>
+                            <td><button type="button" className="btn-delete-log" onClick={() => handleDeleteLog(log.id)}>✕</button></td>
+                          </tr>
+                        ))}
+                        {donationLogs.length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}>No daily logs yet</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               <div className="form-field"><label>Donation QR Code</label>
                 <div className="qr-upload-box" onClick={() => qrInputRef.current.click()}>

@@ -5,10 +5,13 @@ const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
 const { createClient } = require('@supabase/supabase-js');
+const donationRoutes = require('./routes/donationRoutes');
 
 dotenv.config();
 
 const app = express();
+
+app.use('/api/donations', donationRoutes);
 
 // Security & Performance Headers
 app.use(helmet({

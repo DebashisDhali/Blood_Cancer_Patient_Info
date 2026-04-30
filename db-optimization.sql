@@ -27,4 +27,18 @@ ANALYZE patients;
 ANALYZE funds;
 ANALYZE admins;
 
--- ✅ Done! Your database is now optimized for speed.
+-- 6. Create Donations table for daily fund tracking
+CREATE TABLE IF NOT EXISTS donations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    fund_id UUID REFERENCES funds(id) ON DELETE CASCADE,
+    amount DECIMAL NOT NULL DEFAULT 0,
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    note TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for faster lookup by fund
+CREATE INDEX IF NOT EXISTS idx_donations_fund_id ON donations (fund_id);
+
+-- ✅ Done! Your database is now optimized for speed and advanced fund tracking.

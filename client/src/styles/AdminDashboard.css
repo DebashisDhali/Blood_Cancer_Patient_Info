@@ -181,6 +181,54 @@
 .form-msg.success { background: #f0fdf4; color: #10b981; border: 1px solid #bbf7d0; }
 .form-msg.error { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
 
+/* Fund Ledger */
+.fund-ledger-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f1f5f9;
+  border-radius: 20px;
+}
+.ledger-input-row {
+  display: grid;
+  grid-template-columns: 150px 120px 1fr 100px;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ledger-input-row input {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+}
+.btn-add-log {
+  background: var(--admin-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ledger-table-wrap {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.ledger-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.ledger-table th { background: #f8fafc; padding: 0.75rem 1rem; text-align: left; color: #64748b; font-weight: 700; }
+.ledger-table td { padding: 0.75rem 1rem; border-top: 1px solid #f1f5f9; }
+.btn-delete-log {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+.btn-delete-log:hover { background: #fef2f2; }
+
 @media (max-width: 768px) {
   .admin-dash { padding: 1rem; }
   .form-grid { grid-template-columns: 1fr; }
