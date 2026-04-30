@@ -144,18 +144,28 @@ const AdminDashboard = () => {
         date: logForm.date,
         note: logForm.note
       }, { headers: { Authorization: `Bearer ${token}` } });
+      
+      // Update local form state to prevent overwrite on main save
+      const newTotal = Number(form.collected_amount) + Number(logForm.amount);
+      setForm(prev => ({ ...prev, collected_amount: newTotal }));
+      
       setLogForm({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
       fetchLogs(editPatient.fund.id);
       fetchData();
     } catch (e) { alert('Failed to add log'); }
   };
 
-  const handleDeleteLog = async (logId) => {
+  const handleDeleteLog = async (logId, amount) => {
     if (!window.confirm("Delete this entry?")) return;
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/donations/${logId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      // Update local form state
+      const newTotal = Math.max(0, Number(form.collected_amount) - Number(amount));
+      setForm(prev => ({ ...prev, collected_amount: newTotal }));
+
       fetchLogs(editPatient.fund.id);
       fetchData();
     } catch (e) { alert('Delete failed'); }
@@ -559,7 +569,7 @@ const AdminDashboard = () => {
                             <td>{new Date(log.date).toLocaleDateString()}</td>
                             <td style={{ fontWeight: '700', color: '#10b981' }}>৳{Number(log.amount).toLocaleString()}</td>
                             <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{log.note || '-'}</td>
-                            <td><button type="button" className="btn-delete-log" onClick={() => handleDeleteLog(log.id)}>✕</button></td>
+                            <td><button type="button" className="btn-delete-log" onClick={() => handleDeleteLog(log.id, log.amount)}>✕</button></td>
                           </tr>
                         ))}
                         {donationLogs.length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8' }}>No daily logs yet</td></tr>}
