@@ -11,68 +11,57 @@ const statusClass = (s) => {
 const PatientCard = memo(({ patient, fund, onClick }) => {
   const progress = fund
     ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(1)
-    : null;
+    : 0;
 
   return (
-    <div className="pcard" onClick={onClick} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onClick()}>
-       {/* Photo */}
+    <div className="pcard" onClick={onClick} role="button" tabIndex={0}>
        <div className="pcard-photo-wrap">
-         {patient.photo_url
-           ? <img src={patient.photo_url} alt={patient.name} className="pcard-photo" loading="lazy" />
-           : (
-             <div className="pcard-photo-placeholder">
-               <span>👤</span>
-             </div>
-           )
-         }
-         <span className={`pcard-badge ${statusClass(patient.status)}`}>{statusLabel(patient.status)}</span>
+         {patient.photo_url ? (
+           <img src={patient.photo_url} alt={patient.name} className="pcard-photo" loading="lazy" />
+         ) : (
+           <div className="pcard-photo-placeholder">👤</div>
+         )}
+         <div className={`pcard-status-badge ${statusClass(patient.status)}`}>
+           {statusLabel(patient.status)}
+         </div>
        </div>
  
-       {/* Info */}
        <div className="pcard-body">
-         <h3 className="pcard-name">{patient.name}</h3>
-         <p className="pcard-cancer">{patient.cancer_type || 'Cancer'}</p>
- 
-         <div className="pcard-details">
-           {patient.age && <span className="pcard-tag">🎂 {patient.age} yrs</span>}
-           {patient.blood_type && <span className="pcard-tag">🩸 {patient.blood_type}</span>}
+         <div className="pcard-main">
+           <h3 className="pcard-name">{patient.name}</h3>
+           <p className="pcard-type">{patient.cancer_type}</p>
          </div>
- 
-         {/* Progress */}
-         {fund && progress !== null ? (
-           <div className="pcard-fund">
-             <div className="pcard-progress-bar">
-               <div className="pcard-progress-fill" style={{ width: `${progress}%` }} />
+
+         <div className="pcard-stats">
+           <div className="pcard-stat-item">
+             <span className="pcard-stat-label">Blood</span>
+             <span className="pcard-stat-value">{patient.blood_type}</span>
+           </div>
+           <div className="pcard-stat-item">
+             <span className="pcard-stat-label">Age</span>
+             <span className="pcard-stat-value">{patient.age}y</span>
+           </div>
+         </div>
+
+         {fund ? (
+           <div className="pcard-fund-section">
+             <div className="pcard-progress-track">
+               <div className="pcard-progress-bar" style={{ width: `${progress}%` }} />
              </div>
-             <div className="pcard-fund-info">
-               <span className="pcard-fund-pct">{progress}% funded</span>
-               <span className="pcard-fund-amt">৳{(fund.target_amount || 0).toLocaleString()}</span>
+             <div className="pcard-fund-meta">
+               <span className="pcard-fund-percent">{progress}%</span>
+               <span className="pcard-fund-target">৳{(fund.target_amount || 0).toLocaleString()}</span>
              </div>
            </div>
          ) : (
-           <div className="pcard-no-fund">No campaign yet</div>
+           <div className="pcard-no-fund">No active campaign</div>
          )}
- 
-         <div className="pcard-cta-overlay">
-           <span>Click to View Details</span>
-         </div>
        </div>
-       <button 
-         className="pcard-share-btn" 
-         title="Share Profile"
-         onClick={(e) => {
-           e.stopPropagation();
-           const url = `${window.location.origin}/patients/${patient.id}`;
-           if (navigator.share) {
-             navigator.share({ title: `Support ${patient.name}`, url });
-           } else {
-             navigator.clipboard.writeText(url);
-             alert('Link copied to clipboard!');
-           }
-         }}
-       >
-         🔗 Share
-       </button>
+       
+       <div className="pcard-footer">
+         <span>View Details</span>
+         <span className="arrow">→</span>
+       </div>
      </div>
   );
 });
