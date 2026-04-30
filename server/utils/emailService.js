@@ -19,9 +19,9 @@ const sendVerificationEmail = async (email, token) => {
   const url = `${apiUrl}/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
-    from: `"Blood Cancer Support" <${process.env.EMAIL_USER}>`,
+    from: `"Cancer Support" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Verify Your Admin Account',
+    subject: 'Action Required: Verify Your Admin Account',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333;">
         <h2 style="color: #6366f1;">Welcome to Admin Team!</h2>

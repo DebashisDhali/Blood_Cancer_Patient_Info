@@ -31,7 +31,7 @@ const PatientCard = memo(({ patient, fund, onClick }) => {
        {/* Info */}
        <div className="pcard-body">
          <h3 className="pcard-name">{patient.name}</h3>
-         <p className="pcard-cancer">{patient.cancer_type || 'Blood Cancer'}</p>
+         <p className="pcard-cancer">{patient.cancer_type || 'Cancer'}</p>
  
          <div className="pcard-details">
            {patient.age && <span className="pcard-tag">🎂 {patient.age} yrs</span>}

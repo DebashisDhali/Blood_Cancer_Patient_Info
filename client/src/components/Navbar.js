@@ -18,7 +18,7 @@ const Navbar = () => {
           <span className="logo-icon">🩸</span>
           <div className="logo-text">
             <span className="logo-main">JU Cancer Support</span>
-            <span className="logo-sub">Blood Cancer Patient Platform</span>
+            <span className="logo-sub">Cancer Patient Support Platform</span>
           </div>
         </Link>
 

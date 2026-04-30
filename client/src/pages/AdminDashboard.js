@@ -431,11 +431,21 @@ const AdminDashboard = () => {
                   <label>Cancer Type</label>
                   <select value={form.cancer_type} onChange={e => f('cancer_type', e.target.value)}>
                     <option value="">Select Cancer Type</option>
-                    <option value="Leukemia">Leukemia (ALL/AML/CLL/CML)</option>
-                    <option value="Lymphoma">Lymphoma (Hodgkin/Non-Hodgkin)</option>
+                    <option value="Leukemia">Leukemia (Blood)</option>
+                    <option value="Lymphoma">Lymphoma</option>
                     <option value="Myeloma">Multiple Myeloma</option>
-                    <option value="Myelodysplastic Syndromes">Myelodysplastic Syndromes (MDS)</option>
-                    <option value="Other">Other Blood Cancer</option>
+                    <option value="Breast Cancer">Breast Cancer</option>
+                    <option value="Lung Cancer">Lung Cancer</option>
+                    <option value="Colorectal Cancer">Colorectal Cancer</option>
+                    <option value="Prostate Cancer">Prostate Cancer</option>
+                    <option value="Stomach Cancer">Stomach Cancer</option>
+                    <option value="Liver Cancer">Liver Cancer</option>
+                    <option value="Thyroid Cancer">Thyroid Cancer</option>
+                    <option value="Bone Cancer">Bone Cancer</option>
+                    <option value="Brain Tumor">Brain Tumor</option>
+                    <option value="Cervical Cancer">Cervical Cancer</option>
+                    <option value="Ovarian Cancer">Ovarian Cancer</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div className="form-field"><label>Status</label><select value={form.status} onChange={e => f('status', e.target.value)}><option value="in-treatment">In Treatment</option><option value="critical">Critical</option><option value="recovered">Recovered</option></select></div>

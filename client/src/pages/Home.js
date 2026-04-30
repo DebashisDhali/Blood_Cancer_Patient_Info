@@ -28,9 +28,9 @@ const Home = () => {
         <div className="hero-bg" />
         <div className="hero-content">
           <div className="hero-badge">🩸 Jahangirnagar University Cancer Support Initiative</div>
-          <h1>Fighting Blood Cancer<br /><span className="hero-highlight">Together</span></h1>
+          <h1>Fighting Cancer<br /><span className="hero-highlight">Together</span></h1>
           <p className="hero-desc">
-            A platform connecting blood cancer patients, supporters, and donors.
+            A complete platform built to support cancer patients and their families.
             Every contribution — big or small — makes a life-saving difference.
           </p>
           <div className="hero-actions">

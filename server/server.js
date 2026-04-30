@@ -94,7 +94,7 @@ app.get('/api/health', (req, res) => {
 app.get('/', (req, res) => {
   res.send(`
     <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h1 style="color: #6366f1;">Blood Cancer Support API</h1>
+      <h1 style="color: #6366f1;">Cancer Support API</h1>
       <p>The backend server is running successfully! 🚀</p>
       <p>Please use the frontend application to interact with the platform.</p>
     </div>

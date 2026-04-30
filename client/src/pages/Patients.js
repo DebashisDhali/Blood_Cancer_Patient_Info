@@ -47,8 +47,8 @@ const Patients = () => {
   return (
     <div className="patients-page">
       <div className="patients-header">
-        <h1>🩸 Fight Against Blood Cancer</h1>
-        <p>Support our heroes in their journey to recovery. Every bit of help counts.</p>
+        <h1>🎗️ Fight Against Cancer</h1>
+        <p>Your support can bring hope to those battling for their lives.</p>
       </div>
 
       {loading ? (
