@@ -9,18 +9,22 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
     const adminId = req.user.id || req.user.userId;
     console.log('[DEBUG] Stats requested for Admin ID:', adminId);
 
-    const [pCount, fCount, fSum] = await Promise.all([
-      supabase.from('patients').select('*', { count: 'exact', head: true }).eq('admin_id', adminId),
-      supabase.from('funds').select('id', { count: 'exact', head: true }),
-      supabase.from('funds').select('collected_amount')
-    ]);
+    const pCountRes = await supabase.from('patients').select('id', { count: 'exact' }).eq('admin_id', adminId);
+    const fCountRes = await supabase.from('funds').select('id', { count: 'exact' });
+    const fSumRes = await supabase.from('funds').select('collected_amount');
 
-    console.log(`[DEBUG] Found ${pCount.count} patients for this admin.`);
+    if (pCountRes.error) console.error('[DEBUG] pCount Error:', pCountRes.error);
+    if (fCountRes.error) console.error('[DEBUG] fCount Error:', fCountRes.error);
+    if (fSumRes.error) console.error('[DEBUG] fSum Error:', fSumRes.error);
+
+    const totalCollected = fSumRes.data?.reduce((sum, f) => sum + (f.collected_amount || 0), 0) || 0;
+    
+    console.log(`[DEBUG] Dashboard Stats: Patients=${pCountRes.count}, TotalCollected=${totalCollected}`);
 
     res.json({
-      totalPatients: pCount.count || 0,
-      activeFunds: fCount.count || 0,
-      totalCollected: fSum.data?.reduce((sum, f) => sum + (f.collected_amount || 0), 0) || 0,
+      totalPatients: pCountRes.count || 0,
+      activeFunds: fCountRes.count || 0,
+      totalCollected: totalCollected,
       totalDocuments: 0
     });
   } catch (error) {
