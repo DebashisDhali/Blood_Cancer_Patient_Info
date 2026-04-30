@@ -61,7 +61,9 @@ router.post('/register', async (req, res) => {
       await sendVerificationEmail(email, verification_token);
     } catch (mailErr) {
       console.error('Mail send fail:', mailErr);
-      // We still registered them, but they need a resend option (todo)
+      // Delete the admin if mail fails so they can try again after fixing env vars
+      await supabase.from('admins').delete().eq('email', email);
+      return res.status(500).json({ message: `Failed to send verification email: ${mailErr.message}. Please check your EMAIL_USER/PASS settings on Vercel.` });
     }
 
     res.status(201).json({
