@@ -90,6 +90,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'active', database: 'Supabase Connected' });
 });
 
+// Root Route (Prevents "Cannot GET /" confusion)
+app.get('/', (req, res) => {
+  res.send(`
+    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+      <h1 style="color: #6366f1;">Blood Cancer Support API</h1>
+      <p>The backend server is running successfully! 🚀</p>
+      <p>Please use the frontend application to interact with the platform.</p>
+    </div>
+  `);
+});
+
 // 5. Error Handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
