@@ -145,9 +145,11 @@ const AdminDashboard = () => {
         note: logForm.note
       }, { headers: { Authorization: `Bearer ${token}` } });
       
-      // Update local form state to prevent overwrite on main save
-      const newTotal = Number(form.collected_amount) + Number(logForm.amount);
-      setForm(prev => ({ ...prev, collected_amount: newTotal }));
+      // Update local form state using functional update to ensure we have latest state
+      setForm(prev => ({ 
+        ...prev, 
+        collected_amount: Number(prev.collected_amount || 0) + Number(logForm.amount) 
+      }));
       
       setLogForm({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
       fetchLogs(editPatient.fund.id);
@@ -162,9 +164,11 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Update local form state
-      const newTotal = Math.max(0, Number(form.collected_amount) - Number(amount));
-      setForm(prev => ({ ...prev, collected_amount: newTotal }));
+      // Update local form state using functional update
+      setForm(prev => ({ 
+        ...prev, 
+        collected_amount: Math.max(0, Number(prev.collected_amount || 0) - Number(amount)) 
+      }));
 
       fetchLogs(editPatient.fund.id);
       fetchData();
