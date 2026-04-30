@@ -173,4 +173,16 @@ router.get('/verify', (req, res) => {
   }
 });
 
+// Delete Self (Admin Deletes Own Account)
+router.delete('/me', authMiddleware, async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const { error } = await supabase.from('admins').delete().eq('id', adminId);
+    if (error) throw error;
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;

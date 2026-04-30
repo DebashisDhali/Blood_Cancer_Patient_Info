@@ -199,6 +199,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteSelf = async () => {
+    const confirm1 = window.confirm("Are you absolutely sure you want to delete YOUR administrator account?");
+    if (!confirm1) return;
+    const confirm2 = window.confirm("CRITICAL: This action cannot be undone. You will lose all access immediately. Proceed?");
+    if (!confirm2) return;
+
+    try {
+      setLoading(true);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Clear session and redirect
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    } catch (error) {
+      alert('Deletion failed: ' + (error.response?.data?.message || error.message));
+      setLoading(false);
+    }
+  };
+
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   if (loading) return <div className="dash-loading"><div className="spinner" /></div>;
@@ -210,7 +230,10 @@ const AdminDashboard = () => {
           <h1>Admin Dashboard</h1>
           <p className="dash-subtitle">Welcome back, <strong>{user?.username || user?.email || 'Admin'}</strong></p>
         </div>
-        <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn-delete-self" onClick={handleDeleteSelf}>Delete My Account</button>
+          <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>
+        </div>
       </div>
 
       <div className="dash-stats">
