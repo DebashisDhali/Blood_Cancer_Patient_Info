@@ -7,13 +7,15 @@ const { authMiddleware, adminOnly } = require('../middleware/auth');
 router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
   try {
     const adminId = req.user.id;
+    console.log('[DEBUG] Stats requested for Admin ID:', adminId);
+
     const [pCount, fCount, fSum] = await Promise.all([
       supabase.from('patients').select('*', { count: 'exact', head: true }).eq('admin_id', adminId),
-      supabase.from('funds').select('id, patient_id', { count: 'exact', head: true }), // Simplified
-      supabase.from('funds').select('collected_amount') // Simplified
+      supabase.from('funds').select('id', { count: 'exact', head: true }),
+      supabase.from('funds').select('collected_amount')
     ]);
 
-    if (pCount.error) console.error('Stats pCount Error:', pCount.error);
+    console.log(`[DEBUG] Found ${pCount.count} patients for this admin.`);
 
     res.json({
       totalPatients: pCount.count || 0,
@@ -22,32 +24,30 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
       totalDocuments: 0
     });
   } catch (error) {
-    console.error('Stats Route Error:', error);
+    console.error('[CRITICAL] Stats Route Error:', error);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Optimized: Get all patients with their funds
+// Optimized: Get all patients
 router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
   try {
     const adminId = req.user.id;
-    console.log('Fetching patients for admin:', adminId);
+    console.log('[DEBUG] Fetching patients list for Admin ID:', adminId);
 
     const { data, error } = await supabase
       .from('patients')
-      .select(`
-        *,
-        funds (id, target_amount, collected_amount)
-      `)
+      .select('*, funds(id, target_amount, collected_amount)')
       .eq('admin_id', adminId)
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Fetch Patients Error:', error);
+      console.error('[DEBUG] Supabase Error:', error);
       throw error;
     }
 
-    // Flatten fund array
+    console.log(`[DEBUG] Query returned ${data?.length || 0} rows.`);
+
     const formatted = (data || []).map(p => ({
       ...p,
       fund: (p.funds && p.funds.length > 0) ? p.funds[0] : null
@@ -55,7 +55,7 @@ router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
 
     res.json(formatted);
   } catch (error) {
-    console.error('Patients All Route Error:', error);
+    console.error('[CRITICAL] Patients All Route Error:', error);
     res.status(500).json({ message: error.message });
   }
 });
