@@ -5,67 +5,154 @@
 
 .patients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 
-/* Modal Redesign */
+/* Premium Side Drawer (Sheet) Design */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end; /* Align drawer to right */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .patient-modal.wide {
-  max-width: 900px; height: 600px; display: flex; overflow: hidden; padding: 0;
+  width: 100%;
+  max-width: 550px; /* Slimmer drawer */
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow-y: auto;
 }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: 0.2s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.4); transform: rotate(90deg); }
+
 .modal-sidebar {
-  width: 300px; background: #0f172a; color: white; padding: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;
+  width: 100%;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 3rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
+
 .modal-photo-box {
-  width: 150px; height: 150px; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;
+  width: 120px;
+  height: 120px;
+  border-radius: 24px; /* Squircle style */
+  overflow: hidden;
+  border: 4px solid rgba(255,255,255,0.1);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
+
 .modal-photo-box img { width: 100%; height: 100%; object-fit: cover; }
-.sidebar-info h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.status-tag { padding: 0.3rem 1rem; border-radius: 100px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-.status-tag.critical { background: #ef4444; }
-.status-tag.recovered { background: #10b981; }
-.status-tag.in-treatment { background: #7c3aed; }
-.cancer-type { margin-top: 1rem; color: #94a3b8; font-style: italic; }
 
-.modal-nav { margin-top: auto; width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
-.modal-nav button {
-  background: transparent; border: none; color: #94a3b8; text-align: left; padding: 0.8rem 1rem; border-radius: 8px; cursor: pointer; transition: 0.2s;
+.sidebar-info h2 { font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: -0.02em; }
+.status-tag { padding: 0.4rem 1.2rem; border-radius: 100px; font-size: 0.8rem; font-weight: 600; text-transform: capitalize; }
+.status-tag.critical { background: #ef4444; color: white; }
+.status-tag.recovered { background: #10b981; color: white; }
+.status-tag.in-treatment { background: #6366f1; color: white; }
+
+.modal-nav {
+  margin-top: 2rem;
+  width: 100%;
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  padding: 4px;
+  border-radius: 12px;
 }
-.modal-nav button.active { background: rgba(255,255,255,0.1); color: white; }
+.modal-nav button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+.modal-nav button.active { background: white; color: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-.modal-content-area { flex: 1; padding: 2.5rem; overflow-y: auto; background: white; }
-.tab-pane h3 { font-size: 1.4rem; margin-bottom: 2rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; }
+.modal-content-area { padding: 2rem; flex: 1; }
+.tab-pane h3 { font-size: 1.2rem; margin-bottom: 1.5rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; }
 
-/* Charts */
-.charts-row { display: flex; gap: 3rem; margin-bottom: 2.5rem; justify-content: center; }
-.chart-item { text-align: center; }
-.chart-label { font-weight: bold; margin-top: 0.5rem; color: #1e293b; }
-.chart-subtext { font-size: 0.85rem; color: #64748b; }
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.chart-item { background: #f8fafc; padding: 1.5rem 1rem; border-radius: 16px; border: 1px solid #f1f5f9; }
 
-.info-grid-detailed { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-.info-box { background: #f8fafc; padding: 1rem; border-radius: 10px; border: 1px solid #f1f5f9; }
-.info-box strong { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.2rem; }
+.info-grid-detailed { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+.info-box { background: #ffffff; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.2s; }
+.info-box:hover { border-color: #6366f1; transform: translateY(-2px); }
+.info-box strong { font-size: 0.7rem; color: #64748b; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
 
-/* Payment Styles */
-.fund-summary-box { display: flex; gap: 2rem; background: #f1f5f9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
-.fund-stat span { display: block; font-size: 0.85rem; color: #64748b; }
-.fund-stat strong { font-size: 1.4rem; color: #0f172a; }
+/* Payment & Funds */
+.fund-summary-box { display: flex; justify-content: space-around; background: #e0e7ff; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; }
+.fund-stat strong { font-size: 1.6rem; color: #1e1b4b; display: block; }
 
-.payment-grid { display: grid; grid-template-columns: 1fr 200px; gap: 2rem; }
-.pay-card.bank { background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.2rem; border-radius: 10px; border-left: 4px solid #1e293b; }
-.mobile-pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
-.m-pay { padding: 0.8rem; border-radius: 8px; border: 1px solid #e2e8f0; }
-.m-pay.bkash { border-left: 4px solid #d12053; }
-.m-pay.nagad { border-left: 4px solid #f7941d; }
-.m-pay.rocket { border-left: 4px solid #8c3494; }
-.m-pay span { display: block; font-size: 0.7rem; color: #64748b; }
+.payment-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+.pay-card.bank { background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 16px; position: relative; }
+.pay-card.bank::after { content: '🏦'; position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; opacity: 0.2; }
 
-.qr-section { text-align: center; }
-.qr-display-box { background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px dashed #cbd5e1; }
-.qr-display-box img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; }
-.qr-display-box p { font-size: 0.75rem; color: #64748b; }
+.mobile-pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.m-pay {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  transition: 0.2s;
+}
+.m-pay:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.m-pay strong { font-size: 1.1rem; margin-top: 0.2rem; }
 
-@media (max-width: 900px) {
-  .patient-modal.wide { flex-direction: column; height: 90vh; width: 95vw; }
-  .modal-sidebar { width: 100%; height: auto; padding: 1rem; }
-  .modal-photo-box { width: 80px; height: 80px; margin-bottom: 0.5rem; }
-  .modal-nav { flex-direction: row; margin-top: 1rem; }
-  .payment-grid { grid-template-columns: 1fr; }
-  .charts-row { gap: 1rem; }
+.qr-section { margin-top: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1.5rem; }
+.qr-display-box { max-width: 200px; margin: 1rem auto; padding: 1rem; background: white; border-radius: 16px; border: 2px dashed #e2e8f0; }
+
+@media (max-width: 600px) {
+  .patient-modal.wide { max-width: 100%; }
+  .charts-row { grid-template-columns: 1fr; }
+  .mobile-pay-grid { grid-template-columns: 1fr; }
 }

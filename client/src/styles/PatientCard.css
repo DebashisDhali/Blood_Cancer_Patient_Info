@@ -71,14 +71,37 @@
 .pcard-fund-amt { font-size: 0.78rem; color: var(--text-muted); }
 .pcard-no-fund { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem; font-style: italic; }
 
-/* CTA */
-.pcard-cta {
-  margin-top: auto;
-  font-size: 0.85rem; font-weight: 600;
-  color: var(--primary);
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
-  transition: gap 0.2s;
-  letter-spacing: 0.02em;
+/* CTA Overlay */
+.pcard-body { position: relative; }
+.pcard-cta-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: rgba(15, 23, 42, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 0 0 var(--radius) var(--radius);
 }
-.pcard:hover .pcard-cta { color: var(--primary-dark); }
+
+.pcard:hover .pcard-cta-overlay {
+  height: 50px;
+  opacity: 1;
+}
+
+.pcard-cta-overlay span {
+  transform: translateY(10px);
+  transition: 0.3s 0.1s;
+}
+
+.pcard:hover .pcard-cta-overlay span {
+  transform: translateY(0);
+}

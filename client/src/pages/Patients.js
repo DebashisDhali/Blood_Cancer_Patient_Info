@@ -77,71 +77,74 @@ const Patients = () => {
               </div>
               <div className="sidebar-info">
                 <h2>{selected.name}</h2>
-                <span className={`status-tag ${selected.status}`}>{selected.status.replace(/-/g, ' ')}</span>
-                <p className="cancer-type">{selected.cancer_type}</p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '1rem' }}>
+                  <span className={`status-tag ${selected.status}`}>{selected.status.replace(/-/g, ' ')}</span>
+                  <span className="status-tag" style={{ background: 'rgba(255,255,255,0.1)' }}>{selected.blood_type}</span>
+                </div>
               </div>
               <div className="modal-nav">
-                <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>Medical Info</button>
-                <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>Donation & Payment</button>
+                <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical</button>
+                <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation</button>
               </div>
             </div>
-
+ 
             <div className="modal-content-area">
               {activeTab === 'info' ? (
                 <div className="tab-pane">
-                  <h3>🏥 Treatment Overview</h3>
+                  <h3>📊 Treatment Progress</h3>
                   <div className="charts-row">
-                    <CircularProgress value={selected.chemo_completed || 0} total={selected.chemo_total || 0} color="#7c3aed" label="Chemo Sessions" />
+                    <CircularProgress value={selected.chemo_completed || 0} total={selected.chemo_total || 0} color="#7c3aed" label="Chemo" />
                     {selectedFund && (
-                      <CircularProgress value={selectedFund.collected_amount || 0} total={selectedFund.target_amount || 1} color="#10b981" label="Fund Raised" />
+                      <CircularProgress value={selectedFund.collected_amount || 0} total={selectedFund.target_amount || 1} color="#10b981" label="Fund" />
                     )}
                   </div>
                   
+                  <h3>🏥 Patient Information</h3>
                   <div className="info-grid-detailed">
-                    <div className="info-box"><strong>Age</strong>{selected.age} yrs</div>
-                    <div className="info-box"><strong>Blood Type</strong>{selected.blood_type}</div>
-                    <div className="info-box"><strong>Admission Date</strong>{selected.admission_date || 'N/A'}</div>
+                    <div className="info-box"><strong>Age</strong>{selected.age} Years</div>
+                    <div className="info-box"><strong>Cancer Type</strong>{selected.cancer_type}</div>
+                    <div className="info-box"><strong>Admission</strong>{selected.admission_date || 'N/A'}</div>
                     <div className="info-box"><strong>Hospital</strong>{selected.hospital || 'N/A'}</div>
-                    <div className="info-box"><strong>Doctor</strong>{selected.doctor_name || 'N/A'}</div>
+                    <div className="info-box"><strong>Specialist</strong>{selected.doctor_name || 'N/A'}</div>
                   </div>
                 </div>
               ) : (
                 <div className="tab-pane">
-                  <h3>💰 Payment Details</h3>
+                  <h3>💸 Fundraising Status</h3>
                   <div className="fund-summary-box">
                     <div className="fund-stat"><span>Target</span><strong>৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong></div>
-                    <div className="fund-stat"><span>Collected</span><strong>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong></div>
+                    <div className="fund-stat"><span>Raised</span><strong>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong></div>
                   </div>
-
+ 
+                  <h3>💳 Payment Methods</h3>
                   <div className="payment-grid">
                     <div className="payment-methods">
-                      <h4>Bank Account</h4>
-                      {selectedFund?.bank_account_no ? (
+                      {selectedFund?.bank_account_no && (
                         <div className="pay-card bank">
-                          <p><strong>{selectedFund.bank_name}</strong></p>
-                          <p>A/C: {selectedFund.bank_account_no}</p>
-                          <p>Name: {selectedFund.bank_account_name}</p>
-                          <small>{selectedFund.bank_branch}</small>
+                          <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 'bold' }}>BANK ACCOUNT</p>
+                          <p style={{ fontSize: '1.1rem', fontWeight: '700', marginTop: '0.5rem' }}>{selectedFund.bank_name}</p>
+                          <p style={{ margin: '0.2rem 0' }}>A/C: {selectedFund.bank_account_no}</p>
+                          <p style={{ color: '#64748b' }}>{selectedFund.bank_account_name}</p>
+                          <small style={{ display: 'block', marginTop: '0.5rem', color: '#94a3b8' }}>{selectedFund.bank_branch}</small>
                         </div>
-                      ) : <p className="none">No bank info provided</p>}
-
-                      <h4>Mobile Banking</h4>
+                      )}
+ 
                       <div className="mobile-pay-grid">
-                        {selectedFund?.bkash_no && <div className="m-pay bkash"><span>bKash</span><strong>{selectedFund.bkash_no}</strong></div>}
-                        {selectedFund?.nagad_no && <div className="m-pay nagad"><span>Nagad</span><strong>{selectedFund.nagad_no}</strong></div>}
-                        {selectedFund?.rocket_no && <div className="m-pay rocket"><span>Rocket</span><strong>{selectedFund.rocket_no}</strong></div>}
-                        {selectedFund?.upay_no && <div className="m-pay upay"><span>Upay</span><strong>{selectedFund.upay_no}</strong></div>}
+                        {selectedFund?.bkash_no && <div className="m-pay"><span>bKash</span><strong>{selectedFund.bkash_no}</strong></div>}
+                        {selectedFund?.nagad_no && <div className="m-pay"><span>Nagad</span><strong>{selectedFund.nagad_no}</strong></div>}
+                        {selectedFund?.rocket_no && <div className="m-pay"><span>Rocket</span><strong>{selectedFund.rocket_no}</strong></div>}
+                        {selectedFund?.upay_no && <div className="m-pay"><span>Upay</span><strong>{selectedFund.upay_no}</strong></div>}
                       </div>
                     </div>
-
+ 
                     <div className="qr-section">
-                      <h4>Scan to Pay</h4>
+                      <h3>🖼️ Scan to Donate</h3>
                       {selectedFund?.qr_code_url ? (
                         <div className="qr-display-box">
                           <img src={selectedFund.qr_code_url} alt="Donation QR" />
-                          <p>Save & Scan QR Code</p>
+                          <p>Save & Scan QR</p>
                         </div>
-                      ) : <div className="qr-placeholder">No QR Code Available</div>}
+                      ) : <div className="qr-placeholder" style={{ padding: '2rem', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>No QR Code Provided</div>}
                     </div>
                   </div>
                 </div>
