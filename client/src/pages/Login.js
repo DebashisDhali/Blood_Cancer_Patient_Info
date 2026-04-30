@@ -55,7 +55,13 @@ const Login = () => {
     if (result.success) {
       navigate('/admin');
     } else {
-      setError(result.message);
+      if (result.message.includes('verified')) {
+        setError('📧 Your account is not verified. Please check your email inbox and spam folder for the activation link.');
+      } else if (result.message.includes('password')) {
+        setError('❌ Incorrect password. Please try again or reset your password if you forgot it.');
+      } else {
+        setError(result.message || '⚠️ Login failed. Please check your credentials.');
+      }
     }
     
     setLoading(false);

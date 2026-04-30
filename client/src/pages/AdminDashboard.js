@@ -509,6 +509,27 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+      <div className="admin-help-box">
+        <h3>💡 Admin Quick Guide</h3>
+        <div className="help-grid-info">
+          <div className="help-item">
+            <strong>📸 Adding Photos</strong>
+            <p>Use square photos (max 2MB). The system auto-optimizes images for speed.</p>
+          </div>
+          <div className="help-item">
+            <strong>💰 Fund Tracking</strong>
+            <p>Add daily records in the "Ledger". The system will auto-calculate the total for you.</p>
+          </div>
+          <div className="help-item">
+            <strong>📄 Medical Docs</strong>
+            <p>Upload prescriptions and reports as PDFs. View them anytime from the patient profile.</p>
+          </div>
+          <div className="help-item">
+            <strong>🔗 Patient Share</strong>
+            <p>Click "Share" on any card to get a unique link for that specific patient's public profile.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
