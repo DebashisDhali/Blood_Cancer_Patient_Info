@@ -23,8 +23,12 @@ const AdminDashboard = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [qrFile, setQrFile] = useState(null);
-  const [qrPreview, setQrPreview] = useState(null);
+  const [bankQrFile, setBankQrFile] = useState(null);
+  const [bankQrPreview, setBankQrPreview] = useState(null);
+  const [bkashQrFile, setBkashQrFile] = useState(null);
+  const [bkashQrPreview, setBkashQrPreview] = useState(null);
+  const [nagadQrFile, setNagadQrFile] = useState(null);
+  const [nagadQrPreview, setNagadQrPreview] = useState(null);
   const [sidFile, setSidFile] = useState(null);
   const [sidPreview, setSidPreview] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -32,7 +36,9 @@ const AdminDashboard = () => {
   const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const qrInputRef = useRef(null);
+  const bankQrRef = useRef(null);
+  const bkashQrRef = useRef(null);
+  const nagadQrRef = useRef(null);
   const sidInputRef = useRef(null);
 
   const fetchData = useCallback(async () => {
@@ -108,8 +114,9 @@ const AdminDashboard = () => {
     setForm(EMPTY_FORM); 
     setPhotoPreview(null); 
     setPhotoFile(null);
-    setQrPreview(null); 
-    setQrFile(null);
+    setBankQrPreview(null); setBankQrFile(null);
+    setBkashQrPreview(null); setBkashQrFile(null);
+    setNagadQrPreview(null); setNagadQrFile(null);
     setSidPreview(null);
     setSidFile(null);
     setFormMsg(null); 
@@ -206,7 +213,9 @@ const AdminDashboard = () => {
       rocket_no: p.fund?.rocket_no || '', upay_no: p.fund?.upay_no || ''
     });
     setPhotoPreview(p.photo_url);
-    setQrPreview(p.fund?.qr_code_url);
+    setBankQrPreview(p.fund?.bank_qr_url);
+    setBkashQrPreview(p.fund?.bkash_qr_url);
+    setNagadQrPreview(p.fund?.nagad_qr_url);
     setSidPreview(p.student_id_url);
     if (p.fund?.id) fetchLogs(p.fund.id);
     fetchDocs(p.id);
@@ -248,7 +257,9 @@ const AdminDashboard = () => {
 
       const tasks = [];
       if (photoFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { image: photoFile }, { headers }));
-      if (qrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: qrFile }, { headers }));
+      if (bankQrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: bankQrFile, type: 'bank' }, { headers }));
+      if (bkashQrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: bkashQrFile, type: 'bkash' }, { headers }));
+      if (nagadQrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: nagadQrFile, type: 'nagad' }, { headers }));
       if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: sidFile }, { headers }));
       
       await Promise.all(tasks);
@@ -438,18 +449,39 @@ const AdminDashboard = () => {
               </div>
 
               <div className="form-grid">
-                <div className="form-field"><label>Bank Name</label><input value={form.bank_name} onChange={e => f('bank_name', e.target.value)} /></div>
-                <div className="form-field"><label>Account No</label><input value={form.bank_account_no} onChange={e => f('bank_account_no', e.target.value)} /></div>
-                <div className="form-field"><label>bKash</label><input value={form.bkash_no} onChange={e => f('bkash_no', e.target.value)} /></div>
-                <div className="form-field"><label>Nagad</label><input value={form.nagad_no} onChange={e => f('nagad_no', e.target.value)} /></div>
-              </div>
-              
-              <div className="form-field" style={{ marginTop: '15px' }}>
-                <label>Payment QR Code (Bank, bKash, Nagad)</label>
-                <div className="qr-upload-box" onClick={() => qrInputRef.current?.click()}>
-                  {qrPreview ? <img src={qrPreview} alt="QR Preview" className="qr-mini-preview" /> : '📸 Upload QR Code'}
+                <div className="form-field">
+                  <label>Bank Name</label><input value={form.bank_name} onChange={e => f('bank_name', e.target.value)} />
                 </div>
-                <input ref={qrInputRef} type="file" hidden onChange={e => handleFile(e, setQrPreview, setQrFile)} />
+                <div className="form-field">
+                  <label>Account No & QR</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input style={{flex: 1}} value={form.bank_account_no} onChange={e => f('bank_account_no', e.target.value)} />
+                    <div className="qr-mini-btn" onClick={() => bankQrRef.current?.click()}>
+                      {bankQrPreview ? <img src={bankQrPreview} alt="QR" /> : '📷'}
+                    </div>
+                    <input ref={bankQrRef} type="file" hidden onChange={e => handleFile(e, setBankQrPreview, setBankQrFile)} />
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label>bKash & QR</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input style={{flex: 1}} value={form.bkash_no} onChange={e => f('bkash_no', e.target.value)} />
+                    <div className="qr-mini-btn" onClick={() => bkashQrRef.current?.click()}>
+                      {bkashQrPreview ? <img src={bkashQrPreview} alt="QR" /> : '📷'}
+                    </div>
+                    <input ref={bkashQrRef} type="file" hidden onChange={e => handleFile(e, setBkashQrPreview, setBkashQrFile)} />
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label>Nagad & QR</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input style={{flex: 1}} value={form.nagad_no} onChange={e => f('nagad_no', e.target.value)} />
+                    <div className="qr-mini-btn" onClick={() => nagadQrRef.current?.click()}>
+                      {nagadQrPreview ? <img src={nagadQrPreview} alt="QR" /> : '📷'}
+                    </div>
+                    <input ref={nagadQrRef} type="file" hidden onChange={e => handleFile(e, setNagadQrPreview, setNagadQrFile)} />
+                  </div>
+                </div>
               </div>
 
               {editPatient?.fund && (

@@ -26,7 +26,9 @@ ALTER TABLE patients ADD COLUMN IF NOT EXISTS session TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS student_id_url TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS admin_id UUID REFERENCES admins(id) ON DELETE SET NULL;
 ALTER TABLE funds ADD COLUMN IF NOT EXISTS payment_holder_info TEXT;
-ALTER TABLE funds ADD COLUMN IF NOT EXISTS qr_code_url TEXT;
+ALTER TABLE funds ADD COLUMN IF NOT EXISTS bank_qr_url TEXT;
+ALTER TABLE funds ADD COLUMN IF NOT EXISTS bkash_qr_url TEXT;
+ALTER TABLE funds ADD COLUMN IF NOT EXISTS nagad_qr_url TEXT;
 
 -- 4. Create index for documents (if implemented)
 CREATE INDEX IF NOT EXISTS idx_documents_patient_id ON documents (patient_id);

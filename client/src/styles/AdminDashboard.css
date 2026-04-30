@@ -185,6 +185,15 @@
 }
 .qr-mini-preview { max-height: 150px; border-radius: 8px; object-fit: contain; box-shadow: var(--admin-shadow); }
 
+.qr-mini-btn {
+  width: 45px; height: 45px; border-radius: 10px; background: #f1f5f9;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  cursor: pointer; border: 1px dashed #cbd5e1; transition: 0.2s;
+  overflow: hidden; flex-shrink: 0;
+}
+.qr-mini-btn:hover { background: #e2e8f0; border-color: var(--admin-primary); }
+.qr-mini-btn img { width: 100%; height: 100%; object-fit: cover; }
+
 .form-footer {
   padding: 1.5rem 2rem; border-top: 1px solid var(--admin-border); background: #f8fafc;
   display: flex; justify-content: flex-end;

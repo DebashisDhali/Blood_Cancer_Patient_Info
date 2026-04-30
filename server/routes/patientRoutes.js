@@ -155,15 +155,20 @@ router.post('/:id/student-id', authMiddleware, adminOnly, async (req, res) => {
   } catch (error) { res.status(400).json({ message: error.message }); }
 });
 
-// QR Code upload
+// QR Code upload (Dynamic for Bank, bKash, Nagad)
 router.post('/:id/qr', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { image } = req.body;
-    const filename = `qr-${req.params.id}-${Date.now()}.png`;
+    const { image, type } = req.body; // type should be 'bank', 'bkash', or 'nagad'
+    if (!['bank', 'bkash', 'nagad'].includes(type)) throw new Error('Invalid QR type');
+
+    const filename = `${type}-qr-${req.params.id}-${Date.now()}.png`;
     const { error: upErr } = await supabase.storage.from('patient-photos').upload(filename, Buffer.from(image, 'base64'), { contentType: 'image/png', upsert: true });
     if (upErr) throw upErr;
+    
     const url = supabase.storage.from('patient-photos').getPublicUrl(filename).data.publicUrl;
-    await supabase.from('funds').update({ qr_code_url: url }).eq('patient_id', req.params.id);
+    const updateField = `${type}_qr_url`;
+    
+    await supabase.from('funds').update({ [updateField]: url }).eq('patient_id', req.params.id);
     res.json({ url });
   } catch (error) { res.status(400).json({ message: error.message }); }
 });
