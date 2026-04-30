@@ -104,4 +104,17 @@ router.post('/:id/photo', authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+// Student ID upload
+router.post('/:id/student-id', authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { image } = req.body;
+    const filename = `sid-${req.params.id}-${Date.now()}.png`;
+    const { error: upErr } = await supabase.storage.from('patient-photos').upload(filename, Buffer.from(image, 'base64'), { contentType: 'image/png', upsert: true });
+    if (upErr) throw upErr;
+    const url = supabase.storage.from('patient-photos').getPublicUrl(filename).data.publicUrl;
+    await supabase.from('patients').update({ student_id_url: url }).eq('id', req.params.id);
+    res.json({ url });
+  } catch (error) { res.status(400).json({ message: error.message }); }
+});
+
 module.exports = router;

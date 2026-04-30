@@ -23,6 +23,7 @@ ALTER TABLE admins ADD COLUMN IF NOT EXISTS verification_token TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS dept TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS batch TEXT;
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS session TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS student_id_url TEXT;
 ALTER TABLE funds ADD COLUMN IF NOT EXISTS payment_holder_info TEXT;
 
 -- 4. Create index for documents (if implemented)

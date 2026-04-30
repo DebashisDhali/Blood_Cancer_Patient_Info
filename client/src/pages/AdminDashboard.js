@@ -25,12 +25,15 @@ const AdminDashboard = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [qrFile, setQrFile] = useState(null);
   const [qrPreview, setQrPreview] = useState(null);
+  const [sidFile, setSidFile] = useState(null);
+  const [sidPreview, setSidPreview] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formMsg, setFormMsg] = useState(null);
   const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const qrInputRef = useRef(null);
+  const sidInputRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -193,6 +196,7 @@ const AdminDashboard = () => {
     });
     setPhotoPreview(p.photo_url);
     setQrPreview(p.fund?.qr_code_url);
+    setSidPreview(p.student_id_url);
     if (p.fund?.id) fetchLogs(p.fund.id);
     fetchDocs(p.id);
     setFormMsg(null);
@@ -231,12 +235,11 @@ const AdminDashboard = () => {
       }
 
       // Parallelize remaining tasks
-      const saveTasks = [];
-
-      // 1. Photo Upload
-      if (photoFile) {
-        saveTasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { photo: photoFile }, { headers }));
-      }
+      const tasks = [];
+      if (photoFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { image: await toBase64(photoFile) }, { headers }));
+      if (qrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: await toBase64(qrFile) }, { headers }));
+      if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: await toBase64(sidFile) }, { headers }));
+      await Promise.all(tasks);
 
       // 2. Fund & QR (QR depends on fid)
       if (form.target_amount) {
@@ -425,6 +428,13 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>Department</label><input placeholder="e.g. CSE" value={form.dept} onChange={e => f('dept', e.target.value)} /></div>
                 <div className="form-field"><label>Batch</label><input placeholder="e.g. 50th" value={form.batch} onChange={e => f('batch', e.target.value)} /></div>
                 <div className="form-field"><label>Session</label><input placeholder="e.g. 2021-22" value={form.session} onChange={e => f('session', e.target.value)} /></div>
+              </div>
+
+              <div className="form-field"><label>Student ID Card</label>
+                <div className="qr-upload-box" onClick={() => sidInputRef.current.click()}>
+                  {sidPreview ? <img src={sidPreview} alt="Student ID Preview" className="qr-mini-preview" /> : '🆔 Upload Student ID'}
+                </div>
+                <input ref={sidInputRef} type="file" hidden onChange={e => handleFile(e, setSidPreview, setSidFile)} />
               </div>
 
               <div className="form-section-title">Medical Progress</div>
