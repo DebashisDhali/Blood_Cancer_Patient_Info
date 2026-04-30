@@ -57,22 +57,40 @@ router.get('/:id', async (req, res) => {
 router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, ...patientData } = req.body;
+    const adminId = req.user.id;
     
-    // Insert Patient with admin_id
-    patientData.admin_id = req.user.id;
-    const { data: newPatient, error: pErr } = await supabase.from('patients').insert([patientData]).select();
-    if (pErr) throw pErr;
+    console.log('Attaching admin_id:', adminId);
+
+    // Insert Patient with explicit admin_id
+    const { data: newPatient, error: pErr } = await supabase
+      .from('patients')
+      .insert([{ ...patientData, admin_id: adminId }])
+      .select();
+
+    if (pErr) {
+      console.error('Patient Insert Error:', pErr);
+      throw pErr;
+    }
+
+    if (!newPatient || newPatient.length === 0) {
+      throw new Error('Patient created but Supabase returned no data. Check RLS.');
+    }
+
     const pid = newPatient[0].id;
 
     // Insert Fund if provided
     if (fund) {
       const { error: fErr } = await supabase.from('funds').insert([{ ...fund, patient_id: pid }]);
-      if (fErr) throw fErr;
+      if (fErr) {
+        console.error('Fund Insert Error:', fErr);
+        throw fErr;
+      }
     }
 
     clearCache('patients');
     res.status(201).json(newPatient[0]);
   } catch (error) {
+    console.error('Create Patient Route Error:', error);
     res.status(400).json({ message: error.message });
   }
 });
