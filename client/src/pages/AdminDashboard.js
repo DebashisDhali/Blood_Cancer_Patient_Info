@@ -203,9 +203,17 @@ const AdminDashboard = () => {
     setShowForm(true);
   };
 
+  const toBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = (error) => reject(error);
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormLoading(true);
+    setFormMsg(null);
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const patientData = {
@@ -227,47 +235,19 @@ const AdminDashboard = () => {
       
       let pid;
       if (editPatient) { 
-        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, patientData, { headers }); 
+        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, { ...patientData, fund: fundData }, { headers }); 
         pid = editPatient.id; 
       } else { 
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, patientData, { headers }); 
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, { ...patientData, fund: fundData }, { headers }); 
         pid = res.data.id; 
       }
 
-      // Parallelize remaining tasks
       const tasks = [];
       if (photoFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { image: await toBase64(photoFile) }, { headers }));
       if (qrFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/qr`, { image: await toBase64(qrFile) }, { headers }));
       if (sidFile) tasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/student-id`, { image: await toBase64(sidFile) }, { headers }));
+      
       await Promise.all(tasks);
-
-      // 2. Fund & QR (QR depends on fid)
-      if (form.target_amount) {
-        const fundSave = async () => {
-          const fPayload = {
-            patient_id: pid, target_amount: Number(form.target_amount), collected_amount: Number(form.collected_amount),
-            description: form.fund_description, bank_name: form.bank_name, bank_account_name: form.bank_account_name,
-            bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
-            bkash_no: form.bkash_no, nagad_no: form.nagad_no, rocket_no: form.rocket_no, upay_no: form.upay_no
-          };
-          
-          let fid;
-          if (editPatient?.fund) { 
-            await axios.put(`${process.env.REACT_APP_API_URL}/funds/${editPatient.fund.id}`, fPayload, { headers }); 
-            fid = editPatient.fund.id; 
-          } else { 
-            const res = await axios.post(`${process.env.REACT_APP_API_URL}/funds`, fPayload, { headers }); 
-            fid = res.data.id; 
-          }
-          
-          if (qrFile) {
-            await axios.post(`${process.env.REACT_APP_API_URL}/funds/${fid}/qr`, { photo: qrFile }, { headers });
-          }
-        };
-        saveTasks.push(fundSave());
-      }
-
-      await Promise.all(saveTasks);
 
       setFormMsg({ type: 'success', text: '✅ Saved successfully!' });
       await fetchData();
