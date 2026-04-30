@@ -99,9 +99,13 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, created_at, id, ...patientData } = req.body;
     
-    // Verify ownership and Update Patient
+    // Verify ownership or allow Super Admin
     const { data: checkOwnership } = await supabase.from('patients').select('admin_id').eq('id', req.params.id).single();
-    if (!checkOwnership || checkOwnership.admin_id !== req.user.id) {
+    const currentAdminId = req.user.id || req.user.userId;
+    const isOwner = checkOwnership && checkOwnership.admin_id === currentAdminId;
+    const isSuperAdmin = req.user.role === 'super_admin';
+
+    if (!isSuperAdmin && !isOwner) {
       return res.status(403).json({ message: 'Unauthorized: You can only edit patients you have added' });
     }
 
@@ -130,9 +134,13 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
 // Delete Patient
 router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
-    // Verify ownership before deleting
+    // Verify ownership or allow Super Admin
     const { data: checkOwnership } = await supabase.from('patients').select('admin_id').eq('id', req.params.id).single();
-    if (!checkOwnership || checkOwnership.admin_id !== req.user.id) {
+    const currentAdminId = req.user.id || req.user.userId;
+    const isOwner = checkOwnership && checkOwnership.admin_id === currentAdminId;
+    const isSuperAdmin = req.user.role === 'super_admin';
+
+    if (!isSuperAdmin && !isOwner) {
       return res.status(403).json({ message: 'Unauthorized: You can only delete patients you have added' });
     }
 
