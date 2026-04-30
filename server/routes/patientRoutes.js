@@ -119,14 +119,24 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
     if (pErr) throw pErr;
 
     // Update Fund if provided
-    if (fund) {
+    if (fund && Object.keys(fund).length > 0) {
+      // Remove sensitive/meta fields from fund object before update/insert
+      const { id: fId, created_at: fCa, patient_id: fPid, ...fundData } = fund;
+      
       const { data: existingFund } = await supabase.from('funds').select('id').eq('patient_id', req.params.id).single();
+      
       if (existingFund) {
-        const { error: fErr } = await supabase.from('funds').update(fund).eq('id', existingFund.id);
-        if (fErr) throw fErr;
+        const { error: fErr } = await supabase.from('funds').update(fundData).eq('id', existingFund.id);
+        if (fErr) {
+          console.error('Fund Update Error:', fErr);
+          throw fErr;
+        }
       } else {
-        const { error: fErr } = await supabase.from('funds').insert([{ ...fund, patient_id: req.params.id }]);
-        if (fErr) throw fErr;
+        const { error: fErr } = await supabase.from('funds').insert([{ ...fundData, patient_id: req.params.id }]);
+        if (fErr) {
+          console.error('Fund Insert Error:', fErr);
+          throw fErr;
+        }
       }
     }
 
