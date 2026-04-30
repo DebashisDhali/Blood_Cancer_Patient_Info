@@ -6,6 +6,7 @@ const supabase = require('../config/supabaseClient');
 const { generateToken } = require('../utils/helpers');
 const crypto = require('crypto');
 const { sendVerificationEmail } = require('../utils/emailService');
+const { authMiddleware } = require('../middleware/auth');
 
 // Register Admin
 router.post('/register', async (req, res) => {
