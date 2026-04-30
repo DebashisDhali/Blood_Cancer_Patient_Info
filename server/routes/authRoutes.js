@@ -92,8 +92,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Update last login
-    await supabase
+    // Update last login (don't await to speed up response)
+    supabase
       .from('admins')
       .update({ updated_at: new Date() })
       .eq('id', admins.id);

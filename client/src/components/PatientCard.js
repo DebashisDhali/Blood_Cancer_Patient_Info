@@ -18,7 +18,7 @@ const PatientCard = ({ patient, fund, onClick }) => {
       {/* Photo */}
       <div className="pcard-photo-wrap">
         {patient.photo_url
-          ? <img src={patient.photo_url} alt={patient.name} className="pcard-photo" />
+          ? <img src={patient.photo_url} alt={patient.name} className="pcard-photo" loading="lazy" />
           : (
             <div className="pcard-photo-placeholder">
               <span>👤</span>

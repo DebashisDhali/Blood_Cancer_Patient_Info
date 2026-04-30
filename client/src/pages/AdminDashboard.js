@@ -94,24 +94,49 @@ const AdminDashboard = () => {
       };
 
       let pid;
-      if (editPatient) { await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, pPayload, { headers }); pid = editPatient.id; }
-      else { const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, pPayload, { headers }); pid = res.data.id; }
-
-      if (photoFile) await axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { photo: photoFile }, { headers });
-
-      if (form.target_amount) {
-        const fPayload = {
-          patient_id: pid, target_amount: Number(form.target_amount), collected_amount: Number(form.collected_amount),
-          description: form.fund_description, bank_name: form.bank_name, bank_account_name: form.bank_account_name,
-          bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
-          bkash_no: form.bkash_no, nagad_no: form.nagad_no, rocket_no: form.rocket_no, upay_no: form.upay_no
-        };
-        let fid;
-        if (editPatient?.fund) { await axios.put(`${process.env.REACT_APP_API_URL}/funds/${editPatient.fund.id}`, fPayload, { headers }); fid = editPatient.fund.id; }
-        else { const res = await axios.post(`${process.env.REACT_APP_API_URL}/funds`, fPayload, { headers }); fid = res.data.id; }
-        
-        if (qrFile) await axios.post(`${process.env.REACT_APP_API_URL}/funds/${fid}/qr`, { photo: qrFile }, { headers });
+      if (editPatient) { 
+        await axios.put(`${process.env.REACT_APP_API_URL}/patients/${editPatient.id}`, pPayload, { headers }); 
+        pid = editPatient.id; 
+      } else { 
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/patients`, pPayload, { headers }); 
+        pid = res.data.id; 
       }
+
+      // Parallelize remaining tasks
+      const saveTasks = [];
+
+      // 1. Photo Upload
+      if (photoFile) {
+        saveTasks.push(axios.post(`${process.env.REACT_APP_API_URL}/patients/${pid}/photo`, { photo: photoFile }, { headers }));
+      }
+
+      // 2. Fund & QR (QR depends on fid)
+      if (form.target_amount) {
+        const fundSave = async () => {
+          const fPayload = {
+            patient_id: pid, target_amount: Number(form.target_amount), collected_amount: Number(form.collected_amount),
+            description: form.fund_description, bank_name: form.bank_name, bank_account_name: form.bank_account_name,
+            bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
+            bkash_no: form.bkash_no, nagad_no: form.nagad_no, rocket_no: form.rocket_no, upay_no: form.upay_no
+          };
+          
+          let fid;
+          if (editPatient?.fund) { 
+            await axios.put(`${process.env.REACT_APP_API_URL}/funds/${editPatient.fund.id}`, fPayload, { headers }); 
+            fid = editPatient.fund.id; 
+          } else { 
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/funds`, fPayload, { headers }); 
+            fid = res.data.id; 
+          }
+          
+          if (qrFile) {
+            await axios.post(`${process.env.REACT_APP_API_URL}/funds/${fid}/qr`, { photo: qrFile }, { headers });
+          }
+        };
+        saveTasks.push(fundSave());
+      }
+
+      await Promise.all(saveTasks);
 
       setFormMsg({ type: 'success', text: '✅ Saved successfully!' });
       await fetchData();
@@ -176,6 +201,7 @@ const AdminDashboard = () => {
                   {photoPreview ? <img src={photoPreview} alt="Profile Preview" className="photo-preview-img" /> : '📷'}
                 </div>
                 <input ref={fileInputRef} type="file" hidden onChange={e => handleFile(e, setPhotoPreview, setPhotoFile)} />
+                <small className="photo-hint">Max 2MB recommended for best speed</small>
               </div>
 
               <div className="form-grid">
