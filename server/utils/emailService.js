@@ -13,7 +13,7 @@ const sendVerificationEmail = async (email, token) => {
     logger: true
   });
 
-  const apiUrl = process.env.API_BASE_URL || 'http://localhost:5000';
+  const apiUrl = process.env.API_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:5000');
   const url = `${apiUrl}/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
