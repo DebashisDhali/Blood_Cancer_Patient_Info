@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../styles/PatientCard.css';
 
 const statusLabel = (s) => (s || 'In Treatment').replace(/-/g, ' ');
@@ -8,7 +8,7 @@ const statusClass = (s) => {
   return 'badge-primary';
 };
 
-const PatientCard = ({ patient, fund, onClick }) => {
+const PatientCard = memo(({ patient, fund, onClick }) => {
   const progress = fund
     ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(1)
     : null;
@@ -75,6 +75,6 @@ const PatientCard = ({ patient, fund, onClick }) => {
        </button>
      </div>
   );
-};
+});
 
 export default PatientCard;

@@ -3,11 +3,27 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const compression = require('compression');
+const helmet = require('helmet');
 const { createClient } = require('@supabase/supabase-js');
 
 dotenv.config();
 
 const app = express();
+
+// Security & Performance Headers
+app.use(helmet({
+  crossOriginResourcePolicy: false, // Allow loading images from Supabase
+}));
+
+// Browser Caching Middleware (60 seconds for GET requests)
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.set('Cache-Control', 'public, max-age=60'); // Browser cache for 60s
+  } else {
+    res.set('Cache-Control', 'no-store'); // Don't cache POST/PUT/DELETE
+  }
+  next();
+});
 
 app.use(compression()); // Gzip compression
 
