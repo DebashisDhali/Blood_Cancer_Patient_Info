@@ -71,9 +71,11 @@ const Login = () => {
         <input
           type="email"
           name="email"
+          id="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
+          autoComplete="email"
           required
         />
 
@@ -81,9 +83,11 @@ const Login = () => {
           <input
             type={showPassword ? 'text' : 'password'}
             name="password"
+            id="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="current-password"
             required
           />
           <button

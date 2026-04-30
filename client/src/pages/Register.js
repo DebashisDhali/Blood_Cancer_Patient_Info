@@ -82,18 +82,22 @@ const Register = () => {
         <input
           type="text"
           name="username"
+          id="username"
           placeholder="Username"
           value={formData.username}
           onChange={handleChange}
+          autoComplete="username"
           required
         />
 
         <input
           type="email"
           name="email"
+          id="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
+          autoComplete="email"
           required
         />
 
@@ -101,9 +105,11 @@ const Register = () => {
           <input
             type={showPassword ? 'text' : 'password'}
             name="password"
+            id="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="new-password"
             required
           />
           <button
@@ -120,9 +126,11 @@ const Register = () => {
           <input
             type={showConfirmPassword ? 'text' : 'password'}
             name="confirmPassword"
+            id="confirmPassword"
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
+            autoComplete="new-password"
             required
           />
           <button
