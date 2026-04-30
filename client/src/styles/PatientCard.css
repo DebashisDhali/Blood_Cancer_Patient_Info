@@ -1,92 +1,229 @@
-/* ── Senior Designer Level Patient Card ───────────────────────────── */
-.pcard {
+.pcard-premium {
   background: white;
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
   border: 1px solid #f1f5f9;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
   display: flex;
   flex-direction: column;
-  position: relative;
+  height: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
 }
 
-.pcard:hover { 
-  transform: translateY(-8px) scale(1.02); 
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
-  border-color: #6366f1;
+.pcard-premium:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+  border-color: #e2e8f0;
 }
 
-/* Photo */
-.pcard-photo-wrap {
-  position: relative;
-  width: 100%; height: 240px;
+/* Header & Image */
+.pcard-header-wrap {
+  padding: 1rem;
+  padding-bottom: 0;
+}
+
+.pcard-image-box {
+  width: 100%;
+  height: 220px;
+  border-radius: 20px;
   overflow: hidden;
+  position: relative;
   background: #f8fafc;
 }
-.pcard-photo { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-.pcard:hover .pcard-photo { transform: scale(1.1); }
 
-/* Status badge */
-.pcard-badge {
-  position: absolute; top: 1rem; right: 1rem;
-  font-size: 0.75rem; font-weight: 800;
-  padding: 0.5rem 1rem; border-radius: 100px;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+.pcard-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pcard-premium:hover .pcard-img {
+  transform: scale(1.1);
+}
+
+.pcard-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+
+/* Glass Badge */
+.pcard-glass-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
   z-index: 2;
 }
 
-/* Body */
-.pcard-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; gap: 0.5rem; position: relative; }
-.pcard-name { font-size: 1.4rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 0.1rem; }
-.pcard-cancer { font-size: 0.85rem; color: #6366f1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-primary { background: rgba(99, 102, 241, 0.7); }
+.badge-danger { background: rgba(244, 63, 94, 0.7); }
+.badge-success { background: rgba(16, 185, 129, 0.7); }
 
-/* Details */
-.pcard-details { display: flex; gap: 0.75rem; margin-top: 0.5rem; margin-bottom: 1.25rem; }
-.pcard-tag {
-  background: #f1f5f9; color: #475569;
-  font-size: 0.8rem; font-weight: 700;
-  padding: 0.4rem 0.8rem; border-radius: 10px;
+/* Details Wrap */
+.pcard-details-wrap {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Fund progress */
-.pcard-fund { margin-top: auto; }
-.pcard-progress-bar {
-  height: 10px; background: #f1f5f9;
-  border-radius: 100px; overflow: hidden; margin-bottom: 0.6rem;
+.pcard-top-info {
+  margin-bottom: 1.25rem;
 }
-.pcard-progress-fill {
+
+.pcard-blood-type {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #6366f1;
+  background: #eef2ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.pcard-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.pcard-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Mini Stats Row */
+.pcard-stats-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pcard-mini-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.pcard-mini-stat label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.pcard-mini-stat span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Funding Zone */
+.pcard-funding-zone {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.pcard-progress-container {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.pcard-progress-fill-premium {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  border-radius: 100px; transition: width 0.8s ease;
+  background: linear-gradient(to right, #6366f1, #4f46e5);
+  border-radius: 10px;
+  transition: width 1s ease-out;
 }
-.pcard-fund-info { display: flex; justify-content: space-between; align-items: center; }
-.pcard-fund-pct { font-size: 0.85rem; font-weight: 800; color: #6366f1; }
-.pcard-fund-amt { font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
 
-/* Share Button */
-.pcard-share-btn {
-  position: absolute; top: 1rem; left: 1rem;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(4px);
-  border: none; padding: 0.6rem 1.2rem; border-radius: 14px;
-  font-size: 0.8rem; font-weight: 800; color: #0f172a;
-  cursor: pointer; z-index: 5;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-  transition: 0.3s;
+.pcard-funding-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.pcard-share-btn:hover { background: white; transform: scale(1.05); }
 
-/* Overlay */
-.pcard-cta-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
-  display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: 2rem; color: white; font-weight: 700; font-size: 1rem;
-  opacity: 0; transition: 0.4s; pointer-events: none;
+.pcard-percent {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #6366f1;
 }
-.pcard:hover .pcard-cta-overlay { opacity: 1; }
-.pcard-cta-overlay span { transform: translateY(20px); transition: 0.4s 0.1s; }
-.pcard:hover .pcard-cta-overlay span { transform: translateY(0); }
+
+.pcard-target {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.pcard-no-campaign {
+  margin-top: auto;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Action Bar */
+.pcard-action-bar {
+  padding: 1.25rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.pcard-premium:hover .pcard-action-bar {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.pcard-arrow-icon {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.3s;
+}
+
+.pcard-premium:hover .pcard-arrow-icon {
+  transform: translateX(5px);
+  background: #6366f1;
+  color: white;
+}

@@ -10,59 +10,62 @@ const statusClass = (s) => {
 
 const PatientCard = memo(({ patient, fund, onClick }) => {
   const progress = fund
-    ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(1)
+    ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(0)
     : 0;
 
   return (
-    <div className="pcard" onClick={onClick} role="button" tabIndex={0}>
-       <div className="pcard-photo-wrap">
-         {patient.photo_url ? (
-           <img src={patient.photo_url} alt={patient.name} className="pcard-photo" loading="lazy" />
-         ) : (
-           <div className="pcard-photo-placeholder">👤</div>
-         )}
-         <div className={`pcard-status-badge ${statusClass(patient.status)}`}>
-           {statusLabel(patient.status)}
-         </div>
-       </div>
- 
-       <div className="pcard-body">
-         <div className="pcard-main">
-           <h3 className="pcard-name">{patient.name}</h3>
-           <p className="pcard-type">{patient.cancer_type}</p>
-         </div>
+    <div className="pcard-premium" onClick={onClick}>
+      <div className="pcard-header-wrap">
+        <div className="pcard-image-box">
+          {patient.photo_url ? (
+            <img src={patient.photo_url} alt={patient.name} className="pcard-img" />
+          ) : (
+            <div className="pcard-img-placeholder">👤</div>
+          )}
+          <div className={`pcard-glass-badge ${statusClass(patient.status)}`}>
+            {statusLabel(patient.status)}
+          </div>
+        </div>
+      </div>
 
-         <div className="pcard-stats">
-           <div className="pcard-stat-item">
-             <span className="pcard-stat-label">Blood</span>
-             <span className="pcard-stat-value">{patient.blood_type}</span>
-           </div>
-           <div className="pcard-stat-item">
-             <span className="pcard-stat-label">Age</span>
-             <span className="pcard-stat-value">{patient.age}y</span>
-           </div>
-         </div>
+      <div className="pcard-details-wrap">
+        <div className="pcard-top-info">
+          <span className="pcard-blood-type">{patient.blood_type}</span>
+          <h3 className="pcard-title">{patient.name}</h3>
+          <p className="pcard-subtitle">{patient.cancer_type}</p>
+        </div>
 
-         {fund ? (
-           <div className="pcard-fund-section">
-             <div className="pcard-progress-track">
-               <div className="pcard-progress-bar" style={{ width: `${progress}%` }} />
-             </div>
-             <div className="pcard-fund-meta">
-               <span className="pcard-fund-percent">{progress}%</span>
-               <span className="pcard-fund-target">৳{(fund.target_amount || 0).toLocaleString()}</span>
-             </div>
-           </div>
-         ) : (
-           <div className="pcard-no-fund">No active campaign</div>
-         )}
-       </div>
-       
-       <div className="pcard-footer">
-         <span>View Details</span>
-         <span className="arrow">→</span>
-       </div>
-     </div>
+        <div className="pcard-stats-row">
+          <div className="pcard-mini-stat">
+            <label>Age</label>
+            <span>{patient.age}y</span>
+          </div>
+          <div className="pcard-mini-stat">
+            <label>Batch</label>
+            <span>{patient.batch || 'JU'}</span>
+          </div>
+        </div>
+
+        {fund ? (
+          <div className="pcard-funding-zone">
+            <div className="pcard-progress-container">
+              <div className="pcard-progress-fill-premium" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="pcard-funding-labels">
+              <span className="pcard-percent">{progress}% Funded</span>
+              <span className="pcard-target">৳{(fund.target_amount || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="pcard-no-campaign">No active fund campaign</div>
+        )}
+      </div>
+
+      <div className="pcard-action-bar">
+        <span>View Full Profile</span>
+        <div className="pcard-arrow-icon">→</div>
+      </div>
+    </div>
   );
 });
 
