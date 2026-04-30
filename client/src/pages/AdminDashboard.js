@@ -486,6 +486,13 @@ const AdminDashboard = () => {
                 <div className="form-field"><label>Total Chemo</label><input type="number" value={form.chemo_total} onChange={e => f('chemo_total', e.target.value)} /></div>
                 <div className="form-field"><label>Completed Chemo</label><input type="number" value={form.chemo_completed} onChange={e => f('chemo_completed', e.target.value)} /></div>
                 <div className="form-field"><label>Hospital</label><input value={form.hospital} onChange={e => f('hospital', e.target.value)} /></div>
+                <div className="form-field"><label>Consultant Doctor</label><input placeholder="Dr. Name" value={form.doctor_name} onChange={e => f('doctor_name', e.target.value)} /></div>
+              </div>
+
+              <div className="form-section-title">Contact & Location</div>
+              <div className="form-grid">
+                <div className="form-field"><label>Emergency Phone</label><input placeholder="017xx-xxxxxx" value={form.phone} onChange={e => f('phone', e.target.value)} /></div>
+                <div className="form-field form-field-full"><label>Home Address</label><input placeholder="Village, Upazila, District" value={form.address} onChange={e => f('address', e.target.value)} /></div>
               </div>
 
               <div className="form-section-title">Fundraising & Payment</div>
