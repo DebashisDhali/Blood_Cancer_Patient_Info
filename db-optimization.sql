@@ -14,6 +14,11 @@ CREATE INDEX IF NOT EXISTS idx_funds_patient_id ON funds (patient_id);
 -- This makes login faster by speeding up email lookups
 CREATE INDEX IF NOT EXISTS idx_admins_email ON admins (email);
 
+-- 3.1 Add Email Verification Columns to admins table
+-- Run these if you haven't added these columns yet
+ALTER TABLE admins ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
+ALTER TABLE admins ADD COLUMN IF NOT EXISTS verification_token TEXT;
+
 -- 4. Create index for documents (if implemented)
 CREATE INDEX IF NOT EXISTS idx_documents_patient_id ON documents (patient_id);
 

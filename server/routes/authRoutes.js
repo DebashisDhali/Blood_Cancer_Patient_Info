@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const supabase = require('../config/supabaseClient');
 const { generateToken } = require('../utils/helpers');
+const crypto = require('crypto');
+const { sendVerificationEmail } = require('../utils/emailService');
 
 // Register Admin
 router.post('/register', async (req, res) => {
@@ -12,6 +14,11 @@ router.post('/register', async (req, res) => {
 
     if (!username || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // 🔴 Domain Restriction
+    if (!email.toLowerCase().endsWith('@juniv.edu')) {
+      return res.status(400).json({ message: 'Registration restricted to @juniv.edu emails only' });
     }
 
     if (password !== confirmPassword) {
@@ -31,34 +38,67 @@ router.post('/register', async (req, res) => {
 
     // Hash password
     const password_hash = await bcryptjs.hash(password, 10);
+    const verification_token = crypto.randomBytes(32).toString('hex');
 
-    // Insert new admin
+    // Insert new admin (unverified)
     const { data: newAdmin, error: insertError } = await supabase
       .from('admins')
-      .insert([{ username, email, password_hash, role: 'admin' }])
+      .insert([{ 
+        username, 
+        email, 
+        password_hash, 
+        role: 'admin',
+        is_verified: false,
+        verification_token
+      }])
       .select();
 
     if (insertError) throw insertError;
-    if (!newAdmin || newAdmin.length === 0) {
-      return res.status(500).json({ message: 'Failed to create admin' });
+
+    // Send Verification Email
+    try {
+      await sendVerificationEmail(email, verification_token);
+    } catch (mailErr) {
+      console.error('Mail send fail:', mailErr);
+      // We still registered them, but they need a resend option (todo)
     }
 
-    const admin = newAdmin[0];
-    const token = generateToken(admin.id, admin.role);
-
     res.status(201).json({
-      message: 'Admin registered successfully',
-      token,
-      admin: {
-        id: admin.id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role
-      }
+      message: 'Account created! Please check your @juniv.edu email to verify your account.'
     });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: error.message || 'Registration failed' });
+  }
+});
+
+// Verify Email Endpoint
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ message: 'Missing token' });
+
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('id')
+      .eq('verification_token', token)
+      .single();
+
+    if (error || !admin) return res.status(400).json({ message: 'Invalid or expired token' });
+
+    await supabase
+      .from('admins')
+      .update({ is_verified: true, verification_token: null })
+      .eq('id', admin.id);
+
+    res.send(`
+      <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+        <h1 style="color: #10b981;">Verification Successful!</h1>
+        <p>Your account is now active. You can close this tab and log in.</p>
+      </div>
+    `);
+  } catch (error) {
+    res.status(500).send('Verification failed');
   }
 });
 
@@ -78,12 +118,13 @@ router.post('/login', async (req, res) => {
       .eq('email', email)
       .single();
 
-    if (queryError) {
+    if (queryError || !admins) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    if (!admins) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    // 🔴 Verification Check
+    if (admins.is_verified === false) {
+      return res.status(403).json({ message: 'Account not verified. Please check your email.' });
     }
 
     // Verify password
