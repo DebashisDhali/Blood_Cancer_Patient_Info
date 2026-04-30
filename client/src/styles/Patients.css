@@ -165,6 +165,23 @@
 .mobile-card label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
 .mobile-card strong { font-size: 1.25rem; color: var(--text-main); }
 
+/* Story Box */
+.fund-story-box { 
+  margin-bottom: 3rem; 
+  padding: 2rem; 
+  background: white; 
+  border-radius: 24px; 
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.fund-story-text { 
+  font-size: 1.1rem; 
+  line-height: 1.8; 
+  color: #475569; 
+  font-style: italic;
+  white-space: pre-wrap; 
+}
+
 /* QR Section */
 .qr-container { 
   margin-top: 3rem; padding: 2rem; background: white; border-radius: 24px; 

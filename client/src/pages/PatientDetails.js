@@ -88,10 +88,14 @@ const PatientDetails = () => {
               <h4 className="section-title">Patient Bio-Data</h4>
               <div className="info-grid-detailed">
                 <div className="info-card"><label>Age</label><span>{patient.age} Years</span></div>
-                <div className="info-card"><label>Cancer Type</label><span>{patient.cancer_type}</span></div>
+                <div className="info-card"><label>Gender</label><span>{patient.gender}</span></div>
+                <div className="info-card"><label>Blood Type</label><span>{patient.blood_type}</span></div>
                 <div className="info-card"><label>Admission</label><span>{patient.admission_date || 'N/A'}</span></div>
                 <div className="info-card"><label>Medical Center</label><span>{patient.hospital || 'N/A'}</span></div>
                 <div className="info-card"><label>Consultant</label><span>{patient.doctor_name || 'N/A'}</span></div>
+                <div className="info-card"><label>Cancer Stage</label><span>{patient.cancer_type}</span></div>
+                <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Home Address</label><span>{patient.address || 'Not Provided'}</span></div>
+                <div className="info-card"><label>Emergency Contact</label><span>{patient.phone || 'N/A'}</span></div>
               </div>
 
               <div className="share-section-bottom">
@@ -122,6 +126,13 @@ const PatientDetails = () => {
                   <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(fund?.collected_amount || 0).toLocaleString()}</strong>
                 </div>
               </div>
+
+              {fund?.description && (
+                <div className="fund-story-box">
+                  <h4 className="section-title">The Journey</h4>
+                  <p className="fund-story-text">{fund.description}</p>
+                </div>
+              )}
 
               <h4 className="section-title">Official Payment Gateways</h4>
               <div className="payment-grid">

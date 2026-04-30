@@ -106,11 +106,14 @@ const Patients = () => {
                   <h4 className="section-title">Medical Record</h4>
                   <div className="info-grid-detailed">
                     <div className="info-card"><label>Patient Age</label><span>{selected.age} Years</span></div>
+                    <div className="info-card"><label>Gender</label><span>{selected.gender}</span></div>
                     <div className="info-card"><label>Blood Type</label><span>{selected.blood_type}</span></div>
                     <div className="info-card"><label>Admission</label><span>{selected.admission_date || 'N/A'}</span></div>
                     <div className="info-card"><label>Institution</label><span>{selected.hospital || 'N/A'}</span></div>
                     <div className="info-card"><label>Lead Doctor</label><span>{selected.doctor_name || 'N/A'}</span></div>
                     <div className="info-card"><label>Cancer Stage</label><span>{selected.cancer_type}</span></div>
+                    <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Home Address</label><span>{selected.address || 'Not Provided'}</span></div>
+                    <div className="info-card"><label>Emergency Contact</label><span>{selected.phone || 'N/A'}</span></div>
                   </div>
                 </div>
               ) : (
@@ -126,6 +129,13 @@ const Patients = () => {
                       <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong>
                     </div>
                   </div>
+ 
+                  {selectedFund?.description && (
+                    <div className="fund-story-box">
+                      <h4 className="section-title">Patient Story</h4>
+                      <p className="fund-story-text">{selectedFund.description}</p>
+                    </div>
+                  )}
  
                   <h4 className="section-title">Secure Payment Channels</h4>
                   <div className="payment-grid">
