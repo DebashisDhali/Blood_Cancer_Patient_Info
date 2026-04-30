@@ -57,6 +57,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // 2. Data Parsing
+app.set('trust proxy', 1); // Trust Vercel proxy for rate-limiting
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
