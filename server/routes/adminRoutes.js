@@ -31,13 +31,13 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
 router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
   try {
     const adminId = req.user.id;
-    console.log('Fetching all patients for admin:', adminId);
+    console.log('Fetching patients for admin:', adminId);
 
     const { data, error } = await supabase
       .from('patients')
       .select(`
-        id, name, age, photo_url, status, cancer_type, chemo_total, chemo_completed, created_at,
-        funds(id, target_amount, collected_amount)
+        *,
+        funds (id, target_amount, collected_amount)
       `)
       .eq('admin_id', adminId)
       .order('created_at', { ascending: false });
@@ -47,9 +47,10 @@ router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
       throw error;
     }
 
-    const formatted = data.map(p => ({
+    // Flatten fund array
+    const formatted = (data || []).map(p => ({
       ...p,
-      fund: p.funds && p.funds.length > 0 ? p.funds[0] : null
+      fund: (p.funds && p.funds.length > 0) ? p.funds[0] : null
     }));
 
     res.json(formatted);
