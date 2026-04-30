@@ -99,17 +99,23 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, created_at, id, ...patientData } = req.body;
     
-    // Verify ownership or allow Super Admin
+    // Verify ownership or allow update if admin_id is missing/broken
     const { data: checkOwnership } = await supabase.from('patients').select('admin_id').eq('id', req.params.id).single();
     const currentAdminId = req.user.id || req.user.userId;
+    
+    // Auto-fix logic: If current admin_id is NULL or "undefined", let the current user take ownership
+    const isBrokenId = !checkOwnership || !checkOwnership.admin_id || checkOwnership.admin_id === 'undefined';
     const isOwner = checkOwnership && checkOwnership.admin_id === currentAdminId;
     const isSuperAdmin = req.user.role === 'super_admin';
 
-    if (!isSuperAdmin && !isOwner) {
+    if (!isSuperAdmin && !isOwner && !isBrokenId) {
       return res.status(403).json({ message: 'Unauthorized: You can only edit patients you have added' });
     }
 
-    const { data: updatedPatient, error: pErr } = await supabase.from('patients').update(patientData).eq('id', req.params.id).select();
+    // Attach current admin_id to ensure it's fixed in the DB
+    const finalData = { ...patientData, admin_id: currentAdminId };
+
+    const { data: updatedPatient, error: pErr } = await supabase.from('patients').update(finalData).eq('id', req.params.id).select();
     if (pErr) throw pErr;
 
     // Update Fund if provided
