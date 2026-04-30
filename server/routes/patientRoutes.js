@@ -58,7 +58,8 @@ router.post('/', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, ...patientData } = req.body;
     
-    // Insert Patient
+    // Insert Patient with admin_id
+    patientData.admin_id = req.user.id;
     const { data: newPatient, error: pErr } = await supabase.from('patients').insert([patientData]).select();
     if (pErr) throw pErr;
     const pid = newPatient[0].id;
@@ -80,7 +81,12 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
     const { fund, created_at, id, ...patientData } = req.body;
     
-    // Update Patient
+    // Verify ownership and Update Patient
+    const { data: checkOwnership } = await supabase.from('patients').select('admin_id').eq('id', req.params.id).single();
+    if (!checkOwnership || checkOwnership.admin_id !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized: You can only edit patients you have added' });
+    }
+
     const { data: updatedPatient, error: pErr } = await supabase.from('patients').update(patientData).eq('id', req.params.id).select();
     if (pErr) throw pErr;
 
@@ -106,6 +112,12 @@ router.put('/:id', authMiddleware, adminOnly, async (req, res) => {
 // Delete Patient
 router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
+    // Verify ownership before deleting
+    const { data: checkOwnership } = await supabase.from('patients').select('admin_id').eq('id', req.params.id).single();
+    if (!checkOwnership || checkOwnership.admin_id !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized: You can only delete patients you have added' });
+    }
+
     const { error } = await supabase.from('patients').delete().eq('id', req.params.id);
     if (error) throw error;
     clearCache('patients');
