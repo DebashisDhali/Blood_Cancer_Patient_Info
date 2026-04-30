@@ -4,6 +4,7 @@ import AuthContext, { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Patients from './pages/Patients';
+import PatientDetails from './pages/PatientDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
@@ -18,6 +19,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/patients" element={<Patients />} />
+        <Route path="/patients/:id" element={<PatientDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route

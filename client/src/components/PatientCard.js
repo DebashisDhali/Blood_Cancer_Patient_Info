@@ -57,6 +57,22 @@ const PatientCard = ({ patient, fund, onClick }) => {
            <span>Click to View Details</span>
          </div>
        </div>
+       <button 
+         className="pcard-share-btn" 
+         title="Share Profile"
+         onClick={(e) => {
+           e.stopPropagation();
+           const url = `${window.location.origin}/patients/${patient.id}`;
+           if (navigator.share) {
+             navigator.share({ title: `Support ${patient.name}`, url });
+           } else {
+             navigator.clipboard.writeText(url);
+             alert('Link copied to clipboard!');
+           }
+         }}
+       >
+         🔗 Share
+       </button>
      </div>
   );
 };
