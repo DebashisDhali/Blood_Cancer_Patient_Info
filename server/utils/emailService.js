@@ -9,11 +9,8 @@ const sendVerificationEmail = async (email, token) => {
     }
   });
 
-  const apiUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://blood-cancer-patient-info.vercel.app/api/auth' 
-    : `http://localhost:${process.env.PORT || 5000}/api/auth`;
-
-  const url = `${apiUrl}/verify-email?token=${token}`;
+  const apiUrl = process.env.API_BASE_URL || 'http://localhost:5000';
+  const url = `${apiUrl}/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Blood Cancer Support" <${process.env.EMAIL_USER}>`,
