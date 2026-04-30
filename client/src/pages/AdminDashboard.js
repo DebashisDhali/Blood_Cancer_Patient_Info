@@ -550,12 +550,7 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              <div className="form-field"><label>Donation QR Code</label>
-                <div className="qr-upload-box" onClick={() => qrInputRef.current.click()}>
-                  {qrPreview ? <img src={qrPreview} alt="QR Code Preview" className="qr-mini-preview" /> : 'Upload QR Code'}
-                </div>
-                <input ref={qrInputRef} type="file" hidden onChange={e => handleFile(e, setQrPreview, setQrFile)} />
-              </div>
+
 
               {formMsg && <div className={`form-msg ${formMsg.type}`}>{formMsg.text}</div>}
               <div className="form-footer"><button type="submit" disabled={formLoading}>{formLoading ? 'Saving...' : 'Save Patient'}</button></div>
