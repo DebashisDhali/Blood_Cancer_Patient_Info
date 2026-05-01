@@ -67,27 +67,19 @@ const PatientDetails = () => {
           </div>
 
           <div className="modal-content-area">
-            <div className="tab-pane" style={{ marginBottom: '2.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
-              <h4 className="section-title">Patient Profile</h4>
-              <div className="info-grid-detailed">
-                <div className="info-card"><label>Department</label><span>{patient.dept || 'N/A'}</span></div>
-                <div className="info-card"><label>Batch</label><span>{patient.batch || 'N/A'}</span></div>
-                <div className="info-card"><label>Age</label><span>{patient.age} Years</span></div>
-                <div className="info-card"><label>Gender</label><span>{patient.gender}</span></div>
-                <div className="info-card"><label>Blood Type</label><span>{patient.blood_type}</span></div>
-                <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Emergency Contact</label><span>{patient.phone || 'N/A'}</span></div>
-              </div>
-            </div>
-
             {activeTab === 'fund' && <DonationCenter fund={fund} />}
 
             {activeTab === 'info' && (
               <div className="tab-pane">
-                <h4 className="section-title">Admission & Clinical</h4>
+                <h4 className="section-title">Bio-Data & Records</h4>
                 <div className="info-grid-detailed">
+                  <div className="info-card"><label>Department</label><span>{patient.dept || 'N/A'}</span></div>
+                  <div className="info-card"><label>Batch</label><span>{patient.batch || 'N/A'}</span></div>
                   <div className="info-card"><label>Session</label><span>{patient.session || 'N/A'}</span></div>
+                  <div className="info-card"><label>Age</label><span>{patient.age} Years</span></div>
+                  <div className="info-card"><label>Gender</label><span>{patient.gender}</span></div>
                   <div className="info-card"><label>Consultant</label><span>{patient.doctor_name || 'N/A'}</span></div>
-                  <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Medical Center</label><span>{patient.hospital || 'N/A'}</span></div>
+                  <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Emergency Contact</label><span>{patient.phone || 'N/A'}</span></div>
                 </div>
               </div>
             )}
