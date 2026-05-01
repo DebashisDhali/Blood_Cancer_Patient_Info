@@ -57,6 +57,30 @@
 }
 .btn-delete-self:hover { background: #fee2e2; border-color: #fecaca; }
 
+/* Tab Switcher for Super Admin */
+.dash-tab-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 0.3rem;
+  border-radius: 12px;
+}
+.dash-tab-switcher button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.dash-tab-switcher button.active {
+  background: white;
+  color: var(--admin-primary);
+  box-shadow: var(--admin-shadow);
+}
+
 /* Stats Grid */
 .dash-stats {
   display: grid;

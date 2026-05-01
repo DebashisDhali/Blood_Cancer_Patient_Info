@@ -33,6 +33,9 @@ const AdminDashboard = () => {
   const [sidPreview, setSidPreview] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formMsg, setFormMsg] = useState(null);
+  const [adminsList, setAdminsList] = useState([]);
+  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('patients');
   const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -59,9 +62,38 @@ const AdminDashboard = () => {
     }
   }, [token, navigate]);
 
+  const fetchAdmins = async () => {
+    if (!token || user?.role !== 'super_admin') return;
+    setAdminsLoading(true);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers: { Authorization: `Bearer ${token}` } });
+      setAdminsList(res.data);
+    } catch (err) {
+      console.error('Failed to fetch admins:', err);
+    } finally {
+      setAdminsLoading(false);
+    }
+  };
+
+  const toggleVerify = async (admin) => {
+    try {
+      await axios.patch(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}/verify`, { is_verified: !admin.is_verified }, { headers: { Authorization: `Bearer ${token}` } });
+      fetchAdmins();
+    } catch (err) { alert(err.response?.data?.message || 'Failed'); }
+  };
+
+  const removeAdmin = async (admin) => {
+    if (!window.confirm(`Remove admin "${admin.username}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      fetchAdmins();
+    } catch (err) { alert(err.response?.data?.message || 'Failed'); }
+  };
+
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchData();
+    if (user?.role === 'super_admin') fetchAdmins();
   }, [token, navigate, fetchData]);
 
   const compressImage = (file, maxWidth = 1000, quality = 0.7) => {
@@ -346,11 +378,22 @@ const AdminDashboard = () => {
       <div className="dash-topbar">
         <div>
           <h1>Admin Dashboard</h1>
-          <p className="dash-subtitle">Welcome back, <strong>{user?.username || user?.email || 'Admin'}</strong></p>
+          <p className="dash-subtitle">
+            Welcome back, <strong>{user?.username || user?.email || 'Admin'}</strong>
+            {user?.role === 'super_admin' && (
+              <span style={{ marginLeft: '0.75rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: 'white', padding: '0.2rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.05em' }}>👑 SUPER ADMIN</span>
+            )}
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {user?.role === 'super_admin' && (
+            <div className="dash-tab-switcher">
+              <button className={activeTab === 'patients' ? 'active' : ''} onClick={() => setActiveTab('patients')}>🧬 Patients</button>
+              <button className={activeTab === 'admins' ? 'active' : ''} onClick={() => { setActiveTab('admins'); fetchAdmins(); }}>👥 Manage Admins</button>
+            </div>
+          )}
           <button className="btn-delete-self" onClick={handleDeleteSelf}>Delete My Account</button>
-          <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>
+          {activeTab === 'patients' && <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>}
         </div>
       </div>
 
@@ -364,6 +407,84 @@ const AdminDashboard = () => {
         ))}
       </div>
 
+      {/* ── ADMINS MANAGEMENT (Super Admin Only) ── */}
+      {activeTab === 'admins' && user?.role === 'super_admin' && (
+        <div className="dash-table-wrap">
+          <h2>👥 Admin Management</h2>
+          <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+            Manage all registered admins — verify, suspend, or remove accounts.
+          </p>
+          {adminsLoading ? (
+            <div style={{ textAlign: 'center', padding: '3rem' }}><div className="spinner" /></div>
+          ) : (
+            <div className="table-scroll">
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th>Admin</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminsList.map(admin => (
+                    <tr key={admin.id} style={{ opacity: admin.is_verified ? 1 : 0.6 }}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '0.9rem' }}>
+                            {(admin.username || 'A')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <strong>{admin.username}</strong>
+                            {admin.role === 'super_admin' && <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', background: '#6366f1', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>SUPER</span>}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ fontSize: '0.85rem', color: '#64748b' }}>{admin.email}</td>
+                      <td>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700', background: admin.role === 'super_admin' ? '#ede9fe' : '#f1f5f9', color: admin.role === 'super_admin' ? '#4f46e5' : '#475569' }}>
+                          {admin.role}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700', background: admin.is_verified ? '#d1fae5' : '#fee2e2', color: admin.is_verified ? '#065f46' : '#991b1b' }}>
+                          {admin.is_verified ? '✅ Verified' : '⏳ Pending'}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{new Date(admin.created_at).toLocaleDateString('en-GB')}</td>
+                      <td>
+                        {admin.role !== 'super_admin' && (
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => toggleVerify(admin)}
+                              style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700', background: admin.is_verified ? '#fee2e2' : '#d1fae5', color: admin.is_verified ? '#991b1b' : '#065f46' }}
+                            >
+                              {admin.is_verified ? '🚫 Suspend' : '✅ Verify'}
+                            </button>
+                            <button
+                              onClick={() => removeAdmin(admin)}
+                              style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700', background: '#fee2e2', color: '#991b1b' }}
+                            >
+                              🗑️ Remove
+                            </button>
+                          </div>
+                        )}
+                        {admin.role === 'super_admin' && <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>—</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PATIENTS TABLE ── */}
+      {activeTab === 'patients' && (
       <div className="dash-table-wrap">
         <h2>Patients List</h2>
         <div className="table-scroll">
@@ -424,6 +545,7 @@ const AdminDashboard = () => {
           </table>
         </div>
       </div>
+      )}
 
       {showForm && (
         <div className="form-overlay" onClick={() => setShowForm(false)}>
