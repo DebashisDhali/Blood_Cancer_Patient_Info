@@ -143,12 +143,12 @@ const PatientDetails = () => {
             </div>
 
             {/* Share Section */}
-            <div className="share-section-bottom">
+            <div className="share-section-bottom" style={{ marginTop: '3rem' }}>
               <p>Share this patient's story to help them raise funds faster.</p>
-              <button className="btn-share-big" onClick={() => {
+              <button className="btn-share-mini" onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
-                alert('✅ Link copied! Share it to spread awareness.');
-              }}>🔗 Copy Share Link</button>
+                alert('✅ Link copied!');
+              }}>🔗 Copy Link</button>
             </div>
           </div>
 
