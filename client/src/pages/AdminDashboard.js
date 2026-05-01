@@ -11,7 +11,7 @@ const EMPTY_FORM = {
   chemo_total: '', chemo_completed: '',
   target_amount: '', collected_amount: 0, fund_description: '',
   dept: '', batch: '', session: '', payment_holder_info: '',
-  bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '', bank_routing: '',
+  bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '',
   bkash_no: '', nagad_no: '', rocket_no: '', upay_no: ''
 };
 
@@ -334,7 +334,6 @@ const AdminDashboard = () => {
       bank_account_name: p.fund?.bank_account_name || '',
       bank_account_no: p.fund?.bank_account_no || '', 
       bank_branch: p.fund?.bank_branch || '',
-      bank_routing: p.fund?.bank_routing || '',
       bkash_no: p.fund?.bkash_no || '', 
       nagad_no: p.fund?.nagad_no || '',
       rocket_no: p.fund?.rocket_no || '', 
@@ -370,7 +369,6 @@ const AdminDashboard = () => {
         description: form.fund_description, payment_holder_info: form.payment_holder_info,
         bank_name: form.bank_name, bank_account_name: form.bank_account_name,
         bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
-        bank_routing: form.bank_routing,
         bkash_no: form.bkash_no, nagad_no: form.nagad_no,
         rocket_no: form.rocket_no, upay_no: form.upay_no
       };
@@ -736,11 +734,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="form-field">
-                  <label>Branch & Routing</label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <input style={{flex: 1}} placeholder="Branch" value={form.bank_branch} onChange={e => f('bank_branch', e.target.value)} />
-                    <input style={{flex: 1}} placeholder="Routing" value={form.bank_routing} onChange={e => f('bank_routing', e.target.value)} />
-                  </div>
+                  <label>Branch Name</label><input placeholder="e.g. Savar Branch" value={form.bank_branch} onChange={e => f('bank_branch', e.target.value)} />
                 </div>
                 <div className="form-field">
                   <label>bKash & QR</label>
