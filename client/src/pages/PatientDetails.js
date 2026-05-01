@@ -239,7 +239,7 @@ const PatientDetails = () => {
                     {fund?.bkash_no && (
                       <div className="m-wallet bkash">
                         <div className="m-wallet-header">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/BKash_Logo.svg/512px-BKash_Logo.svg.png" alt="bKash" className="m-logo" />
+                          <img src="/images/bkash-logo.png" alt="bKash" className="m-logo" />
                           <label>bKash</label>
                         </div>
                         <strong>{fund.bkash_no}</strong>
@@ -248,7 +248,7 @@ const PatientDetails = () => {
                     {fund?.nagad_no && (
                       <div className="m-wallet nagad">
                         <div className="m-wallet-header">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nagad_Logo.svg/512px-Nagad_Logo.svg.png" alt="Nagad" className="m-logo" />
+                          <img src="/images/nagad-logo.jpg" alt="Nagad" className="m-logo" />
                           <label>Nagad</label>
                         </div>
                         <strong>{fund.nagad_no}</strong>
