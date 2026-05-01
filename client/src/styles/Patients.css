@@ -52,12 +52,12 @@
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .patient-modal.wide {
-  width: 100%; max-width: 600px; height: 100vh;
+  width: 100%; max-width: 620px; height: 100vh;
   background: var(--background);
   display: flex; flex-direction: column;
   box-shadow: -20px 0 50px rgba(0,0,0,0.15);
   animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative; overflow-y: auto;
+  position: relative; overflow: hidden;
 }
 
 @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
@@ -107,16 +107,30 @@
 .status-tag.recovered { background: var(--success); }
 .status-tag.in-treatment { background: var(--primary); }
 
-/* Navigation Tabs */
-.modal-nav {
-  margin-top: 3rem; width: 100%; display: flex;
-  background: rgba(255,255,255,0.05); padding: 6px; border-radius: 18px; z-index: 1;
+/* Navigation Tabs - sticky below sidebar header */
+.modal-tab-bar {
+  background: var(--secondary);
+  padding: 0 1.5rem 1.25rem;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+  flex-shrink: 0;
 }
-.modal-nav button {
-  flex: 1; padding: 1rem; border-radius: 14px; border: none; background: transparent;
-  color: #94a3b8; font-weight: 700; cursor: pointer; transition: all 0.3s;
+.modal-tab-bar button {
+  flex: 1; padding: 0.85rem 0.5rem; border-radius: 14px; border: none; background: rgba(255,255,255,0.07);
+  color: #94a3b8; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.3s;
+  white-space: nowrap;
 }
-.modal-nav button.active { background: white; color: var(--secondary); box-shadow: var(--shadow); }
+.modal-tab-bar button.active { background: white; color: var(--secondary); box-shadow: var(--shadow); }
+.modal-tab-bar button:hover:not(.active) { background: rgba(255,255,255,0.12); color: white; }
+
+/* Modal content scroll area */
+.modal-content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 
 /* Content Area */
 .modal-content-area { padding: 3rem 2.5rem; flex: 1; }

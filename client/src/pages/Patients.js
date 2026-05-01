@@ -148,7 +148,7 @@ const Patients = () => {
           <div className="patient-modal wide" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={closeModal}>✕</button>
 
-            {/* Left Sidebar */}
+            {/* Left Sidebar - Photo + Name only */}
             <div className="modal-sidebar">
               <div className="modal-photo-box">
                 {selected.photo_url
@@ -163,45 +163,41 @@ const Patients = () => {
                 </div>
                 <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem' }}>{selected.cancer_type}</p>
               </div>
-
-              {/* Tab Navigation */}
-              <div className="modal-nav">
-                <button
-                  className={activeTab === 'fund' ? 'active' : ''}
-                  onClick={() => setActiveTab('fund')}
-                >
-                  💰 Donation Center
-                </button>
-                <button
-                  className={activeTab === 'info' ? 'active' : ''}
-                  onClick={() => setActiveTab('info')}
-                >
-                  🏥 Medical Info
-                </button>
-                <button
-                  className={activeTab === 'docs' ? 'active' : ''}
-                  onClick={() => setActiveTab('docs')}
-                >
-                  📄 Reports
-                </button>
-              </div>
-
-              {/* Share Link */}
-              <div style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
-                <a
-                  href={`/patients/${selected.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-share-big"
-                  style={{ width: '100%', justifyContent: 'center', fontSize: '0.9rem', padding: '0.8rem' }}
-                >
-                  🔗 View Full Profile
-                </a>
-              </div>
             </div>
 
-            {/* Right Content Area */}
-            <div className="modal-content-area">
+            {/* Sticky Tab Navigation */}
+            <div className="modal-tab-bar">
+              <button
+                className={activeTab === 'fund' ? 'active' : ''}
+                onClick={() => setActiveTab('fund')}
+              >
+                💰 Donation
+              </button>
+              <button
+                className={activeTab === 'info' ? 'active' : ''}
+                onClick={() => setActiveTab('info')}
+              >
+                🏥 Medical Info
+              </button>
+              <button
+                className={activeTab === 'docs' ? 'active' : ''}
+                onClick={() => setActiveTab('docs')}
+              >
+                📄 Reports
+              </button>
+              <a
+                href={`/patients/${selected.id}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ flex: 1, padding: '0.85rem 0.5rem', borderRadius: '14px', border: 'none', background: 'rgba(99,102,241,0.25)', color: '#a5b4fc', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}
+              >
+                🔗 Full Page
+              </a>
+            </div>
+
+            {/* Scrollable Content Area */}
+            <div className="modal-content-scroll">
+              <div className="modal-content-area">
 
               {/* ── TAB: DONATION CENTER ── */}
               {activeTab === 'fund' && (
@@ -389,6 +385,7 @@ const Patients = () => {
                 </div>
               )}
 
+              </div>
             </div>
           </div>
         </div>
