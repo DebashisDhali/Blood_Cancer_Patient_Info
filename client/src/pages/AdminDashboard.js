@@ -393,7 +393,7 @@ const AdminDashboard = () => {
             </div>
           )}
           <button className="btn-delete-self" onClick={handleDeleteSelf}>Delete My Account</button>
-          {activeTab === 'patients' && <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>}
+          {activeTab === 'patients' && user?.role !== 'super_admin' && <button className="btn-add-patient" onClick={openAdd}>+ Add Patient</button>}
         </div>
       </div>
 
