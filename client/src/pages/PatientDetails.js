@@ -334,7 +334,7 @@ const PatientDetails = () => {
                 />
               ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.pdf$/i) ? (
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ flex: 1, background: '#f1f5f9', display: 'flex', alignItems: 'center', justify-content: center, flexDirection: 'column', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
+                  <div style={{ flex: 1, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '4rem' }}>📄</div>
                     <h3>PDF Document</h3>
                     <p>For the best experience, open the PDF in a new tab.</p>
