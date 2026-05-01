@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const supabase = require('../config/supabaseClient');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
@@ -10,6 +11,18 @@ const authMiddleware = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+
+    // Real-time security check: ensure admin still exists and is not suspended
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('is_verified')
+      .eq('id', decoded.id || decoded.userId)
+      .single();
+
+    if (error || !admin || !admin.is_verified) {
+      return res.status(403).json({ message: 'Account is suspended, removed, or unverified. Please contact Super Admin.' });
+    }
+
     next();
   } catch (error) {
     res.status(403).json({ message: 'Invalid or expired token' });

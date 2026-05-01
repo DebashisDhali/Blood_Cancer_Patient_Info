@@ -31,8 +31,14 @@ app.use(compression());
 // Rate Limiting
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 50, // Limit each IP to 50 login/register requests
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per 15 minutes
+  message: { message: 'Too many API requests, please slow down.' }
 });
 
 // CORS Setup
@@ -84,8 +90,8 @@ const apiRoutes = [
 ];
 
 apiRoutes.forEach(route => {
-  app.use(`/api${route.path}`, route.handler); // Standard: /api/auth
-  app.use(route.path, route.handler);          // Fallback: /auth
+  app.use(`/api${route.path}`, apiLimiter, route.handler); // Standard: /api/auth
+  app.use(route.path, apiLimiter, route.handler);          // Fallback: /auth
 });
 
 // Health check
