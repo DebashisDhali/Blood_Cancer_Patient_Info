@@ -11,7 +11,7 @@ const EMPTY_FORM = {
   chemo_total: '', chemo_completed: '',
   target_amount: '', collected_amount: 0, fund_description: '',
   dept: '', batch: '', session: '', payment_holder_info: '',
-  bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '',
+  bank_name: '', bank_account_name: '', bank_account_no: '', bank_branch: '', bank_routing: '',
   bkash_no: '', nagad_no: '', rocket_no: '', upay_no: ''
 };
 
@@ -324,15 +324,21 @@ const AdminDashboard = () => {
   const openEdit = (p) => {
     setEditPatient(p);
     setForm({
-      ...EMPTY_FORM, ...p,
+      ...EMPTY_FORM,
+      ...p,
       target_amount: p.fund?.target_amount || '',
       collected_amount: p.fund?.collected_amount || 0,
       fund_description: p.fund?.description || '',
       payment_holder_info: p.fund?.payment_holder_info || '',
-      bank_name: p.fund?.bank_name || '', bank_account_name: p.fund?.bank_account_name || '',
-      bank_account_no: p.fund?.bank_account_no || '', bank_branch: p.fund?.bank_branch || '',
-      bkash_no: p.fund?.bkash_no || '', nagad_no: p.fund?.nagad_no || '',
-      rocket_no: p.fund?.rocket_no || '', upay_no: p.fund?.upay_no || ''
+      bank_name: p.fund?.bank_name || '', 
+      bank_account_name: p.fund?.bank_account_name || '',
+      bank_account_no: p.fund?.bank_account_no || '', 
+      bank_branch: p.fund?.bank_branch || '',
+      bank_routing: p.fund?.bank_routing || '',
+      bkash_no: p.fund?.bkash_no || '', 
+      nagad_no: p.fund?.nagad_no || '',
+      rocket_no: p.fund?.rocket_no || '', 
+      upay_no: p.fund?.upay_no || ''
     });
     setPhotoPreview(p.photo_url);
     setBankQrPreview(p.fund?.bank_qr_url);
@@ -364,6 +370,7 @@ const AdminDashboard = () => {
         description: form.fund_description, payment_holder_info: form.payment_holder_info,
         bank_name: form.bank_name, bank_account_name: form.bank_account_name,
         bank_account_no: form.bank_account_no, bank_branch: form.bank_branch,
+        bank_routing: form.bank_routing,
         bkash_no: form.bkash_no, nagad_no: form.nagad_no,
         rocket_no: form.rocket_no, upay_no: form.upay_no
       };
@@ -699,6 +706,7 @@ const AdminDashboard = () => {
               <div className="form-section-title">Contact & Location</div>
               <div className="form-grid">
                 <div className="form-field"><label>Emergency Phone</label><input placeholder="017xx-xxxxxx" value={form.phone} onChange={e => f('phone', e.target.value)} /></div>
+                <div className="form-field"><label>Email Address</label><input type="email" placeholder="patient@example.com" value={form.email} onChange={e => f('email', e.target.value)} /></div>
                 <div className="form-field form-field-full"><label>Home Address</label><input placeholder="Village, Upazila, District" value={form.address} onChange={e => f('address', e.target.value)} /></div>
               </div>
 
@@ -712,7 +720,10 @@ const AdminDashboard = () => {
 
               <div className="form-grid">
                 <div className="form-field">
-                  <label>Bank Name</label><input value={form.bank_name} onChange={e => f('bank_name', e.target.value)} />
+                  <label>Bank Name</label><input placeholder="e.g. Dutch Bangla Bank" value={form.bank_name} onChange={e => f('bank_name', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label>Account Name</label><input placeholder="Name of AC holder" value={form.bank_account_name} onChange={e => f('bank_account_name', e.target.value)} />
                 </div>
                 <div className="form-field">
                   <label>Account No & QR</label>
@@ -722,6 +733,13 @@ const AdminDashboard = () => {
                       {bankQrPreview ? <img src={bankQrPreview} alt="QR" /> : '📷'}
                     </div>
                     <input ref={bankQrRef} type="file" hidden onChange={e => handleFile(e, setBankQrPreview, setBankQrFile)} />
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label>Branch & Routing</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input style={{flex: 1}} placeholder="Branch" value={form.bank_branch} onChange={e => f('bank_branch', e.target.value)} />
+                    <input style={{flex: 1}} placeholder="Routing" value={form.bank_routing} onChange={e => f('bank_routing', e.target.value)} />
                   </div>
                 </div>
                 <div className="form-field">
