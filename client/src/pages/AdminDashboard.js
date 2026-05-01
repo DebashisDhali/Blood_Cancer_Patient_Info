@@ -62,7 +62,7 @@ const AdminDashboard = () => {
     }
   }, [token, navigate]);
 
-  const fetchAdmins = async () => {
+  const fetchAdmins = useCallback(async () => {
     if (!token || user?.role !== 'super_admin') return;
     setAdminsLoading(true);
     try {
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
     } finally {
       setAdminsLoading(false);
     }
-  };
+  }, [token, user?.role]);
 
   const toggleVerify = async (admin) => {
     try {
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
     if (!token) { navigate('/login'); return; }
     fetchData();
     if (user?.role === 'super_admin') fetchAdmins();
-  }, [token, navigate, fetchData]);
+  }, [token, navigate, fetchData, fetchAdmins, user?.role]);
 
   const compressImage = (file, maxWidth = 1000, quality = 0.7) => {
     return new Promise((resolve) => {
