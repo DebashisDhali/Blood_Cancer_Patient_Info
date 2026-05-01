@@ -8,8 +8,8 @@ const bcryptjs = require('bcryptjs');
 const supabase = require('../config/supabaseClient');
 
 async function createSuperAdmin() {
-  const email    = 'dhalisurjo387@gmail.com';
-  const username = 'superadmin';
+  const email    = 'dhalideba387@gmail.com';
+  const username = 'superadmin2';
   const password = '1413279350';
   const role     = 'super_admin';
 

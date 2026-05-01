@@ -46,10 +46,17 @@ router.get('/patients/all', authMiddleware, adminOnly, async (req, res) => {
     const isSuperAdmin = req.user.role === 'super_admin';
 
     let query = supabase.from('patients').select('*, funds(id, target_amount, collected_amount)').order('created_at', { ascending: false });
-    if (!isSuperAdmin) query = query.eq('admin_id', adminId);
+    if (!isSuperAdmin) {
+      console.log('Regular admin fetching own patients for adminId:', adminId);
+      query = query.eq('admin_id', adminId);
+    }
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase query error:', error);
+      throw error;
+    }
+    console.log('Patients fetched:', data?.length);
 
     const formatted = (data || []).map(p => ({
       ...p,
