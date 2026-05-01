@@ -236,10 +236,40 @@ const PatientDetails = () => {
                 <div className="mobile-payments-section">
                   <h5 className="sub-section-title">Mobile Wallets</h5>
                   <div className="mobile-grid-premium">
-                    {fund?.bkash_no && <div className="m-wallet bkash"><label>bKash</label><strong>{fund.bkash_no}</strong></div>}
-                    {fund?.nagad_no && <div className="m-wallet nagad"><label>Nagad</label><strong>{fund.nagad_no}</strong></div>}
-                    {fund?.rocket_no && <div className="m-wallet rocket"><label>Rocket</label><strong>{fund.rocket_no}</strong></div>}
-                    {fund?.upay_no && <div className="m-wallet upay"><label>Upay</label><strong>{fund.upay_no}</strong></div>}
+                    {fund?.bkash_no && (
+                      <div className="m-wallet bkash">
+                        <div className="m-wallet-header">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/BKash_Logo.svg/512px-BKash_Logo.svg.png" alt="bKash" className="m-logo" />
+                          <label>bKash</label>
+                        </div>
+                        <strong>{fund.bkash_no}</strong>
+                      </div>
+                    )}
+                    {fund?.nagad_no && (
+                      <div className="m-wallet nagad">
+                        <div className="m-wallet-header">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nagad_Logo.svg/512px-Nagad_Logo.svg.png" alt="Nagad" className="m-logo" />
+                          <label>Nagad</label>
+                        </div>
+                        <strong>{fund.nagad_no}</strong>
+                      </div>
+                    )}
+                    {fund?.rocket_no && (
+                      <div className="m-wallet rocket">
+                        <div className="m-wallet-header">
+                          <label>Rocket</label>
+                        </div>
+                        <strong>{fund.rocket_no}</strong>
+                      </div>
+                    )}
+                    {fund?.upay_no && (
+                      <div className="m-wallet upay">
+                        <div className="m-wallet-header">
+                          <label>Upay</label>
+                        </div>
+                        <strong>{fund.upay_no}</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
 
