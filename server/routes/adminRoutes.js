@@ -17,14 +17,20 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
     const adminId = req.user.id || req.user.userId;
     const isSuperAdmin = req.user.role === 'super_admin';
 
-    let pCountRes;
+    let pCountPromise;
     if (isSuperAdmin) {
-      pCountRes = await supabase.from('patients').select('id', { count: 'exact' });
+      pCountPromise = supabase.from('patients').select('id', { count: 'exact' });
     } else {
-      pCountRes = await supabase.from('patients').select('id', { count: 'exact' }).eq('admin_id', adminId);
+      pCountPromise = supabase.from('patients').select('id', { count: 'exact' }).eq('admin_id', adminId);
     }
-    const fCountRes = await supabase.from('funds').select('id', { count: 'exact' });
-    const fSumRes = await supabase.from('funds').select('collected_amount');
+    const fCountPromise = supabase.from('funds').select('id', { count: 'exact' });
+    const fSumPromise = supabase.from('funds').select('collected_amount');
+
+    const [pCountRes, fCountRes, fSumRes] = await Promise.all([
+      pCountPromise,
+      fCountPromise,
+      fSumPromise
+    ]);
 
     const totalCollected = fSumRes.data?.reduce((sum, f) => sum + (f.collected_amount || 0), 0) || 0;
 

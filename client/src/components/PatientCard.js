@@ -18,7 +18,7 @@ const PatientCard = memo(({ patient, fund, onClick }) => {
       <div className="pcard-header-wrap">
         <div className="pcard-image-box">
           {patient.photo_url ? (
-            <img src={patient.photo_url} alt={patient.name} className="pcard-img" />
+            <img src={patient.photo_url} alt={patient.name} className="pcard-img" loading="lazy" />
           ) : (
             <div className="pcard-img-placeholder">👤</div>
           )}
