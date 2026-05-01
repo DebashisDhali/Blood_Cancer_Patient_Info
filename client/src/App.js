@@ -2,6 +2,7 @@ import React, { useContext, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext, { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import './App.css';
 
 // Lazy load pages for better performance
@@ -31,6 +32,7 @@ const AppContent = () => {
           />
         </Routes>
       </Suspense>
+      <Footer />
     </div>
   );
 };
