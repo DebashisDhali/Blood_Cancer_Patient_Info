@@ -324,9 +324,30 @@ const PatientDetails = () => {
             </div>
             <div className="doc-viewer-content">
               {selectedDoc.file_url.split(/[?#]/)[0].match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
-                <img src={selectedDoc.file_url} alt={selectedDoc.title} />
+                <img 
+                  src={selectedDoc.file_url} 
+                  alt={selectedDoc.title} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/400x300?text=Image+Load+Failed';
+                  }}
+                />
               ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.pdf$/i) ? (
-                <iframe src={`${selectedDoc.file_url}#toolbar=0`} title={selectedDoc.title} />
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1, background: '#f1f5f9', display: 'flex', alignItems: 'center', justify-content: center, flexDirection: 'column', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '4rem' }}>📄</div>
+                    <h3>PDF Document</h3>
+                    <p>For the best experience, open the PDF in a new tab.</p>
+                    <a href={selectedDoc.file_url} target="_blank" rel="noreferrer" className="btn-share-big">Open Full Document</a>
+                  </div>
+                  {/* Optional iframe for desktop as a fallback preview */}
+                  <iframe 
+                    className="desktop-only-iframe"
+                    src={`${selectedDoc.file_url}#toolbar=0`} 
+                    title={selectedDoc.title} 
+                    style={{ display: 'none' }} 
+                  />
+                </div>
               ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.(doc|docx)$/i) ? (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
                   <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📝</div>

@@ -13,6 +13,7 @@ const Patients = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [documents, setDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
 
   const fetchDocs = async (id) => {
     setLoadingDocs(true);
@@ -239,16 +240,63 @@ const Patients = () => {
                   {loadingDocs ? <p>Loading documents...</p> : (
                     <div className="docs-list-simple">
                       {documents.length > 0 ? documents.map(doc => (
-                        <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="doc-item-modal">
+                        <div key={doc.id} onClick={() => setSelectedDoc(doc)} className="doc-item-modal" style={{ cursor: 'pointer' }}>
                           <span className="doc-icon">📄</span>
                           <div className="doc-meta">
                             <strong>{doc.title}</strong>
                             <small>{new Date(doc.created_at).toLocaleDateString()}</small>
                           </div>
-                        </a>
+                        </div>
                       )) : <p>No documents available.</p>}
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      {/* Document Preview Modal */}
+      {selectedDoc && (
+        <div className="doc-viewer-backdrop" onClick={() => setSelectedDoc(null)}>
+          <div className="doc-viewer-container" onClick={e => e.stopPropagation()}>
+            <div className="doc-viewer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>{selectedDoc.document_type === 'prescription' ? '💊' : '📄'}</span>
+                <div>
+                  <div style={{ fontWeight: '800', color: '#0f172a' }}>{selectedDoc.title}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>{selectedDoc.document_type}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <a href={selectedDoc.file_url} download className="btn-share-big" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', background: '#f1f5f9', color: '#0f172a', boxShadow: 'none' }}>Download</a>
+                <button className="btn-close-viewer" onClick={() => setSelectedDoc(null)}>✕</button>
+              </div>
+            </div>
+            <div className="doc-viewer-content">
+              {selectedDoc.file_url.split(/[?#]/)[0].match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                <img 
+                  src={selectedDoc.file_url} 
+                  alt={selectedDoc.title} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/400x300?text=Image+Load+Failed';
+                  }}
+                />
+              ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.pdf$/i) ? (
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1, background: '#f1f5f9', display: 'flex', alignItems: 'center', justify-content: center, flexDirection: 'column', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '4rem' }}>📄</div>
+                    <h3>PDF Document</h3>
+                    <p>For the best experience, open the PDF in a new tab.</p>
+                    <a href={selectedDoc.file_url} target="_blank" rel="noreferrer" className="btn-share-big">Open Full Document</a>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📁</div>
+                  <h3>Preview Unavailable</h3>
+                  <p>This file type cannot be previewed. Please download it.</p>
+                  <a href={selectedDoc.file_url} className="btn-share-big" style={{ marginTop: '1.5rem' }}>Download File</a>
                 </div>
               )}
             </div>
