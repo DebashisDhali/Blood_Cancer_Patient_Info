@@ -199,27 +199,37 @@ const PatientDetails = () => {
                   </div>
                 )}
 
-                {fund?.bank_account_no && (
+                {(fund?.bank_account_no || fund?.bank_name) ? (
                   <div className="bank-card-premium">
                     <div className="bank-card-header">
                       <span>🏛️ DIRECT BANK TRANSFER</span>
                       <div className="bank-logo-dummy">BANK</div>
                     </div>
                     <div className="bank-card-body">
-                      <h3>{fund.bank_name}</h3>
-                      <div className="bank-acc-row">
-                        <label>Account Number</label>
-                        <strong>{fund.bank_account_no}</strong>
-                      </div>
-                      <div className="bank-acc-row">
-                        <label>Account Name</label>
-                        <span>{fund.bank_account_name}</span>
-                      </div>
-                      <div className="bank-acc-row">
-                        <label>Branch</label>
-                        <span>{fund.bank_branch}</span>
-                      </div>
+                      <h3>{fund.bank_name || 'Bank Details'}</h3>
+                      {fund.bank_account_no && (
+                        <div className="bank-acc-row">
+                          <label>Account Number</label>
+                          <strong>{fund.bank_account_no}</strong>
+                        </div>
+                      )}
+                      {fund.bank_account_name && (
+                        <div className="bank-acc-row">
+                          <label>Account Name</label>
+                          <span>{fund.bank_account_name}</span>
+                        </div>
+                      )}
+                      {fund.bank_branch && (
+                        <div className="bank-acc-row">
+                          <label>Branch</label>
+                          <span>{fund.bank_branch}</span>
+                        </div>
+                      )}
                     </div>
+                  </div>
+                ) : (
+                  <div className="no-info-box">
+                    <p>ℹ️ No bank account details provided for this patient.</p>
                   </div>
                 )}
 

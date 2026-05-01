@@ -281,6 +281,12 @@
 .qr-box img { width: 100%; border-radius: 8px; }
 .qr-item label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
 
+.no-info-box {
+  padding: 1.5rem; background: #f1f5f9; border-radius: 16px;
+  color: var(--text-muted); text-align: center; font-weight: 600;
+  border: 1px solid var(--border);
+}
+
 .no-qr-msg { padding: 2rem; background: #f8fafc; border-radius: 16px; border: 2px dashed #e2e8f0; color: #94a3b8; text-align: center; font-style: italic; }
 
 /* Utilities */
