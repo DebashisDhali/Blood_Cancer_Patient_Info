@@ -156,7 +156,7 @@ const Patients = () => {
             <div className="modal-sidebar">
               <div className="modal-photo-box">
                 {selected.photo_url
-                  ? <img src={selected.photo_url} alt={selected.name} />
+                  ? <img src={selected.photo_url} alt={`Medical profile photo of ${selected.name}`} />
                   : <div className="photo-placeholder">👤</div>}
               </div>
               <div className="sidebar-info">
@@ -282,7 +282,7 @@ const Patients = () => {
                             {fund.nagad_no && (
                               <div className="m-wallet nagad">
                                 <div className="m-wallet-header">
-                                  <img src="/images/nagad-logo.jpg" alt="Nagad" className="m-logo" />
+                                  <img src="/images/nagad-logo.jpg" alt="Nagad mobile banking account for donations" className="m-logo" />
                                   <label>Nagad</label>
                                 </div>
                                 <strong>{fund.nagad_no}</strong>

@@ -97,7 +97,7 @@ const Home = () => {
               {recentPatients.map(p => (
                 <div key={p.id} onClick={() => navigate(`/patients/${p.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'white', padding: '1.25rem', borderRadius: '20px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(5px)'; e.currentTarget.style.borderColor = '#6366f1'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>
                   <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0 }}>
-                    {p.photo_url ? <img src={p.photo_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>}
+                    {p.photo_url ? <img src={p.photo_url} alt={`Profile photo of ${p.name}, a blood cancer patient`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>}
                   </div>
                   <div style={{ flex: 1 }}>
                     <h5 style={{ margin: '0 0 0.25rem', fontSize: '1.05rem', color: '#0f172a' }}>{p.name}</h5>
