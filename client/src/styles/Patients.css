@@ -239,85 +239,49 @@
   text-align: center;
 }
 
-.fund-hero {
-  background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
-  padding: 2.5rem; border-radius: 28px; margin-bottom: 3rem;
+/* Refactored Donation Methods */
+.donation-methods-container { margin-top: 2rem; display: flex; flex-direction: column; gap: 2.5rem; }
+
+.bank-card-premium {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  border-radius: 24px; border: 1px solid var(--border);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.bank-card-header {
+  background: var(--secondary); padding: 1rem 1.5rem; color: white;
   display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.85rem; font-weight: 800; letter-spacing: 0.05em;
 }
-.fund-amount-label { font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; }
-.fund-amount-value { font-size: 2.5rem; font-weight: 800; color: var(--secondary); margin-top: 0.25rem; }
+.bank-logo-dummy { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 6px; }
+.bank-card-body { padding: 2rem; }
+.bank-card-body h3 { font-size: 1.75rem; color: var(--secondary); margin-bottom: 1.5rem; }
+.bank-acc-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.bank-acc-row:last-child { border-bottom: none; }
+.bank-acc-row label { color: var(--text-muted); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+.bank-acc-row strong { color: var(--secondary); font-size: 1.25rem; font-weight: 800; }
+.bank-acc-row span { color: var(--text-main); font-weight: 700; }
 
-.payment-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 2.5rem;
-  margin-top: 2.5rem;
-}
+.sub-section-title { font-size: 1rem; font-weight: 800; color: var(--secondary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
-.payment-methods-list { display: flex; flex-direction: column; gap: 1.5rem; }
-.bank-card {
-  background: #f8fafc; padding: 2rem; border-radius: 24px; border: 2px solid var(--secondary);
-  position: relative; overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-.bank-card::before { content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 100%; background: var(--secondary); }
+.mobile-grid-premium { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.m-wallet { padding: 1.5rem; border-radius: 20px; color: white; display: flex; flex-direction: column; gap: 0.5rem; }
+.m-wallet label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; opacity: 0.9; }
+.m-wallet strong { font-size: 1.4rem; }
+.m-wallet.bkash { background: #d2358d; }
+.m-wallet.nagad { background: #f26522; }
+.m-wallet.rocket { background: #8c3494; }
+.m-wallet.upay { background: #00a1e4; }
 
-.mobile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-.mobile-card {
-  background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 0.5rem; transition: 0.3s;
+.qr-grid-premium { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1.5rem; }
+.qr-item { text-align: center; }
+.qr-box { 
+  background: white; padding: 1rem; border-radius: 18px; border: 1px solid var(--border);
+  margin-bottom: 0.75rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center;
 }
-.mobile-card:hover { border-color: var(--primary); transform: scale(1.02); }
-.mobile-card label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
-.mobile-card strong { font-size: 1.25rem; color: var(--text-main); }
+.qr-box img { width: 100%; border-radius: 8px; }
+.qr-item label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
 
-/* Story Box */
-.fund-story-box { 
-  margin-bottom: 3rem; 
-  padding: 2rem; 
-  background: white; 
-  border-radius: 24px; 
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-.fund-story-text { 
-  font-size: 1.1rem; 
-  line-height: 1.8; 
-  color: #475569; 
-  font-style: italic;
-  white-space: pre-wrap; 
-}
-
-.payment-notice-box {
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  color: #0369a1;
-  font-size: 0.95rem;
-}
-
-/* QR Section */
-.qr-container { 
-  margin-top: 3rem; padding: 2rem; background: white; border-radius: 24px; 
-  border: 1px solid var(--border); text-align: center;
-}
-.qr-frame { 
-  width: 180px; height: 180px; margin: 1.5rem auto; padding: 1rem; 
-  border: 2px dashed var(--border); border-radius: 20px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.qr-frame img { 
-  max-width: 100%; 
-  max-height: 100%; 
-  border-radius: 12px; 
-  object-fit: contain;
-}
+.no-qr-msg { padding: 2rem; background: #f8fafc; border-radius: 16px; border: 2px dashed #e2e8f0; color: #94a3b8; text-align: center; font-style: italic; }
 
 /* Utilities */
 .modal-close {

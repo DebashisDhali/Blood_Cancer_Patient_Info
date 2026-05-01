@@ -190,60 +190,74 @@ const PatientDetails = () => {
                 </div>
               )}
 
-              <h4 className="section-title">Official Payment Gateways</h4>
-              {fund?.payment_holder_info && (
-                <div className="payment-notice-box">
-                  <p>📢 <strong>Note:</strong> {fund.payment_holder_info}</p>
-                </div>
-              )}
-              <div className="payment-grid">
-                <div className="payment-methods-list">
-                  {fund?.bank_account_no && (
-                    <div className="bank-card">
-                      <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em' }}>DIRECT BANK DEPOSIT</p>
-                      <p style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.75rem', color: '#0f172a' }}>{fund.bank_name}</p>
-                      <p style={{ fontSize: '1.1rem', margin: '0.4rem 0', color: '#334155', fontWeight: '600' }}>A/C: {fund.bank_account_no}</p>
-                      <p style={{ color: '#64748b', fontWeight: '500' }}>{fund.bank_account_name}</p>
-                      <small style={{ display: 'block', marginTop: '1rem', color: '#94a3b8' }}>{fund.bank_branch}</small>
-                    </div>
-                  )}
+              <div className="donation-methods-container">
+                <h4 className="section-title">Official Payment Gateways</h4>
+                
+                {fund?.payment_holder_info && (
+                  <div className="payment-notice-box">
+                    <p>📢 <strong>Note:</strong> {fund.payment_holder_info}</p>
+                  </div>
+                )}
 
-                  <div className="mobile-grid">
-                    {fund?.bkash_no && <div className="mobile-card"><label>bKash Agent/Personal</label><strong>{fund.bkash_no}</strong></div>}
-                    {fund?.nagad_no && <div className="mobile-card"><label>Nagad Personal</label><strong>{fund.nagad_no}</strong></div>}
-                    {fund?.rocket_no && <div className="mobile-card"><label>Rocket</label><strong>{fund.rocket_no}</strong></div>}
-                    {fund?.upay_no && <div className="mobile-card"><label>Upay Wallet</label><strong>{fund.upay_no}</strong></div>}
+                {fund?.bank_account_no && (
+                  <div className="bank-card-premium">
+                    <div className="bank-card-header">
+                      <span>🏛️ DIRECT BANK TRANSFER</span>
+                      <div className="bank-logo-dummy">BANK</div>
+                    </div>
+                    <div className="bank-card-body">
+                      <h3>{fund.bank_name}</h3>
+                      <div className="bank-acc-row">
+                        <label>Account Number</label>
+                        <strong>{fund.bank_account_no}</strong>
+                      </div>
+                      <div className="bank-acc-row">
+                        <label>Account Name</label>
+                        <span>{fund.bank_account_name}</span>
+                      </div>
+                      <div className="bank-acc-row">
+                        <label>Branch</label>
+                        <span>{fund.bank_branch}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mobile-payments-section">
+                  <h5 className="sub-section-title">Mobile Wallets</h5>
+                  <div className="mobile-grid-premium">
+                    {fund?.bkash_no && <div className="m-wallet bkash"><label>bKash</label><strong>{fund.bkash_no}</strong></div>}
+                    {fund?.nagad_no && <div className="m-wallet nagad"><label>Nagad</label><strong>{fund.nagad_no}</strong></div>}
+                    {fund?.rocket_no && <div className="m-wallet rocket"><label>Rocket</label><strong>{fund.rocket_no}</strong></div>}
+                    {fund?.upay_no && <div className="m-wallet upay"><label>Upay</label><strong>{fund.upay_no}</strong></div>}
                   </div>
                 </div>
 
-                <div className="qr-container">
-                  <h4 className="section-title" style={{ marginBottom: '1rem' }}>Secure QR Scans</h4>
-                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div className="qr-scans-section">
+                  <h5 className="sub-section-title">Scan to Donate</h5>
+                  <div className="qr-grid-premium">
                     {fund?.bank_qr_url && (
-                      <div className="qr-frame">
-                        <img src={fund.bank_qr_url} alt="Bank QR" />
-                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BANK</div>
+                      <div className="qr-item">
+                        <div className="qr-box"><img src={fund.bank_qr_url} alt="Bank QR" /></div>
+                        <label>BANK QR</label>
                       </div>
                     )}
                     {fund?.bkash_qr_url && (
-                      <div className="qr-frame">
-                        <img src={fund.bkash_qr_url} alt="bKash QR" />
-                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BKASH</div>
+                      <div className="qr-item">
+                        <div className="qr-box"><img src={fund.bkash_qr_url} alt="bKash QR" /></div>
+                        <label>BKASH QR</label>
                       </div>
                     )}
                     {fund?.nagad_qr_url && (
-                      <div className="qr-frame">
-                        <img src={fund.nagad_qr_url} alt="Nagad QR" />
-                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>NAGAD</div>
-                      </div>
-                    )}
-                    {!(fund?.bank_qr_url || fund?.bkash_qr_url || fund?.nagad_qr_url) && (
-                      <div style={{ padding: '2rem', width: '100%', background: '#f8fafc', borderRadius: '16px', border: '2px dashed #e2e8f0', color: '#94a3b8', textAlign: 'center' }}>
-                        No QR Codes Linked
+                      <div className="qr-item">
+                        <div className="qr-box"><img src={fund.nagad_qr_url} alt="Nagad QR" /></div>
+                        <label>NAGAD QR</label>
                       </div>
                     )}
                   </div>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1rem', textAlign: 'center' }}>Scan and support instantly from your banking app</p>
+                  {!(fund?.bank_qr_url || fund?.bkash_qr_url || fund?.nagad_qr_url) && (
+                    <div className="no-qr-msg">No QR codes available for this patient.</div>
+                  )}
                 </div>
               </div>
             </div>
