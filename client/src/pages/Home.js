@@ -21,13 +21,14 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, patientsRes] = await Promise.all([
+        const [statsRes, patientsData] = await Promise.all([
           axios.get(`${process.env.REACT_APP_API_URL}/stats/global`),
-          patientService.getAll()
+          patientService.getAll({
+            onUpdate: (fresh) => setRecentPatients(fresh.slice(0, 3)),
+          })
         ]);
         setGlobalStats(statsRes.data);
-        // Get top 3 recent patients
-        setRecentPatients(patientsRes.slice(0, 3));
+        setRecentPatients(patientsData.slice(0, 3));
       } catch (err) {
         console.error('Fetch error:', err);
       }

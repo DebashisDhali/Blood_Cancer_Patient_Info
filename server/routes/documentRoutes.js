@@ -25,13 +25,15 @@ router.post('/:patientId', authMiddleware, adminOnly, async (req, res) => {
     const { title, document_type, file } = req.body; // file is base64
     const { patientId } = req.params;
 
-    const filename = `doc-${patientId}-${Date.now()}.pdf`; // or jpg
+    // Detect content type from title extension
+    const ext = (title || '').split('.').pop().toLowerCase();
+    const mimeMap = { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' };
+    const contentType = mimeMap[ext] || 'application/pdf';
+    const filename = `doc-${patientId}-${Date.now()}.${ext || 'pdf'}`;
+
     const { error: upErr } = await supabase.storage
       .from('patient-documents')
-      .upload(filename, Buffer.from(file, 'base64'), {
-        contentType: 'application/pdf', // fallback
-        upsert: true
-      });
+      .upload(filename, Buffer.from(file, 'base64'), { contentType, upsert: true });
 
     if (upErr) throw upErr;
 

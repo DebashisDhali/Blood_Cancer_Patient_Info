@@ -13,4 +13,19 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Auto-logout on 401 (expired token) — prevents broken authenticated state
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      // Only redirect if user is on a protected page
+      if (window.location.pathname === '/admin') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default API;

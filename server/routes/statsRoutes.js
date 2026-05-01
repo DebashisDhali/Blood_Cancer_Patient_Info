@@ -6,23 +6,22 @@ const { cacheMiddleware } = require('../middleware/cache');
 // Public Global Stats (cached for 5 minutes)
 router.get('/global', cacheMiddleware(300), async (req, res) => {
   try {
-    // 1. Total Patients
-    const pCountRes = await supabase.from('patients').select('id', { count: 'exact' });
-    const totalPatients = pCountRes.count || 0;
+    // Run all 3 queries in parallel
+    const [pCountRes, chemoRes, fundRes] = await Promise.all([
+      supabase.from('patients').select('id', { count: 'exact' }),
+      supabase.from('patients').select('chemo_completed'),
+      supabase.from('funds').select('collected_amount')
+    ]);
 
-    // 2. Total Chemos Funded/Completed
-    const chemoRes = await supabase.from('patients').select('chemo_completed');
-    const totalChemo = chemoRes.data?.reduce((sum, p) => sum + (p.chemo_completed || 0), 0) || 0;
-
-    // 3. Total Collected Amount
-    const fundRes = await supabase.from('funds').select('collected_amount');
+    const totalPatients  = pCountRes.count || 0;
+    const totalChemo     = chemoRes.data?.reduce((sum, p) => sum + (p.chemo_completed || 0), 0) || 0;
     const totalCollected = fundRes.data?.reduce((sum, f) => sum + (f.collected_amount || 0), 0) || 0;
 
     res.json({
       totalPatients,
       totalChemo,
       totalCollected,
-      impactFactor: Math.round(totalCollected / 1000) // Dummy impact factor calculation
+      impactFactor: Math.round(totalCollected / 1000)
     });
   } catch (error) {
     console.error('Stats fetch error:', error);
