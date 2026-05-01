@@ -75,10 +75,10 @@ const Login = () => {
         {error && <div className="error-message">{error}</div>}
 
         <input
-          type="email"
+          type="text"
           name="email"
           id="email"
-          placeholder="Email"
+          placeholder="Email or Username"
           value={formData.email}
           onChange={handleChange}
           autoComplete="email"

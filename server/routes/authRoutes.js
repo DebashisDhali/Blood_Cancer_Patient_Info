@@ -111,14 +111,17 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return res.status(400).json({ message: 'Email/Username and password are required' });
     }
 
-    // Find admin by email
+    const isEmail = email.includes('@');
+    const column = isEmail ? 'email' : 'username';
+
+    // Find admin by email or username
     const { data: admins, error: queryError } = await supabase
       .from('admins')
       .select('*')
-      .eq('email', email)
+      .eq(column, email)
       .single();
 
     if (queryError || !admins) {
