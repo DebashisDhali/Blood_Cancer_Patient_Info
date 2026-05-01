@@ -19,7 +19,11 @@ const Patients = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const data = await patientService.getAll();
+        const data = await patientService.getAll({
+          // If cache returns instantly, setLoading(false) immediately
+          // onUpdate fires silently in background only if data changed
+          onUpdate: (fresh) => setPatients(fresh),
+        });
         setPatients(data);
       } catch (err) {
         console.error('Fetch error:', err);

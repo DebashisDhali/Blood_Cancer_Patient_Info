@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef, useCallback } from 'rea
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import cacheStore from '../services/cacheStore';
 import '../styles/AdminDashboard.css';
 
 const EMPTY_FORM = {
@@ -334,6 +335,7 @@ const AdminDashboard = () => {
       await Promise.all(tasks);
 
       setFormMsg({ type: 'success', text: '✅ Saved successfully!' });
+      cacheStore.invalidate('patients'); // force fresh data on public pages
       await fetchData();
       setTimeout(() => setShowForm(false), 1000);
     } catch (err) { setFormMsg({ type: 'error', text: err.response?.data?.message || err.message }); }
@@ -348,6 +350,7 @@ const AdminDashboard = () => {
       await axios.delete(`${process.env.REACT_APP_API_URL}/patients/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      cacheStore.invalidate('patients'); // force fresh data on public pages
       await fetchData();
     } catch (error) {
       alert('Delete failed: ' + (error.response?.data?.message || error.message));

@@ -19,8 +19,10 @@ const PatientDetails = () => {
     setError(false);
     try {
       const [patientData, docData] = await Promise.all([
-        patientService.getById(id),
-        documentService.getByPatientId(id)
+        patientService.getById(id, {
+          onUpdate: (fresh) => setPatient(fresh), // silent background update
+        }),
+        documentService.getByPatientId(id),
       ]);
       setPatient(patientData);
       setDocuments(docData);
