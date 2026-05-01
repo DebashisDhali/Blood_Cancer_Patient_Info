@@ -11,6 +11,26 @@ const Patients = () => {
   const [activeTab, setActiveTab] = useState('info');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [documents, setDocuments] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+
+  const fetchDocs = async (id) => {
+    setLoadingDocs(true);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/documents/patient/${id}`);
+      setDocuments(res.data);
+    } catch (err) {
+      console.error('Docs fetch error:', err);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selected) {
+      fetchDocs(selected.id);
+    }
+  }, [selected]);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -96,7 +116,7 @@ const Patients = () => {
                 key={p.id} 
                 patient={p} 
                 fund={p.fund} 
-                onClick={() => { setSelected(p); setActiveTab('info'); }} 
+                onClick={() => { setSelected(p); setActiveTab('fund'); }} 
               />
             ))}
           </div>
@@ -127,13 +147,66 @@ const Patients = () => {
                 </div>
               </div>
               <div className="modal-nav">
-                <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical</button>
-                <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Fundraising</button>
+                <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation Center</button>
+                <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical Info</button>
+                <button className={activeTab === 'docs' ? 'active' : ''} onClick={() => setActiveTab('docs')}>📄 Reports</button>
               </div>
             </div>
  
             <div className="modal-content-area">
-              {activeTab === 'info' ? (
+              {activeTab === 'fund' && (
+                <div className="tab-pane">
+                  <h4 className="section-title">Campaign Financials</h4>
+                  <div className="fund-visual-progress-box">
+                    <div className="fund-progress-meta">
+                      <div className="fund-main-percent">
+                        {Math.min(100, ((selectedFund?.collected_amount || 0) / (selectedFund?.target_amount || 1)) * 100).toFixed(1)}%
+                        <span>Funded</span>
+                      </div>
+                      <div className="fund-mini-stats-top">
+                        <div className="fms-item"><label>Target</label><strong>৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong></div>
+                        <div className="fms-item"><label>Raised</label><strong style={{ color: '#10b981' }}>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong></div>
+                      </div>
+                    </div>
+                    <div className="fund-progress-bar-large">
+                      <div className="fund-progress-fill-large" style={{ width: `${Math.min(100, ((selectedFund?.collected_amount || 0) / (selectedFund?.target_amount || 1)) * 100)}%` }}>
+                        <div className="progress-glow"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="donation-methods-container">
+                    {selectedFund?.bank_account_no && (
+                      <div className="bank-card-premium">
+                        <div className="bank-card-header"><span>🏛️ BANK TRANSFER</span></div>
+                        <div className="bank-card-body">
+                          <h3>{selectedFund.bank_name}</h3>
+                          <div className="bank-acc-row"><label>A/C No</label><strong>{selectedFund.bank_account_no}</strong></div>
+                          <div className="bank-acc-row"><label>Name</label><span>{selectedFund.bank_account_name}</span></div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="mobile-payments-section">
+                      <div className="mobile-grid-premium">
+                        {selectedFund?.bkash_no && (
+                          <div className="m-wallet bkash">
+                            <div className="m-wallet-header"><img src="/images/bkash-logo.png" alt="bKash" className="m-logo" /><label>bKash</label></div>
+                            <strong>{selectedFund.bkash_no}</strong>
+                          </div>
+                        )}
+                        {selectedFund?.nagad_no && (
+                          <div className="m-wallet nagad">
+                            <div className="m-wallet-header"><img src="/images/nagad-logo.jpg" alt="Nagad" className="m-logo" /><label>Nagad</label></div>
+                            <strong>{selectedFund.nagad_no}</strong>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'info' && (
                 <div className="tab-pane">
                   <h4 className="section-title">Clinical Progress</h4>
                   <div className="charts-row">
@@ -154,50 +227,28 @@ const Patients = () => {
                     <div className="info-card"><label>Session</label><span>{selected.session || 'N/A'}</span></div>
                     <div className="info-card"><label>Age</label><span>{selected.age} Years</span></div>
                     <div className="info-card"><label>Gender</label><span>{selected.gender}</span></div>
-                    <div className="info-card"><label>Admission</label><span>{selected.admission_date || 'N/A'}</span></div>
                     <div className="info-card"><label>Consultant</label><span>{selected.doctor_name || 'N/A'}</span></div>
-                    <div className="info-card"><label>Cancer Stage</label><span>{selected.cancer_type}</span></div>
-                    <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Home Address</label><span>{selected.address || 'Not Provided'}</span></div>
-                    <div className="info-card"><label>Emergency Contact</label><span>{selected.phone || 'N/A'}</span></div>
+                    <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Emergency Contact</label><span>{selected.phone || 'N/A'}</span></div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {activeTab === 'docs' && (
                 <div className="tab-pane">
-                  <div className="fund-hero">
-                    <div className="fund-stat">
-                      <span className="fund-amount-label">Target Amount</span>
-                      <strong className="fund-amount-value">৳{(selectedFund?.target_amount || 0).toLocaleString()}</strong>
-                    </div>
-                    <div className="fund-stat" style={{ textAlign: 'right' }}>
-                      <span className="fund-amount-label">Raised So Far</span>
-                      <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(selectedFund?.collected_amount || 0).toLocaleString()}</strong>
-                    </div>
-                  </div>
- 
-                  {selectedFund?.description && (
-                    <div className="fund-story-box">
-                      <h4 className="section-title">Campaign Story</h4>
-                      <p className="fund-story-text">{selectedFund.description}</p>
+                  <h4 className="section-title">Medical Reports & Docs</h4>
+                  {loadingDocs ? <p>Loading documents...</p> : (
+                    <div className="docs-list-simple">
+                      {documents.length > 0 ? documents.map(doc => (
+                        <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="doc-item-modal">
+                          <span className="doc-icon">📄</span>
+                          <div className="doc-meta">
+                            <strong>{doc.title}</strong>
+                            <small>{new Date(doc.created_at).toLocaleDateString()}</small>
+                          </div>
+                        </a>
+                      )) : <p>No documents available.</p>}
                     </div>
                   )}
-  
-                  <h4 className="section-title">Verified Payment Methods</h4>
-                  <div className="payment-grid">
-                    <div className="payment-methods-list">
-                      {selectedFund?.bank_account_no && (
-                        <div className="bank-card">
-                          <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em' }}>DIRECT BANK TRANSFER</p>
-                          <p style={{ fontSize: '1.4rem', fontWeight: '800', marginTop: '0.75rem', color: '#0f172a' }}>{selectedFund.bank_name}</p>
-                          <p style={{ fontSize: '1.1rem', margin: '0.4rem 0', color: '#334155', fontWeight: '600' }}>{selectedFund.bank_account_no}</p>
-                          <p style={{ color: '#64748b', fontWeight: '500' }}>{selectedFund.bank_account_name}</p>
-                        </div>
-                      )}
-                      <div className="mobile-grid">
-                        {selectedFund?.bkash_no && <div className="mobile-card"><label>bKash</label><strong>{selectedFund.bkash_no}</strong></div>}
-                        {selectedFund?.nagad_no && <div className="mobile-card"><label>Nagad</label><strong>{selectedFund.nagad_no}</strong></div>}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
