@@ -128,6 +128,18 @@ const Patients = () => {
             </div>
  
             <div className="modal-content-area">
+              <div className="tab-pane" style={{ marginBottom: '2.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
+                <h4 className="section-title">Patient Profile</h4>
+                <div className="info-grid-detailed">
+                  <div className="info-card"><label>Department</label><span>{selected.dept || 'N/A'}</span></div>
+                  <div className="info-card"><label>Batch</label><span>{selected.batch || 'N/A'}</span></div>
+                  <div className="info-card"><label>Age</label><span>{selected.age} Years</span></div>
+                  <div className="info-card"><label>Gender</label><span>{selected.gender}</span></div>
+                  <div className="info-card"><label>Blood Type</label><span>{selected.blood_type}</span></div>
+                  <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Emergency Contact</label><span>{selected.phone || 'N/A'}</span></div>
+                </div>
+              </div>
+
               {activeTab === 'fund' && <DonationCenter fund={selected.fund} />}
 
               {activeTab === 'info' && (
@@ -139,20 +151,14 @@ const Patients = () => {
                     </div>
                   </div>
                   
-                  <h4 className="section-title">Patient Bio-Data</h4>
+                  <h4 className="section-title">Admission Details</h4>
                   <div className="info-grid-detailed">
-                    <div className="info-card"><label>Department</label><span>{selected.dept || 'N/A'}</span></div>
-                    <div className="info-card"><label>Batch</label><span>{selected.batch || 'N/A'}</span></div>
                     <div className="info-card"><label>Session</label><span>{selected.session || 'N/A'}</span></div>
-                    <div className="info-card"><label>Age</label><span>{selected.age} Years</span></div>
-                    <div className="info-card"><label>Gender</label><span>{selected.gender}</span></div>
-                    <div className="info-card"><label>Blood Type</label><span>{selected.blood_type}</span></div>
                     <div className="info-card"><label>Admission</label><span>{selected.admission_date || 'N/A'}</span></div>
                     <div className="info-card"><label>Medical Center</label><span>{selected.hospital || 'N/A'}</span></div>
                     <div className="info-card"><label>Consultant</label><span>{selected.doctor_name || 'N/A'}</span></div>
                     <div className="info-card"><label>Cancer Stage</label><span>{selected.cancer_type}</span></div>
                     <div className="info-card" style={{ gridColumn: 'span 2' }}><label>Home Address</label><span>{selected.address || 'Not Provided'}</span></div>
-                    <div className="info-card"><label>Emergency Contact</label><span>{selected.phone || 'N/A'}</span></div>
                   </div>
 
                   <div style={{ marginTop: '2.5rem', textAlign: 'center', padding: '2rem', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
