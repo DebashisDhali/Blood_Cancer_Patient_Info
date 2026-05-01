@@ -9,26 +9,32 @@ const PatientDetails = () => {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState('fund');
   const [selectedDoc, setSelectedDoc] = useState(null);
 
+  const loadData = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const [patientData, docData] = await Promise.all([
+        patientService.getById(id),
+        documentService.getByPatientId(id)
+      ]);
+      setPatient(patientData);
+      setDocuments(docData);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [patientData, docData] = await Promise.all([
-          patientService.getById(id),
-          documentService.getByPatientId(id)
-        ]);
-        setPatient(patientData);
-        setDocuments(docData);
-      } catch (err) {
-        console.error('Fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (loading) return (
@@ -37,6 +43,27 @@ const PatientDetails = () => {
       <span>Loading patient profile...</span>
     </div>
   );
+
+  if (error) return (
+    <div className="error-state">
+      <div style={{ fontSize: '3rem' }}>⚠️</div>
+      <h3>Could not load patient data</h3>
+      <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+        There was a network issue. Please try again.
+      </p>
+      <button
+        onClick={loadData}
+        style={{
+          padding: '0.75rem 2rem', borderRadius: '12px', border: 'none',
+          background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+          color: 'white', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer'
+        }}
+      >
+        🔄 Try Again
+      </button>
+    </div>
+  );
+
   if (!patient) return (
     <div className="error-state">
       <div style={{ fontSize: '3rem' }}>😔</div>
