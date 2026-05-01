@@ -10,8 +10,8 @@
 
 const cache = new Map();
 
-// Default TTL: 5 minutes (after this, background re-fetch always happens)
-const DEFAULT_TTL_MS = 5 * 60 * 1000;
+// Default TTL: 90 seconds
+const DEFAULT_TTL_MS = 90 * 1000;
 
 const cacheStore = {
   /**

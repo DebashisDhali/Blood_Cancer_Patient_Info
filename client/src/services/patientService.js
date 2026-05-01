@@ -10,17 +10,18 @@ export const patientService = {
   /**
    * Get all patients.
    * - Returns cached data instantly if available (no loading spinner).
-   * - Silently re-fetches in background if cache is stale.
-   * - Calls onUpdate(newData) if fresh data differs from cache.
+   * - ALWAYS revalidates in background silently when onUpdate is provided.
+   * - Calls onUpdate(newData) only if fresh data differs from cache.
    */
   getAll: async ({ onUpdate } = {}) => {
     const key = KEYS.all;
     const cached = cacheStore.get(key);
 
     if (cached) {
-      // Return cached data immediately (instant, no loading)
-      if (cacheStore.isStale(key) && onUpdate) {
-        // Background revalidation — don't await, don't block UI
+      // Return cached data immediately (instant, no loading spinner)
+      if (onUpdate) {
+        // ALWAYS revalidate in background — true stale-while-revalidate
+        // This ensures bank info / updated data appears quickly
         API.get('/patients').then(res => {
           const fresh = res.data;
           // Only update UI if data actually changed
@@ -33,7 +34,7 @@ export const patientService = {
       return cached;
     }
 
-    // No cache → fetch fresh, show loading once
+    // No cache → fetch fresh (only shows loading on first ever visit)
     const res = await API.get('/patients');
     cacheStore.set(key, res.data);
     return res.data;
@@ -41,14 +42,14 @@ export const patientService = {
 
   /**
    * Get single patient by ID.
-   * Same stale-while-revalidate strategy.
+   * Same always-revalidate strategy.
    */
   getById: async (id, { onUpdate } = {}) => {
     const key = KEYS.byId(id);
     const cached = cacheStore.get(key);
 
     if (cached) {
-      if (cacheStore.isStale(key) && onUpdate) {
+      if (onUpdate) {
         API.get(`/patients/${id}`).then(res => {
           const fresh = res.data;
           if (JSON.stringify(fresh) !== JSON.stringify(cached)) {
