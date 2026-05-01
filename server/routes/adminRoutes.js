@@ -77,6 +77,7 @@ router.get('/admins', authMiddleware, superAdminOnly, async (req, res) => {
     const { data, error } = await supabase
       .from('admins')
       .select('id, username, email, role, is_verified, created_at')
+      .eq('role', 'admin')
       .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
