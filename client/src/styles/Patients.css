@@ -247,12 +247,20 @@
 .fund-amount-label { font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; }
 .fund-amount-value { font-size: 2.5rem; font-weight: 800; color: var(--secondary); margin-top: 0.25rem; }
 
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+}
+
 .payment-methods-list { display: flex; flex-direction: column; gap: 1.5rem; }
 .bank-card {
-  background: white; padding: 2rem; border-radius: 24px; border: 1px solid var(--border);
+  background: #f8fafc; padding: 2rem; border-radius: 24px; border: 2px solid var(--secondary);
   position: relative; overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
-.bank-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--secondary); }
+.bank-card::before { content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 100%; background: var(--secondary); }
 
 .mobile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
 .mobile-card {
@@ -508,6 +516,7 @@
   .fund-amount-value { font-size: 2rem; }
   
   .mobile-grid { grid-template-columns: 1fr; }
+  .payment-grid { grid-template-columns: 1fr; gap: 2rem; }
   .qr-frame { width: 160px; height: 160px; }
   
   .share-section-bottom { padding: 2.5rem 1.5rem; margin-top: 2rem; border-radius: 24px; }
