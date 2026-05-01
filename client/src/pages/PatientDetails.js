@@ -51,12 +51,33 @@ const PatientDetails = () => {
                 <span className={`status-tag ${patient.status}`}>{patient.status.replace(/-/g, ' ')}</span>
                 <span className="status-tag blood">{patient.blood_type}</span>
               </div>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem' }}>{patient.cancer_type || ''}</p>
             </div>
-            <div className="modal-nav">
-              <button className={activeTab === 'fund' ? 'active' : ''} onClick={() => setActiveTab('fund')}>💰 Donation Center</button>
-              <button className={activeTab === 'info' ? 'active' : ''} onClick={() => setActiveTab('info')}>🏥 Medical Info</button>
-              <button className={activeTab === 'docs' ? 'active' : ''} onClick={() => setActiveTab('docs')}>📄 Reports</button>
+
+            <div className="detail-tab-nav">
+              <button
+                className={activeTab === 'fund' ? 'active' : ''}
+                onClick={() => setActiveTab('fund')}
+              >
+                <span className="tab-icon">💰</span>
+                <span className="tab-label">Donation Center</span>
+              </button>
+              <button
+                className={activeTab === 'info' ? 'active' : ''}
+                onClick={() => setActiveTab('info')}
+              >
+                <span className="tab-icon">🏥</span>
+                <span className="tab-label">Medical Info</span>
+              </button>
+              <button
+                className={activeTab === 'docs' ? 'active' : ''}
+                onClick={() => setActiveTab('docs')}
+              >
+                <span className="tab-icon">📄</span>
+                <span className="tab-label">Reports</span>
+              </button>
             </div>
+
             <div className="share-section-bottom">
               <p>Share this patient's story to help them raise funds faster.</p>
               <button className="btn-share-big" onClick={() => {
