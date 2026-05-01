@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { patientService } from '../services/patientService';
 import '../styles/Home.css';
 
 const features = [
@@ -15,30 +16,24 @@ const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [globalStats, setGlobalStats] = useState({ totalPatients: 0, totalChemo: 0, totalCollected: 0, impactFactor: 0 });
+  const [recentPatients, setRecentPatients] = useState([]);
 
   useEffect(() => {
-    const fetchGlobalStats = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/stats/global`);
-        setGlobalStats(res.data);
+        const [statsRes, patientsRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/stats/global`),
+          patientService.getAll()
+        ]);
+        setGlobalStats(statsRes.data);
+        // Get top 3 recent patients
+        setRecentPatients(patientsRes.slice(0, 3));
       } catch (err) {
-        console.error('Stats fetch error:', err);
+        console.error('Fetch error:', err);
       }
     };
-    fetchGlobalStats();
+    fetchData();
   }, []);
-
-  // Custom SVG Bar Chart Data
-  const chartData = [
-    { label: 'Jan', value: 45 },
-    { label: 'Feb', value: 70 },
-    { label: 'Mar', value: 60 },
-    { label: 'Apr', value: 90 },
-    { label: 'May', value: 120 },
-    { label: 'Jun', value: 150 },
-  ];
-
-  const maxVal = Math.max(...chartData.map(d => d.value));
 
   return (
     <div className="home">
@@ -91,47 +86,31 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="impact-chart-box">
-            <div className="chart-header">
-              <h4>Monthly Funding Growth</h4>
-              <div className="chart-legend"><span></span> Real-time Impact</div>
+          <div className="impact-chart-box" style={{ background: 'transparent', padding: 0, border: 'none', boxShadow: 'none' }}>
+            <div className="chart-header" style={{ marginBottom: '1.5rem' }}>
+              <h4>Recently Added Patients</h4>
+              <Link to="/patients" className="chart-legend" style={{ textDecoration: 'none', color: '#6366f1', fontWeight: '700' }}>View All →</Link>
             </div>
-            <div className="chart-svg-wrap">
-              <svg viewBox="0 0 600 250" className="impact-svg">
-                {/* Grid Lines */}
-                {[0, 1, 2, 3, 4].map(i => (
-                  <line key={i} x1="40" y1={200 - (i * 40)} x2="580" y2={200 - (i * 40)} stroke="#e2e8f0" strokeDasharray="5,5" />
-                ))}
-                {/* Bars */}
-                {chartData.map((d, i) => {
-                  const barHeight = (d.value / maxVal) * 150;
-                  const xPos = 60 + (i * 90);
-                  return (
-                    <g key={i} className="bar-group">
-                      <rect 
-                        x={xPos} 
-                        y={200 - barHeight} 
-                        width="50" 
-                        height={barHeight} 
-                        rx="10" 
-                        fill="url(#barGradient)"
-                        className="impact-bar"
-                      >
-                        <animate attributeName="height" from="0" to={barHeight} dur="1s" fill="freeze" />
-                        <animate attributeName="y" from="200" to={200 - barHeight} dur="1s" fill="freeze" />
-                      </rect>
-                      <text x={xPos + 25} y="230" textAnchor="middle" className="chart-axis-text">{d.label}</text>
-                      <text x={xPos + 25} y={190 - barHeight} textAnchor="middle" className="chart-value-text">{d.value}%</text>
-                    </g>
-                  );
-                })}
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" />
-                    <stop offset="100%" stopColor="#4f46e5" />
-                  </linearGradient>
-                </defs>
-              </svg>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {recentPatients.map(p => (
+                <div key={p.id} onClick={() => navigate(`/patients/${p.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'white', padding: '1.25rem', borderRadius: '20px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(5px)'; e.currentTarget.style.borderColor = '#6366f1'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0 }}>
+                    {p.photo_url ? <img src={p.photo_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h5 style={{ margin: '0 0 0.25rem', fontSize: '1.05rem', color: '#0f172a' }}>{p.name}</h5>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>{p.cancer_type}</p>
+                  </div>
+                  {p.fund && (
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#10b981' }}>{Math.min(100, (p.fund.collected_amount / p.fund.target_amount) * 100).toFixed(1)}%</div>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Funded</div>
+                    </div>
+                  )}
+                  <div style={{ color: '#cbd5e1' }}>❯</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

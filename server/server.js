@@ -13,6 +13,7 @@ const fundRoutes = require('./routes/fundRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
@@ -78,7 +79,8 @@ const apiRoutes = [
   { path: '/funds', handler: fundRoutes },
   { path: '/donations', handler: donationRoutes },
   { path: '/documents', handler: documentRoutes },
-  { path: '/admin', handler: adminRoutes }
+  { path: '/admin', handler: adminRoutes },
+  { path: '/stats', handler: statsRoutes }
 ];
 
 apiRoutes.forEach(route => {
