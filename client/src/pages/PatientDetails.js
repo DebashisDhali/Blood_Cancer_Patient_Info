@@ -8,7 +8,8 @@ const PatientDetails = () => {
   const [patient, setPatient] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('info');
+  const [activeTab, setActiveTab] = useState('fund');
+  const [selectedDoc, setSelectedDoc] = useState(null);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -133,14 +134,14 @@ const PatientDetails = () => {
               
               <div className="docs-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
                 {documents.map(doc => (
-                  <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="public-doc-card" style={{ display: 'flex', alignItems: 'center', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', textDecoration: 'none', transition: '0.2s', gap: '1rem' }}>
+                  <div key={doc.id} onClick={() => setSelectedDoc(doc)} className="public-doc-card" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', textDecoration: 'none', transition: '0.2s', gap: '1rem' }}>
                     <div style={{ fontSize: '2rem' }}>{doc.document_type === 'prescription' ? '💊' : '📄'}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem' }}>{doc.title}</div>
                       <div style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', marginTop: '0.2rem' }}>{doc.document_type}</div>
                     </div>
                     <div style={{ color: '#6366f1', fontSize: '1.2rem' }}>↗</div>
-                  </a>
+                  </div>
                 ))}
                 {documents.length === 0 && (
                   <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: '#f8fafc', borderRadius: '16px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>
@@ -152,15 +153,34 @@ const PatientDetails = () => {
           ) : (
             <div className="tab-pane">
               <h4 className="section-title">Campaign Financials</h4>
-              <div className="fund-hero">
-                <div className="fund-stat">
-                  <span className="fund-amount-label">Fundraising Target</span>
-                  <strong className="fund-amount-value">৳{(fund?.target_amount || 0).toLocaleString()}</strong>
+              
+              {/* Premium Visual Progress Chart */}
+              <div className="fund-visual-progress-box">
+                <div className="fund-progress-meta">
+                  <div className="fund-main-percent">
+                    {Math.min(100, ((fund?.collected_amount || 0) / (fund?.target_amount || 1)) * 100).toFixed(1)}%
+                    <span>Funded</span>
+                  </div>
+                  <div className="fund-mini-stats-top">
+                    <div className="fms-item">
+                      <label>Target</label>
+                      <strong>৳{(fund?.target_amount || 0).toLocaleString()}</strong>
+                    </div>
+                    <div className="fms-item">
+                      <label>Raised</label>
+                      <strong style={{ color: '#10b981' }}>৳{(fund?.collected_amount || 0).toLocaleString()}</strong>
+                    </div>
+                  </div>
                 </div>
-                <div className="fund-stat" style={{ textAlign: 'right' }}>
-                  <span className="fund-amount-label">Verified Collection</span>
-                  <strong className="fund-amount-value" style={{ color: '#10b981' }}>৳{(fund?.collected_amount || 0).toLocaleString()}</strong>
+                <div className="fund-progress-bar-large">
+                  <div 
+                    className="fund-progress-fill-large" 
+                    style={{ width: `${Math.min(100, ((fund?.collected_amount || 0) / (fund?.target_amount || 1)) * 100)}%` }}
+                  >
+                    <div className="progress-glow"></div>
+                  </div>
                 </div>
+                <p className="fund-support-hint">🙏 {fund?.target_amount - fund?.collected_amount > 0 ? `Only ৳${(fund.target_amount - fund.collected_amount).toLocaleString()} more needed to reach the goal.` : 'Target reached! Your additional support helps even more.'}</p>
               </div>
 
               {fund?.description && (
@@ -200,20 +220,20 @@ const PatientDetails = () => {
                   <h4 className="section-title" style={{ marginBottom: '1rem' }}>Secure QR Scans</h4>
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                     {fund?.bank_qr_url && (
-                      <div className="qr-frame" style={{ textAlign: 'center' }}>
-                        <img src={fund.bank_qr_url} alt="Bank QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                      <div className="qr-frame">
+                        <img src={fund.bank_qr_url} alt="Bank QR" />
                         <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BANK</div>
                       </div>
                     )}
                     {fund?.bkash_qr_url && (
-                      <div className="qr-frame" style={{ textAlign: 'center' }}>
-                        <img src={fund.bkash_qr_url} alt="bKash QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                      <div className="qr-frame">
+                        <img src={fund.bkash_qr_url} alt="bKash QR" />
                         <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>BKASH</div>
                       </div>
                     )}
                     {fund?.nagad_qr_url && (
-                      <div className="qr-frame" style={{ textAlign: 'center' }}>
-                        <img src={fund.nagad_qr_url} alt="Nagad QR" style={{ width: '120px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                      <div className="qr-frame">
+                        <img src={fund.nagad_qr_url} alt="Nagad QR" />
                         <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#64748b' }}>NAGAD</div>
                       </div>
                     )}
@@ -230,6 +250,48 @@ const PatientDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Document Preview Modal */}
+      {selectedDoc && (
+        <div className="doc-viewer-backdrop" onClick={() => setSelectedDoc(null)}>
+          <div className="doc-viewer-container" onClick={e => e.stopPropagation()}>
+            <div className="doc-viewer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>{selectedDoc.document_type === 'prescription' ? '💊' : '📄'}</span>
+                <div>
+                  <div style={{ fontWeight: '800', color: '#0f172a' }}>{selectedDoc.title}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>{selectedDoc.document_type}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <a href={selectedDoc.file_url} download className="btn-share-big" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', background: '#f1f5f9', color: '#0f172a', boxShadow: 'none' }}>Download</a>
+                <button className="btn-close-viewer" onClick={() => setSelectedDoc(null)}>✕</button>
+              </div>
+            </div>
+            <div className="doc-viewer-content">
+              {selectedDoc.file_url.split(/[?#]/)[0].match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                <img src={selectedDoc.file_url} alt={selectedDoc.title} />
+              ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.pdf$/i) ? (
+                <iframe src={`${selectedDoc.file_url}#toolbar=0`} title={selectedDoc.title} />
+              ) : selectedDoc.file_url.split(/[?#]/)[0].match(/\.(doc|docx)$/i) ? (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📝</div>
+                  <h3>Word Document</h3>
+                  <p>Word documents cannot be previewed directly. Please download to view.</p>
+                  <a href={selectedDoc.file_url} className="btn-share-big" style={{ marginTop: '1.5rem' }}>Download Document</a>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📁</div>
+                  <h3>File Preview Unavailable</h3>
+                  <p>This file type cannot be previewed. Please download it instead.</p>
+                  <a href={selectedDoc.file_url} className="btn-share-big" style={{ marginTop: '1.5rem' }}>Download File</a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

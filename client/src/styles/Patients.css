@@ -89,6 +89,13 @@
   z-index: 1;
 }
 
+.modal-photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .sidebar-info h2 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.75rem; z-index: 1; }
 .status-row { display: flex; gap: 0.75rem; justify-content: center; z-index: 1; }
 
@@ -141,6 +148,97 @@
 .info-card span { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
 
 /* Payment & Funds */
+/* Visual Progress Chart */
+.fund-visual-progress-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.fund-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.fund-main-percent {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--secondary);
+  display: flex;
+  flex-direction: column;
+}
+
+.fund-main-percent span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.fund-mini-stats-top {
+  display: flex;
+  gap: 2rem;
+  text-align: right;
+}
+
+.fms-item label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.fms-item strong {
+  font-size: 1.25rem;
+  color: var(--text-main);
+}
+
+.fund-progress-bar-large {
+  height: 16px;
+  background: #f1f5f9;
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.fund-progress-fill-large {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #10b981);
+  border-radius: 100px;
+  position: relative;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.progress-glow {
+  position: absolute;
+  top: 0; right: 0; width: 30px; height: 100%;
+  background: white;
+  filter: blur(10px);
+  opacity: 0.5;
+  animation: progress-slide 2s infinite linear;
+}
+
+@keyframes progress-slide {
+  from { transform: translateX(-200%); }
+  to { transform: translateX(200%); }
+}
+
+.fund-support-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
 .fund-hero {
   background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
   padding: 2.5rem; border-radius: 28px; margin-bottom: 3rem;
@@ -198,10 +296,20 @@
   border: 1px solid var(--border); text-align: center;
 }
 .qr-frame { 
-  width: 220px; height: 220px; margin: 1.5rem auto; padding: 1.5rem; 
+  width: 180px; height: 180px; margin: 1.5rem auto; padding: 1rem; 
   border: 2px dashed var(--border); border-radius: 20px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
-.qr-frame img { width: 100%; border-radius: 12px; }
+.qr-frame img { 
+  max-width: 100%; 
+  max-height: 100%; 
+  border-radius: 12px; 
+  object-fit: contain;
+}
 
 /* Utilities */
 .modal-close {
@@ -257,9 +365,9 @@
 
 /* Search & Filter Bar */
 .search-filter-wrap {
-  margin-top: 3rem;
+  margin-top: 2rem;
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -295,9 +403,11 @@
 .filter-tabs {
   display: flex;
   background: #f1f5f9;
-  padding: 6px;
+  padding: 4px;
   border-radius: 100px;
-  gap: 4px;
+  gap: 2px;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .filter-tabs button {
@@ -350,13 +460,70 @@
 /* Updated Status Tag */
 .status-tag.blood { background: rgba(99, 102, 241, 0.1); color: var(--primary-dark); }
 
+/* Document Viewer Modal */
+.doc-viewer-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  z-index: 3000; display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.doc-viewer-container {
+  width: 100%; max-width: 1000px; height: 90vh;
+  background: white; border-radius: 24px; overflow: hidden;
+  display: flex; flex-direction: column; position: relative;
+}
+.doc-viewer-header {
+  padding: 1.25rem 2rem; background: white; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.doc-viewer-content { flex: 1; overflow: auto; background: #f1f5f9; display: flex; align-items: center; justify-content: center; }
+.doc-viewer-content img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.doc-viewer-content iframe { width: 100%; height: 100%; border: none; }
+.btn-close-viewer { 
+  width: 40px; height: 40px; border-radius: 50%; border: none; 
+  background: #f1f5f9; color: var(--secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.btn-close-viewer:hover { background: #e2e8f0; }
+
 @media (max-width: 900px) {
-  .detail-wrapper { flex-direction: column; }
+  .patients-page { padding: 2rem 1rem; }
+  .patients-header { margin-bottom: 2rem; text-align: center; }
+  .patients-header h1 { font-size: 2.2rem; }
+  .patients-header p { margin: 0 auto; font-size: 1.1rem; }
+  
+  .detail-wrapper { flex-direction: column; border-radius: 20px; }
   .modal-sidebar { padding: 3rem 1.5rem 1.5rem; }
-  .patients-header h1 { font-size: 2.5rem; }
-  .charts-row { grid-template-columns: 1fr; }
-  .share-section-bottom { padding: 2rem 1.5rem; }
-  .btn-share-big { width: 100%; justify-content: center; }
+  .modal-photo-box { width: 130px; height: 130px; border-radius: 24px; margin-bottom: 1.5rem; }
+  .sidebar-info h2 { font-size: 1.8rem; }
+  
+  .modal-nav { margin-top: 2rem; }
+  .modal-nav button { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
+  
+  .modal-content-area { padding: 2rem 1.25rem; }
+  .charts-row { grid-template-columns: 1fr; gap: 1rem; }
+  
+  .fund-hero { flex-direction: column; text-align: center; gap: 1.5rem; padding: 2rem 1.5rem; }
+  .fund-stat { text-align: center !important; }
+  .fund-amount-value { font-size: 2rem; }
+  
+  .mobile-grid { grid-template-columns: 1fr; }
+  .qr-frame { width: 160px; height: 160px; }
+  
+  .share-section-bottom { padding: 2.5rem 1.5rem; margin-top: 2rem; border-radius: 24px; }
+  .btn-share-big { width: 100%; justify-content: center; font-size: 1.1rem; padding: 1rem; }
+  
   .search-filter-wrap { flex-direction: column; align-items: stretch; gap: 1rem; }
-  .search-box { min-width: unset; }
+  .search-box { min-width: unset; width: 100%; }
+  
+  .doc-viewer-backdrop { padding: 0.5rem; }
+  .doc-viewer-container { height: 98vh; border-radius: 16px; }
+  .doc-viewer-header { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .patients-header h1 { font-size: 1.8rem; }
+  .info-grid-detailed { grid-template-columns: 1fr; }
+  .info-card { padding: 1rem; }
+  .tab-pane .section-title { margin-bottom: 1.5rem; }
 }

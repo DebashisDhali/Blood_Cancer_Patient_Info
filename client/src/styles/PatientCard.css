@@ -256,3 +256,10 @@
   background: #6366f1;
   color: white;
 }
+@media (max-width: 600px) {
+  .pcard-image-box { height: 180px; }
+  .pcard-details-wrap { padding: 1rem; }
+  .pcard-title { font-size: 1.25rem; }
+  .pcard-stats-row { gap: 1rem; margin-bottom: 1rem; }
+  .pcard-action-bar { padding: 1rem; }
+}

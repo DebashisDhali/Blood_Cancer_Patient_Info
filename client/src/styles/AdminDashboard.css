@@ -12,7 +12,7 @@
 }
 
 .admin-dash {
-  padding: 2.5rem;
+  padding: 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
   font-family: 'Inter', sans-serif;
@@ -143,9 +143,9 @@
 .form-section-title { font-size: 0.75rem; font-weight: 800; color: var(--admin-primary); text-transform: uppercase; letter-spacing: 0.1em; margin: 2rem 0 1rem; }
 .form-section-title:first-child { margin-top: 0; }
 
-.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 .form-field { display: flex; flex-direction: column; gap: 0.5rem; }
-.form-field-full { grid-column: span 2; }
+.form-field-full { grid-column: 1 / -1; }
 .form-field label { font-size: 0.85rem; font-weight: 700; color: var(--admin-text-dark); }
 .form-field input, .form-field select, .form-field textarea {
   padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid var(--admin-border);
@@ -300,9 +300,34 @@
 .help-item strong { display: block; margin-bottom: 0.5rem; color: var(--admin-primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
 .help-item p { font-size: 0.9rem; color: #64748b; line-height: 1.6; }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .admin-dash { padding: 1rem; }
+  .dash-topbar { flex-direction: column; align-items: stretch; gap: 1.5rem; text-align: center; margin-bottom: 2rem; }
+  .dash-topbar h1 { font-size: 1.8rem; }
+  .dash-topbar > div:last-child { flex-direction: column; width: 100%; }
+  .btn-add-patient, .btn-delete-self { width: 100%; padding: 1rem; }
+  
+  .dash-stats { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+  .dash-stat-card { padding: 1.5rem; }
+  
+  .dash-table th, .dash-table td { padding: 1rem; font-size: 0.85rem; }
+  .tbl-avatar { width: 36px; height: 36px; }
+  
+  .form-overlay { padding: 0.5rem; }
+  .form-modal { height: 100%; max-height: 100vh; border-radius: 16px; }
+  .form-modal-header { padding: 1rem 1.5rem; }
+  .patient-form { padding: 1.5rem 1rem; }
   .form-grid { grid-template-columns: 1fr; }
-  .dash-topbar { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .btn-add-patient { width: 100%; }
+  
+  .photo-upload-section { flex-direction: column; text-align: center; padding: 1.5rem 1rem; }
+  .ledger-input-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .btn-add-log { padding: 0.8rem; }
+  
+  .doc-upload-box { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .dash-topbar h1 { font-size: 1.5rem; }
+  .dsc-value { font-size: 1.5rem; }
+  .dsc-label { font-size: 0.8rem; }
 }
