@@ -109,29 +109,53 @@
 .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 768px) {
-  .logo-text { max-width: 180px; }
-  .logo-main { font-size: 0.95rem; }
-  .logo-sub { font-size: 0.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .logo-text { max-width: 160px; }
+  .logo-main { font-size: 0.9rem; }
+  .logo-sub { font-size: 0.58rem; }
   
-  .hamburger { display: flex; }
+  .hamburger { display: flex; z-index: 1001; }
+  
   .nav-menu {
     position: fixed;
-    top: var(--nav-height); left: 0; right: 0; bottom: 0;
-    background: #0f172a;
+    top: 0; left: 0; right: 0; height: 100vh;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(15px);
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    gap: 1.5rem;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border-bottom: none;
+    gap: 2rem;
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
   }
-  .nav-menu.open { transform: translateX(0); }
-  .nav-link { font-size: 1.2rem; padding: 1rem 2rem; width: 100%; text-align: center; }
-  .nav-user-item { flex-direction: column; width: 100%; gap: 1rem; margin-left: 0; }
-  .nav-avatar { width: 50px; height: 50px; font-size: 1.2rem; }
-  .logout-btn { width: 100%; padding: 0.8rem; font-size: 1rem; }
-  .nav-login-btn { width: 100%; padding: 1rem; font-size: 1.1rem; }
+
+  .nav-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-link { 
+    font-size: 1.4rem; 
+    padding: 0.75rem 2rem; 
+    width: 80%; 
+    text-align: center;
+    border-radius: 12px;
+  }
+
+  .nav-user-item { 
+    flex-direction: column; 
+    width: 80%; 
+    gap: 1.5rem; 
+    margin-left: 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .nav-avatar { width: 60px; height: 60px; font-size: 1.4rem; }
+  .logout-btn { width: 100%; padding: 0.9rem; font-size: 1.1rem; border-radius: 12px; }
+  .nav-login-btn { width: 80%; padding: 1.1rem; font-size: 1.2rem; border-radius: 12px; text-align: center; }
 }
