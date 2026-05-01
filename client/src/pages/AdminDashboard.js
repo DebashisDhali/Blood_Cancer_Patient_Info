@@ -44,41 +44,49 @@ const AdminDashboard = () => {
   const nagadQrRef = useRef(null);
   const sidInputRef = useRef(null);
 
+  const fetchAdminsBackground = async () => {
+    if (!token || user?.role !== 'super_admin') return;
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers: { Authorization: `Bearer ${token}` } });
+      setAdminsList(res.data);
+    } catch (err) {
+      console.error('Background fetch admins failed:', err);
+    }
+  };
+
   const fetchData = useCallback(async () => {
     if (!token) return;
     const headers = { Authorization: `Bearer ${token}` };
     const ts = Date.now(); // Cache buster
     try {
-      const [statsRes, patientsRes] = await Promise.all([
+      const requests = [
         axios.get(`${process.env.REACT_APP_API_URL}/admin/stats?t=${ts}`, { headers }),
         axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all?t=${ts}`, { headers })
-      ]);
-      setStats(statsRes.data);
-      setPatients(patientsRes.data);
+      ];
+      
+      if (user?.role === 'super_admin') {
+        requests.push(axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers }));
+      }
+
+      const results = await Promise.all(requests);
+      setStats(results[0].data);
+      setPatients(results[1].data);
+      
+      if (user?.role === 'super_admin' && results[2]) {
+        setAdminsList(results[2].data);
+      }
     } catch (error) {
       if (error.response?.status === 401) navigate('/login');
     } finally {
       setLoading(false);
-    }
-  }, [token, navigate]);
-
-  const fetchAdmins = useCallback(async () => {
-    if (!token || user?.role !== 'super_admin') return;
-    setAdminsLoading(true);
-    try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers: { Authorization: `Bearer ${token}` } });
-      setAdminsList(res.data);
-    } catch (err) {
-      console.error('Failed to fetch admins:', err);
-    } finally {
       setAdminsLoading(false);
     }
-  }, [token, user?.role]);
+  }, [token, navigate, user?.role]);
 
   const toggleVerify = async (admin) => {
     try {
       await axios.patch(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}/verify`, { is_verified: !admin.is_verified }, { headers: { Authorization: `Bearer ${token}` } });
-      fetchAdmins();
+      fetchAdminsBackground();
     } catch (err) { alert(err.response?.data?.message || 'Failed'); }
   };
 
@@ -86,15 +94,14 @@ const AdminDashboard = () => {
     if (!window.confirm(`Remove admin "${admin.username}"? This cannot be undone.`)) return;
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}`, { headers: { Authorization: `Bearer ${token}` } });
-      fetchAdmins();
+      fetchAdminsBackground();
     } catch (err) { alert(err.response?.data?.message || 'Failed'); }
   };
 
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchData();
-    if (user?.role === 'super_admin') fetchAdmins();
-  }, [token, navigate, fetchData, fetchAdmins, user?.role]);
+  }, [token, navigate, fetchData]);
 
   const compressImage = (file, maxWidth = 1000, quality = 0.7) => {
     return new Promise((resolve) => {
@@ -389,7 +396,7 @@ const AdminDashboard = () => {
           {user?.role === 'super_admin' && (
             <div className="dash-tab-switcher">
               <button className={activeTab === 'patients' ? 'active' : ''} onClick={() => setActiveTab('patients')}>🧬 Patients</button>
-              <button className={activeTab === 'admins' ? 'active' : ''} onClick={() => { setActiveTab('admins'); fetchAdmins(); }}>👥 Manage Admins</button>
+              <button className={activeTab === 'admins' ? 'active' : ''} onClick={() => setActiveTab('admins')}>👥 Manage Admins</button>
             </div>
           )}
           <button className="btn-delete-self" onClick={handleDeleteSelf}>Delete My Account</button>
