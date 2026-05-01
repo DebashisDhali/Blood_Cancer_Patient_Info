@@ -45,35 +45,91 @@ const AdminDashboard = () => {
   const nagadQrRef = useRef(null);
   const sidInputRef = useRef(null);
 
+  const DASH_CACHE_TTL = 3 * 60 * 1000; // 3 minutes
+
   const fetchAdminsBackground = async () => {
     if (!token || user?.role !== 'super_admin') return;
     try {
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers: { Authorization: `Bearer ${token}` } });
+      cacheStore.set('admin:admins', res.data, DASH_CACHE_TTL);
       setAdminsList(res.data);
     } catch (err) {
       console.error('Background fetch admins failed:', err);
     }
   };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async ({ forceRefresh = false } = {}) => {
     if (!token) return;
     const headers = { Authorization: `Bearer ${token}` };
-    const ts = Date.now(); // Cache buster
+
+    const cacheKeyStats    = `admin:stats:${user?.role}`;
+    const cacheKeyPatients = `admin:patients:${user?.role}`;
+    const cacheKeyAdmins   = 'admin:admins';
+
+    // --- Instant load from cache if available ---
+    const cachedStats    = !forceRefresh && cacheStore.get(cacheKeyStats);
+    const cachedPatients = !forceRefresh && cacheStore.get(cacheKeyPatients);
+    const cachedAdmins   = !forceRefresh && user?.role === 'super_admin' && cacheStore.get(cacheKeyAdmins);
+
+    if (cachedStats && cachedPatients) {
+      setStats(cachedStats);
+      setPatients(cachedPatients);
+      if (cachedAdmins) setAdminsList(cachedAdmins);
+      setLoading(false);
+      setAdminsLoading(false);
+
+      // Only re-fetch in background if stale
+      const isStale = cacheStore.isStale(cacheKeyStats) || cacheStore.isStale(cacheKeyPatients);
+      if (!isStale) return; // Fresh cache — skip API entirely
+
+      // Background silent revalidation
+      Promise.all([
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, { headers }),
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all`, { headers }),
+        ...(user?.role === 'super_admin'
+          ? [axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers })]
+          : [])
+      ]).then(results => {
+        const freshStats    = results[0].data;
+        const freshPatients = results[1].data;
+        const freshAdmins   = results[2]?.data;
+
+        if (JSON.stringify(freshStats) !== JSON.stringify(cachedStats)) {
+          cacheStore.set(cacheKeyStats, freshStats, DASH_CACHE_TTL);
+          setStats(freshStats);
+        }
+        if (JSON.stringify(freshPatients) !== JSON.stringify(cachedPatients)) {
+          cacheStore.set(cacheKeyPatients, freshPatients, DASH_CACHE_TTL);
+          setPatients(freshPatients);
+        }
+        if (freshAdmins && JSON.stringify(freshAdmins) !== JSON.stringify(cachedAdmins)) {
+          cacheStore.set(cacheKeyAdmins, freshAdmins, DASH_CACHE_TTL);
+          setAdminsList(freshAdmins);
+        }
+      }).catch(err => {
+        if (err.response?.status === 401) navigate('/login');
+      });
+      return;
+    }
+
+    // --- No cache: fetch fresh (first load only) ---
     try {
       const requests = [
-        axios.get(`${process.env.REACT_APP_API_URL}/admin/stats?t=${ts}`, { headers }),
-        axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all?t=${ts}`, { headers })
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, { headers }),
+        axios.get(`${process.env.REACT_APP_API_URL}/admin/patients/all`, { headers })
       ];
-      
       if (user?.role === 'super_admin') {
         requests.push(axios.get(`${process.env.REACT_APP_API_URL}/admin/admins`, { headers }));
       }
-
       const results = await Promise.all(requests);
+
+      cacheStore.set(cacheKeyStats,    results[0].data, DASH_CACHE_TTL);
+      cacheStore.set(cacheKeyPatients, results[1].data, DASH_CACHE_TTL);
       setStats(results[0].data);
       setPatients(results[1].data);
-      
+
       if (user?.role === 'super_admin' && results[2]) {
+        cacheStore.set(cacheKeyAdmins, results[2].data, DASH_CACHE_TTL);
         setAdminsList(results[2].data);
       }
     } catch (error) {
@@ -193,7 +249,8 @@ const AdminDashboard = () => {
       
       setLogForm({ amount: '', date: new Date().toISOString().split('T')[0], note: '' });
       fetchLogs(editPatient.fund.id);
-      fetchData();
+      cacheStore.invalidate('admin:');
+      fetchData({ forceRefresh: true });
     } catch (e) { alert('Failed to add log'); }
   };
 
@@ -211,7 +268,8 @@ const AdminDashboard = () => {
       }));
 
       fetchLogs(editPatient.fund.id);
-      fetchData();
+      cacheStore.invalidate('admin:');
+      fetchData({ forceRefresh: true });
     } catch (e) { alert('Delete failed'); }
   };
 
@@ -335,8 +393,9 @@ const AdminDashboard = () => {
       await Promise.all(tasks);
 
       setFormMsg({ type: 'success', text: '✅ Saved successfully!' });
-      cacheStore.invalidate('patients'); // force fresh data on public pages
-      await fetchData();
+      cacheStore.invalidate('patients');
+      cacheStore.invalidate('admin:');
+      await fetchData({ forceRefresh: true });
       setTimeout(() => setShowForm(false), 1000);
     } catch (err) { setFormMsg({ type: 'error', text: err.response?.data?.message || err.message }); }
     finally { setFormLoading(false); }
@@ -350,8 +409,9 @@ const AdminDashboard = () => {
       await axios.delete(`${process.env.REACT_APP_API_URL}/patients/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      cacheStore.invalidate('patients'); // force fresh data on public pages
-      await fetchData();
+      cacheStore.invalidate('patients');
+      cacheStore.invalidate('admin:');
+      await fetchData({ forceRefresh: true });
     } catch (error) {
       alert('Delete failed: ' + (error.response?.data?.message || error.message));
     } finally {
