@@ -136,6 +136,21 @@ const AdminDashboard = () => {
     }
   }, [token, navigate, user?.role]);
 
+  const toggleVerify = async (admin) => {
+    try {
+      await axios.patch(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}/verify`, { is_verified: !admin.is_verified }, { headers: { Authorization: `Bearer ${token}` } });
+      fetchAdminsBackground();
+    } catch (err) { alert(err.response?.data?.message || 'Failed'); }
+  };
+
+  const removeAdmin = async (admin) => {
+    if (!window.confirm(`Remove admin "${admin.username}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/admin/admins/${admin.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      fetchAdminsBackground();
+    } catch (err) { alert(err.response?.data?.message || 'Failed'); }
+  };
+
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchData();
@@ -421,7 +436,20 @@ const AdminDashboard = () => {
                     <td>{admin.is_verified ? '✅ Verified' : '⏳ Pending'}</td>
                     <td>
                       {admin.role !== 'super_admin' && (
-                        <button onClick={() => removeAdmin(admin)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer' }}>Remove</button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => toggleVerify(admin)}
+                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700', background: admin.is_verified ? '#fee2e2' : '#d1fae5', color: admin.is_verified ? '#991b1b' : '#065f46' }}
+                          >
+                            {admin.is_verified ? '🚫 Suspend' : '✅ Verify'}
+                          </button>
+                          <button
+                            onClick={() => removeAdmin(admin)}
+                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700', background: '#fee2e2', color: '#991b1b' }}
+                          >
+                            🗑️ Remove
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
