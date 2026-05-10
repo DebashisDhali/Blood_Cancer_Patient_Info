@@ -11,8 +11,13 @@ root.render(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('SW registered'))
-      .catch(err => console.log('SW error', err));
+    // Avoid stale cached index/assets that can break hashed bundle loading after deploys.
+    navigator.serviceWorker.getRegistrations()
+      .then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+        });
+      })
+      .catch((err) => console.log('SW cleanup error', err));
   });
 }
