@@ -3,6 +3,7 @@ import { patientService } from '../services/patientService';
 import { documentService } from '../services/documentService';
 import PatientCard from '../components/PatientCard';
 import DocumentViewer from '../components/shared/DocumentViewer';
+import { buildPatientPath } from '../utils/patientUrl';
 import '../styles/Patients.css';
 
 const Patients = () => {
@@ -190,7 +191,7 @@ const Patients = () => {
                 📄 Reports
               </button>
               <a
-                href={`/patients/${selected.id}`}
+                href={buildPatientPath(selected)}
                 target="_blank"
                 rel="noreferrer"
                 style={{ flex: 1, padding: '0.85rem 0.5rem', borderRadius: '14px', border: 'none', background: 'rgba(99,102,241,0.25)', color: '#a5b4fc', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import { patientService } from '../services/patientService';
+import { buildPatientPath } from '../utils/patientUrl';
 import '../styles/Home.css';
 
 const features = [
@@ -95,7 +96,7 @@ const Home = () => {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {recentPatients.map(p => (
-                <div key={p.id} onClick={() => navigate(`/patients/${p.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'white', padding: '1.25rem', borderRadius: '20px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(5px)'; e.currentTarget.style.borderColor = '#6366f1'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>
+                <div key={p.id} onClick={() => navigate(buildPatientPath(p))} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'white', padding: '1.25rem', borderRadius: '20px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(5px)'; e.currentTarget.style.borderColor = '#6366f1'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>
                   <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0 }}>
                     {p.photo_url ? <img src={p.photo_url} alt={`Profile photo of ${p.name}, a blood cancer patient`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>}
                   </div>

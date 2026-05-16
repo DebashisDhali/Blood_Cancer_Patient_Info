@@ -30,6 +30,44 @@ router.get('/', cacheMiddleware(60), async (req, res) => {
 });
 
 // Get patient by ID
+router.get('/lookup/:shortId', async (req, res) => {
+  try {
+    const shortId = (req.params.shortId || '').toLowerCase();
+    if (!/^[0-9a-f]{8,12}$/.test(shortId)) {
+      return res.status(400).json({ message: 'Invalid patient short ID' });
+    }
+
+    const token = req.headers.authorization?.split(' ')[1];
+    let isAdmin = false;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        isAdmin = ['admin', 'super_admin'].includes(decoded.role);
+      } catch (e) {}
+    }
+
+    const fields = isAdmin
+      ? `*, fund:funds(*)`
+      : `id, name, age, gender, blood_type, cancer_type, photo_url, status, doctor_name, hospital, phone, address, created_at, admission_date, chemo_total, chemo_completed, dept, batch, session, student_id_url, fund:funds(*)`;
+
+    const { data, error } = await supabase
+      .from('patients')
+      .select(fields)
+      .ilike('id', `${shortId}%`)
+      .limit(1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return res.status(404).json({ message: 'Patient not found' });
+
+    const patient = data[0];
+    if (patient.fund) patient.fund = patient.fund[0];
+
+    res.json(patient);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];

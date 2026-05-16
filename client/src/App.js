@@ -66,7 +66,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/patients" element={<Patients />} />
-            <Route path="/patients/:id" element={<PatientDetails />} />
+            <Route path="/patients/:patientRef" element={<PatientDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route

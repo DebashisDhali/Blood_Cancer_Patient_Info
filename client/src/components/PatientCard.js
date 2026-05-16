@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import '../styles/PatientCard.css';
+import { buildPatientPath } from '../utils/patientUrl';
 
 const statusLabel = (s) => (s || 'In Treatment').replace(/-/g, ' ');
 const statusClass = (s) => {
@@ -9,6 +10,7 @@ const statusClass = (s) => {
 };
 
 const PatientCard = memo(({ patient, fund, onClick }) => {
+  const patientPath = buildPatientPath(patient);
   const progress = fund
     ? Math.min(100, ((fund.collected_amount / fund.target_amount) * 100)).toFixed(0)
     : 0;
@@ -30,7 +32,7 @@ const PatientCard = memo(({ patient, fund, onClick }) => {
             title="Share Profile"
             onClick={(e) => {
               e.stopPropagation();
-              const url = `${window.location.origin}/patients/${patient.id}`;
+              const url = `${window.location.origin}${patientPath}`;
               if (navigator.share) {
                 navigator.share({ title: `Support ${patient.name}`, url });
               } else {

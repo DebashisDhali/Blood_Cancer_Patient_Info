@@ -6,7 +6,7 @@ import DocumentViewer from '../components/shared/DocumentViewer';
 import '../styles/Patients.css';
 
 const PatientDetails = () => {
-  const { id } = useParams();
+  const { patientRef } = useParams();
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -18,12 +18,11 @@ const PatientDetails = () => {
     setLoading(true);
     setError(false);
     try {
-      const [patientData, docData] = await Promise.all([
-        patientService.getById(id, {
-          onUpdate: (fresh) => setPatient(fresh), // silent background update
-        }),
-        documentService.getByPatientId(id),
-      ]);
+      const patientData = await patientService.getByRef(patientRef, {
+        onUpdate: (fresh) => setPatient(fresh),
+      });
+
+      const docData = await documentService.getByPatientId(patientData.id);
       setPatient(patientData);
       setDocuments(docData);
     } catch (err) {
@@ -37,7 +36,7 @@ const PatientDetails = () => {
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [patientRef]);
 
   if (loading) return (
     <div className="loading-state">

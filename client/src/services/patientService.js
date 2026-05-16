@@ -1,5 +1,6 @@
 import API from './api';
 import cacheStore from './cacheStore';
+import { parsePatientRef } from '../utils/patientUrl';
 
 const KEYS = {
   all: 'patients:all',
@@ -64,6 +65,37 @@ export const patientService = {
     const res = await API.get(`/patients/${id}`);
     cacheStore.set(key, res.data);
     return res.data;
+  },
+
+  getByRef: async (patientRef, { onUpdate } = {}) => {
+    const parsed = parsePatientRef(patientRef);
+
+    if (parsed.mode === 'token') {
+      const refKey = KEYS.byId(`ref:${parsed.value}`);
+      const cached = cacheStore.get(refKey);
+
+      if (cached) {
+        if (onUpdate) {
+          API.get(`/patients/lookup/${parsed.value}`).then(res => {
+            const fresh = res.data;
+            if (JSON.stringify(fresh) !== JSON.stringify(cached)) {
+              cacheStore.set(refKey, fresh);
+              cacheStore.set(KEYS.byId(fresh.id), fresh);
+              onUpdate(fresh);
+            }
+          }).catch(() => {});
+        }
+        return cached;
+      }
+
+      const res = await API.get(`/patients/lookup/${parsed.value}`);
+      cacheStore.set(refKey, res.data);
+      cacheStore.set(KEYS.byId(res.data.id), res.data);
+      return res.data;
+    }
+
+    if (!parsed.value) throw new Error('Invalid patient link');
+    return patientService.getById(parsed.value, { onUpdate });
   },
 
   /** Mutations: always invalidate cache so next load is fresh */
