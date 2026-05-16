@@ -101,13 +101,16 @@ app.get('/api/health', (req, res) => {
 
 // Root Route (Prevents "Cannot GET /" confusion)
 app.get('/', (req, res) => {
-  res.send(`
-    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h1 style="color: #6366f1;">Cancer Support API</h1>
-      <p>The backend server is running successfully! 🚀</p>
-      <p>Please use the frontend application to interact with the platform.</p>
-    </div>
-  `);
+  const frontendUrl = process.env.CLIENT_URL || 'https://jucancerpainfo.netlify.app';
+  res.redirect(302, frontendUrl);
+});
+
+// Redirect browser routes to the frontend app when deployed on Vercel.
+// Keeps the API available while making the public website link usable.
+app.get(/^\/(?!api).*/, (req, res) => {
+  const frontendUrl = process.env.CLIENT_URL || 'https://jucancerpainfo.netlify.app';
+  const targetUrl = new URL(req.originalUrl, frontendUrl);
+  res.redirect(302, targetUrl.toString());
 });
 
 // 5. Error Handling
