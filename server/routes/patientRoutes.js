@@ -53,13 +53,16 @@ router.get('/lookup/:shortId', async (req, res) => {
     const { data, error } = await supabase
       .from('patients')
       .select(fields)
-      .ilike('id', `${shortId}%`)
-      .limit(1);
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return res.status(404).json({ message: 'Patient not found' });
 
-    const patient = data[0];
+    const patient = (data || []).find((item) =>
+      String(item.id || '').replace(/-/g, '').toLowerCase().startsWith(shortId)
+    );
+
+    if (!patient) return res.status(404).json({ message: 'Patient not found' });
+
     if (patient.fund) patient.fund = patient.fund[0];
 
     res.json(patient);
